@@ -21,10 +21,10 @@
 (require 'evil)
 (evil-mode 1)
 
-;; evil-escape
 (evil-escape-mode 1)
 (setq-default evil-escape-delay 0.2)
 (setq-default evil-escape-key-sequence "jj")
+(setq-default evil-escape-excluded-states 'visual)
 
 ;; インサートモードではEmacs キーバインド
 (setcdr evil-insert-state-map nil)
@@ -39,7 +39,7 @@
 (global-linum-mode t)
 (column-number-mode t)
 
-;(show-paren-mode 1)
+(show-paren-mode 1)
 (setq vc-follow-symlinks t)
 
 (setq inhibit-startup-message t)
@@ -53,10 +53,10 @@
 (setq indent-line-function 'indent-relative-maybe)
 (global-set-key "\C-m" 'newline-and-indent)  ; Returnキーで改行＋オートイン
 ;; mode-line
-;; (set-face-attribute 'mode-line          nil :box nil) ; モードラインを非3D化
-;; (set-face-attribute 'mode-line-inactive nil :box nil)
-;; (setq scroll-preserve-screen-position t)
-;; (setq initial-scratch-message "")
+(set-face-attribute 'mode-line          nil :box nil) ; モードラインを非3D化
+(set-face-attribute 'mode-line-inactive nil :box nil)
+(setq scroll-preserve-screen-position t)
+(setq initial-scratch-message "")
 
 ;; tab
 (setq-default indent-tabs-mode nil)
@@ -73,10 +73,9 @@
 (plist-put minibuffer-prompt-properties
            'point-entered 'minibuffer-avoid-prompt)
 
-;(setq scroll-step 1)
 (setq scroll-conservatively most-positive-fixnum)
 ; カーソルが画面外にはみ出した時10000行以内のはみ出しならスクロールする
-;(setq next-screen-context-lines 1)
+(setq next-screen-context-lines 1)
 
 (defun indent-or-insert-tab ()
   (interactive)
@@ -260,7 +259,9 @@
  '(custom-safe-themes
    (quote
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
- '(package-selected-packages (quote (atom-one-dark-theme mic-paren evil-escape evil))))
+ '(package-selected-packages
+   (quote
+    (helm atom-one-dark-theme mic-paren evil-escape evil))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
