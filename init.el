@@ -35,9 +35,13 @@
 ;; ----------------------------------------------------------------------
 (tool-bar-mode -1)
 
-(setq linum-format "%5d")
+(setq linum-format "%5d ")
 (global-linum-mode t)
 (column-number-mode t)
+(set-face-attribute 'linum nil
+            :foreground "#898989"
+            :background "Gray23"
+            :height 0.9)
 
 (show-paren-mode 1)
 (setq vc-follow-symlinks t)

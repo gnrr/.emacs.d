@@ -12,7 +12,6 @@
 				    (top    . 0)
 				    ;(left   . 1007)
 				    (left   . 71)
-				    ;; (left   . 0)
 				    (height . 64)
 				    (width  . 90))
 				  default-frame-alist))
@@ -20,13 +19,15 @@
 ;;;
 ;;; font
 ;;;
-;; (set-face-attribute 'default nil :family "menlo" :height 135)
-;; (set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0208 (font-spec :family "hiragino maru gothic pron") nil 'append) 
-;; (set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0212 (font-spec :family "hiragino maru gothic pron") nil 'append) 
-;; (add-to-list 'face-font-rescale-alist '("^-apple-hiragino_.*" . 1.1))
-
 (set-default-font "Source Han Code JP N")
 
+(mapc
+   (lambda (face)
+     (cond ((eq (face-attribute face :weight) 'normal)
+            (set-face-attribute face nil :weight 'light))
+           ((eq (face-attribute face :weight) 'bold)
+            (set-face-attribute face nil :weight 'normal))))
+   (face-list))
 
 ;; ;; アイコンやdockから起動したemacsのpathやexec-pathが正しく設定されてないのをなんとかする
 ;; ;; http://yukihr.github.com/blog/2012/03/02/emacs-path-settings/
