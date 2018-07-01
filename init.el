@@ -24,7 +24,7 @@
 (evil-escape-mode 1)
 (setq-default evil-escape-delay 0.2)
 (setq-default evil-escape-key-sequence "jj")
-(setq-default evil-escape-excluded-states 'visual)
+(setq-default evil-escape-excluded-states '(normal visual multiedit emacs motion))
 
 ;; インサートモードではEmacs キーバインド
 (setcdr evil-insert-state-map nil)
@@ -52,6 +52,8 @@
 
 (setq indent-line-function 'indent-relative-maybe)
 (global-set-key "\C-m" 'newline-and-indent)  ; Returnキーで改行＋オートイン
+
+
 ;; mode-line
 (set-face-attribute 'mode-line          nil :box nil) ; モードラインを非3D化
 (set-face-attribute 'mode-line-inactive nil :box nil)
