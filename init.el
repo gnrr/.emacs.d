@@ -2,12 +2,42 @@
 ;; packages for melpa
 ;;   1. type 'M-x package-list-packages'
 ;;   2. select the package you want and install it
-;;   3. type 'package-initialize'
 ;; ----------------------------------------------------------------------
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (package-initialize)
+
+;; ----------------------------------------------------------------------
+;;; unbinding and key binding
+;; ----------------------------------------------------------------------
+(keyboard-translate ?\C-h ?\C-?)        ; c-h
+
+(global-unset-key (kbd "C-z"))                          ; suspend-frame
+(global-unset-key (kbd "C-x C-z"))                      ; suspend-frame
+(global-unset-key (kbd "C-x o"))                         ; other-window
+(global-unset-key (kbd "M-t"))                          ; transpose-word
+
+(global-set-key (kbd "C-0") 'delete-window)
+(global-set-key (kbd "C-1") 'delete-other-windows)
+(global-set-key (kbd "C-2") 'split-window-below)
+(global-set-key (kbd "C-3") 'split-window-right)
+(global-set-key (kbd "C-o") 'other-window)
+
+(global-set-key (kbd "M-g") 'goto-line)
+(global-set-key (kbd "M-v") 'new-empty-buffer-other-frame)
+(global-set-key ";" 'comment-set-column)         ; c-x ;
+(global-set-key [24 67108923] 'comment-indent)     ; c-x c-;
+(global-set-key (kbd "C-x t") 'revert-buffer)
+(global-set-key (kbd "C-x C-t") 'toggle-truncate-lines)
+(global-set-key (kbd "C-x n f") 'narrow-to-defun)
+
+(global-set-key (kbd "M-9") 'insert-parentheses)
+(global-set-key (kbd "M-P") 'beginning-of-buffer)
+(global-set-key (kbd "M-N") 'end-of-buffer)
+(global-set-key (kbd "M-;") 'comment-line)
+
+(define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
 
 
 ;; ----------------------------------------------------------------------
@@ -26,9 +56,165 @@
 (setq-default evil-escape-key-sequence "jj")
 (setq-default evil-escape-excluded-states '(normal visual multiedit emacs motion))
 
-;; インサートモードではEmacs キーバインド
+;; インサートモードではEmacsキーバインド
 (setcdr evil-insert-state-map nil)
 (define-key evil-insert-state-map [escape] 'evil-normal-state)
+
+(define-key evil-motion-state-map (kbd "C-f") nil)
+(define-key evil-motion-state-map (kbd "C-b") nil)
+(define-key evil-motion-state-map (kbd "C-o") nil)		; evil-jump-backward
+
+(evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
+(define-key evil-normal-state-map (kbd "SPC SPC") 'evil-scroll-down)
+(define-key evil-normal-state-map (kbd "S-SPC S-SPC") 'evil-scroll-up) 
+(define-key evil-normal-state-map (kbd "E") 'er/expand-region)
+
+
+;; ----------------------------------------------------------------------
+;; ido
+;; ----------------------------------------------------------------------
+;; (ido-mode 1)
+;; (ido-everywhere 1)
+
+;; (setq ido-enable-flex-matching t) ;; 中間/あいまい一致
+;; (global-set-key (kbd "M-x") 'smex) ;; for M-x
+;; (ido-ubiquitous-mode 1)
+
+;; (smex-initialize) ; Can be omitted. This might cause a (minimal) delay
+;;                   ; when Smex is auto-initialized on its first run.
+;; (global-set-key (kbd "M-x") 'smex)
+;; (global-set-key (kbd "M-X") 'smex-major-mode-commands)
+
+;; (ido-vertical-mode 1)
+;; (ido-yes-or-no-mode 1)
+
+;; (defun my/ido-recentf ()
+;;   (interactive)
+;;   (find-file (ido-completing-read "Find recent file: " recentf-list)))
+
+
+;; ----------------------------------------------------------------------
+;; helm
+;; ----------------------------------------------------------------------
+(setq helm-buffers-fuzzy-matching t
+      helm-recentf-fuzzy-match    t)
+
+(global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "M-y") 'helm-show-kill-ring)
+(global-set-key (kbd "C-x b") 'helm-mini)
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
+(global-set-key (kbd "C-x C-b") 'helm-buffers-list)
+
+;; ----------------------------------------------------------------------
+;; recentf
+;; ----------------------------------------------------------------------
+(setq recentf-max-saved-items 2000) ;; 2000ファイルまで履歴保存する
+;(setq recentf-auto-cleanup 'never)  ;; 存在しないファイルは消さない
+(setq recentf-exclude '("/recentf" ".recentf"))
+(setq recentf-auto-save-timer (run-with-idle-timer 30 t 'recentf-save-list))
+
+(recentf-mode 1)
+(global-set-key (kbd "M-r") 'helm-recentf)
+;; (global-set-key "\M-r" 'my/ido-recentf)
+
+;; ----------------------------------------------------------------------
+;; helm-ag
+;; ----------------------------------------------------------------------
+(setq helm-ag-base-command "ag --nocolor --nogroup")
+
+;; ----------------------------------------------------------------------
+;;
+;; ----------------------------------------------------------------------
+(dumb-jump-mode) 
+(setq dumb-jump-selector 'helm)
+
+;; ----------------------------------------------------------------------
+;; tabbar
+;; ----------------------------------------------------------------------
+(tabbar-mode)
+
+(set-face-attribute 'tabbar-default nil
+ :family (face-attribute 'fixed-pitch-serif :family)
+ :background (face-attribute 'tabbar-default :background)
+ :foreground (face-attribute 'tool-bar :foreground)
+ :height 0.9)
+
+(set-face-attribute 'tabbar-unselected nil
+ :background (face-attribute 'menu :background)
+ :foreground (face-attribute 'mode-line-inactive :foreground)
+ :box nil)
+
+(set-face-attribute 'tabbar-selected nil
+ :background (face-attribute 'default :background)
+ :foreground (face-attribute 'mode-line :foreground)
+ :box nil)
+
+(set-face-attribute 'tabbar-selected-modified nil
+ :background (face-attribute 'default :background)
+ :foreground (face-attribute 'mode-line :foreground)
+ ;; :underline t
+ :box nil)
+
+(set-face-attribute 'tabbar-modified nil
+ :background (face-attribute 'menu :background)
+ :foreground (face-attribute 'mode-line-inactive :foreground)
+ ;; :underline t
+ :box nil)
+
+(set-face-attribute 'tabbar-separator nil
+ :background (face-attribute 'default :background))
+
+(setq tabbar-separator '(0.2))
+
+(global-set-key (kbd "<f12>") 'tabbar-forward-tab)
+(global-set-key (kbd "<f11>") 'tabbar-backward-tab)
+
+(tabbar-mwheel-mode nil)                  ;; マウスホイール無効
+(setq tabbar-buffer-groups-function nil)  ;; グループ無効
+(setq tabbar-use-images nil)              ;; 画像を使わない
+
+;;----- 左側のボタンを消す
+(dolist (btn '(tabbar-buffer-home-button
+               tabbar-scroll-left-button
+               tabbar-scroll-right-button))
+  (set btn (cons (cons "" nil)
+                 (cons "" nil))))
+
+(defun my-tabbar-buffer-list ()
+  (delq nil
+        (mapcar #'(lambda (b)
+                    (cond
+                     ;; Always include the current buffer.
+                     ((eq (current-buffer) b) b)
+                     ((buffer-file-name b) b)
+                     ((char-equal ?\  (aref (buffer-name b) 0)) nil)
+                     ((equal "*scratch*" (buffer-name b)) b) ; *scratch*バッファは表示する
+                     ((char-equal ?* (aref (buffer-name b) 0)) nil) ; それ以外の * で始まるバッファは表示しない
+                     ((buffer-live-p b) b)))
+                (buffer-list))))
+
+(setq tabbar-buffer-list-function 'my-tabbar-buffer-list)
+
+(defun tabbar-buffer-tab-label (tab)
+  "Return a label for TAB.
+That is, a string used to represent it on the tab bar."
+  (let ((label  (if tabbar--buffer-show-groups
+                    (format " [%s] " (tabbar-tab-tabset tab))
+                  (format " %s " (tabbar-tab-value tab)))))
+    ;; Unless the tab bar auto scrolls to keep the selected tab
+    ;; visible, shorten the tab label to keep as many tabs as possible
+    ;; in the visible area of the tab bar.
+    (if tabbar-auto-scroll-flag
+        label
+      (tabbar-shorten
+       label (max 1 (/ (window-width)
+                       (length (tabbar-view
+                                (tabbar-current-tabset)))))))))
+
+;; ----------------------------------------------------------------------
+;; expand-region
+;; ----------------------------------------------------------------------
+;(push 'er/mark-outside-pairs er/try-expand-list)
 
 ;; ----------------------------------------------------------------------
 ;; discrete setting
@@ -40,8 +226,9 @@
 (column-number-mode t)
 (set-face-attribute 'linum nil
             :foreground "#898989"
-            :background "Gray23"
+            :background "Gray20"
             :height 0.9)
+;; (set-face-background 'fringe "dark red") 
 
 (show-paren-mode 1)
 (setq vc-follow-symlinks t)
@@ -92,36 +279,15 @@
 
 (global-set-key "\C-i" 'indent-or-insert-tab)
 
-;;;
-;;; unbinding and key binding
-;;;
-(keyboard-translate ?\C-h ?\C-?)        ; c-h
+;; カーソル行をハイライト
+(global-hl-line-mode t)
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(hl-line ((t (:background "#000000")))))
 
-
-(global-unset-key "\C-z")                          ; suspend-frame
-(global-unset-key "\C-x\C-z")                      ; suspend-frame
-(global-unset-key "\C-xo")                         ; other-window
-(global-unset-key "\M-t")                          ; transpose-word
-
-(global-set-key "\C-o" 'other-window)
-
-(global-set-key "\M-g" 'goto-line)
-(global-set-key "\M-v" 'new-empty-buffer-other-frame)
-(global-set-key ";" 'comment-set-column)         ; c-x ;
-(global-set-key [24 67108923] 'comment-indent)     ; c-x c-;
-(global-set-key "\C-xt" 'revert-buffer)            ; c-x t
-(global-set-key "\C-xnf" 'narrow-to-defun)
-(global-set-key "\C-x\C-t" 'toggle-truncate-lines) ; c-x c-t
-
-(global-set-key "\M-9" 'insert-parentheses)
-(global-set-key "\M-P" 'beginning-of-buffer)
-(global-set-key "\M-N" 'end-of-buffer)
-;; (global-set-key "\M-p" 'View-scroll-page-backward)
-;; (global-set-key "\M-n" 'View-scroll-page-forward)
-
-(define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
-
-;;
 ;; c-mode
 ;;
 (add-to-list 'auto-mode-alist '("\\.h$" . c-mode))
@@ -131,7 +297,7 @@
           (lambda ()
             (c-set-style "stroustrup")
             (define-key c-mode-map "\C-i" 'indent-or-insert-tab)
-            (setq comment-column 52)
+            (setq comment-column 58)
             (modify-syntax-entry ?_ "w")                ; アンダーバーをワード区切りとしない
             (setq comment-start "// ")                  ; コメントを // にする
             (setq comment-end "")
@@ -267,10 +433,5 @@
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (helm atom-one-dark-theme mic-paren evil-escape evil))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+    (expand-region tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
+
