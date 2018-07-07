@@ -46,29 +46,47 @@
 (load-theme 'atom-one-dark t)
 
 ;; ----------------------------------------------------------------------
-;; evil
+(use-package evil
 ;; ----------------------------------------------------------------------
-(require 'evil)
-(evil-mode 1)
+  :config
+  (evil-mode 1)
+  ;; インサートモードではEmacsキーバインド
+  (setcdr evil-insert-state-map nil)
+  (define-key evil-insert-state-map [escape] 'evil-normal-state)
 
-(evil-escape-mode 1)
-(setq-default evil-escape-delay 0.2)
-(setq-default evil-escape-key-sequence "jj")
-(setq-default evil-escape-excluded-states '(normal visual multiedit emacs motion))
+  (define-key evil-motion-state-map (kbd "C-f") nil)
+  (define-key evil-motion-state-map (kbd "C-b") nil)
+  (define-key evil-motion-state-map (kbd "C-o") nil)		; evil-jump-backward
 
-;; インサートモードではEmacsキーバインド
-(setcdr evil-insert-state-map nil)
-(define-key evil-insert-state-map [escape] 'evil-normal-state)
+  (evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
+  (define-key evil-normal-state-map (kbd "SPC SPC") 'evil-scroll-down)
+  (define-key evil-normal-state-map (kbd "S-SPC S-SPC") 'evil-scroll-up) 
+  (define-key evil-normal-state-map (kbd "E") 'er/expand-region)
+  )
 
-(define-key evil-motion-state-map (kbd "C-f") nil)
-(define-key evil-motion-state-map (kbd "C-b") nil)
-(define-key evil-motion-state-map (kbd "C-o") nil)		; evil-jump-backward
+(use-package evil-escape
+  :config
+  (evil-escape-mode 1)
+  (setq-default evil-escape-delay 0.2)
+  (setq-default evil-escape-key-sequence "jj")
+  (setq-default evil-escape-excluded-states '(normal visual multiedit emacs motion))
+)
 
-(evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
-(define-key evil-normal-state-map (kbd "SPC SPC") 'evil-scroll-down)
-(define-key evil-normal-state-map (kbd "S-SPC S-SPC") 'evil-scroll-up) 
-(define-key evil-normal-state-map (kbd "E") 'er/expand-region)
+;; ----------------------------------------------------------------------
+(use-package helm
+;; ----------------------------------------------------------------------
+  :config
+  (setq helm-buffers-fuzzy-matching t
+        helm-recentf-fuzzy-match    t)
 
+  (setq helm-ag-base-command "ag --nocolor --nogroup")
+
+  (global-set-key (kbd "M-x") 'helm-M-x)
+  (global-set-key (kbd "M-y") 'helm-show-kill-ring)
+  (global-set-key (kbd "C-x b") 'helm-mini)
+  (global-set-key (kbd "C-x C-f") 'helm-find-files)
+  (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
+  )
 
 ;; ----------------------------------------------------------------------
 ;; ido
@@ -94,122 +112,112 @@
 
 
 ;; ----------------------------------------------------------------------
-;; helm
+(use-package recentf
 ;; ----------------------------------------------------------------------
-(setq helm-buffers-fuzzy-matching t
-      helm-recentf-fuzzy-match    t)
+  :config
+  (setq recentf-max-saved-items 2000) ;; 2000ファイルまで履歴保存する
+                                        ;(setq recentf-auto-cleanup 'never)  ;; 存在しないファイルは消さない
+  (setq recentf-exclude '("/recentf" ".recentf"))
+  (setq recentf-auto-save-timer (run-with-idle-timer 30 t 'recentf-save-list))
 
-(global-set-key (kbd "M-x") 'helm-M-x)
-(global-set-key (kbd "M-y") 'helm-show-kill-ring)
-(global-set-key (kbd "C-x b") 'helm-mini)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
-(global-set-key (kbd "C-x C-b") 'helm-buffers-list)
-
-;; ----------------------------------------------------------------------
-;; recentf
-;; ----------------------------------------------------------------------
-(setq recentf-max-saved-items 2000) ;; 2000ファイルまで履歴保存する
-;(setq recentf-auto-cleanup 'never)  ;; 存在しないファイルは消さない
-(setq recentf-exclude '("/recentf" ".recentf"))
-(setq recentf-auto-save-timer (run-with-idle-timer 30 t 'recentf-save-list))
-
-(recentf-mode 1)
-(global-set-key (kbd "M-r") 'helm-recentf)
-;; (global-set-key "\M-r" 'my/ido-recentf)
+  (recentf-mode 1)
+  (global-set-key (kbd "M-r") 'helm-recentf)
+  ;; (global-set-key "\M-r" 'my/ido-recentf)
+  )
 
 ;; ----------------------------------------------------------------------
-;; ag
+(use-package dumb-jump
 ;; ----------------------------------------------------------------------
-(setq helm-ag-base-command "ag --nocolor --nogroup")
-
-;; ----------------------------------------------------------------------
-;;
-;; ----------------------------------------------------------------------
-(dumb-jump-mode) 
-(setq dumb-jump-selector 'helm)
+  :config
+  (dumb-jump-mode) 
+  (setq dumb-jump-selector 'helm)
+  )
 
 ;; ----------------------------------------------------------------------
-;; tabbar
+(use-package tabbar
 ;; ----------------------------------------------------------------------
-(tabbar-mode)
+  :config
+  (tabbar-mode)
 
-(set-face-attribute 'tabbar-default nil
- :family (face-attribute 'fixed-pitch-serif :family)
- :background (face-attribute 'tabbar-default :background)
- :foreground (face-attribute 'tool-bar :foreground)
- :height 0.9)
+  (set-face-attribute 'tabbar-default nil
+                      :family (face-attribute 'fixed-pitch-serif :family)
+                      :background (face-attribute 'tabbar-default :background)
+                      :foreground (face-attribute 'tool-bar :foreground)
+                      :height 0.9)
 
-(set-face-attribute 'tabbar-unselected nil
- :background (face-attribute 'menu :background)
- :foreground (face-attribute 'mode-line-inactive :foreground)
- :box nil)
+  (set-face-attribute 'tabbar-unselected nil
+                      :background (face-attribute 'menu :background)
+                      :foreground (face-attribute 'mode-line-inactive :foreground)
+                      :box nil)
 
-(set-face-attribute 'tabbar-selected nil
- :background (face-attribute 'default :background)
- :foreground (face-attribute 'mode-line :foreground)
- :box nil)
+  (set-face-attribute 'tabbar-selected nil
+                      :background (face-attribute 'default :background)
+                      :foreground (face-attribute 'mode-line :foreground)
+                      :box nil)
 
-(set-face-attribute 'tabbar-selected-modified nil
- :background (face-attribute 'default :background)
- :foreground (face-attribute 'mode-line :foreground)
- ;; :underline t
- :box nil)
+  (set-face-attribute 'tabbar-selected-modified nil
+                      :background (face-attribute 'default :background)
+                      :foreground (face-attribute 'mode-line :foreground)
+                      :bold t
+                      :box nil)
 
-(set-face-attribute 'tabbar-modified nil
- :background (face-attribute 'menu :background)
- :foreground (face-attribute 'mode-line-inactive :foreground)
- ;; :underline t
- :box nil)
+  (set-face-attribute 'tabbar-modified nil
+                      :background (face-attribute 'menu :background)
+                      :foreground (face-attribute 'mode-line-inactive :foreground)
+                      :bold t
+                      ;; :underline t
+                      :box nil)
 
-(set-face-attribute 'tabbar-separator nil
- :background (face-attribute 'default :background))
+  (set-face-attribute 'tabbar-separator nil
+                      :background (face-attribute 'default :background))
 
-(setq tabbar-separator '(0.2))
+  (setq tabbar-separator '(0.2))
 
-(global-set-key (kbd "<f12>") 'tabbar-forward-tab)
-(global-set-key (kbd "<f11>") 'tabbar-backward-tab)
+  (global-set-key (kbd "<f12>") 'tabbar-forward-tab)
+  (global-set-key (kbd "<f11>") 'tabbar-backward-tab)
 
-(tabbar-mwheel-mode nil)                  ;; マウスホイール無効
-(setq tabbar-buffer-groups-function nil)  ;; グループ無効
-(setq tabbar-use-images nil)              ;; 画像を使わない
+  (tabbar-mwheel-mode nil)                  ;; マウスホイール無効
+  (setq tabbar-buffer-groups-function nil)  ;; グループ無効
+  (setq tabbar-use-images nil)              ;; 画像を使わない
 
-;;----- 左側のボタンを消す
-(dolist (btn '(tabbar-buffer-home-button
-               tabbar-scroll-left-button
-               tabbar-scroll-right-button))
-  (set btn (cons (cons "" nil)
-                 (cons "" nil))))
+  ;;----- 左側のボタンを消す
+  (dolist (btn '(tabbar-buffer-home-button
+                 tabbar-scroll-left-button
+                 tabbar-scroll-right-button))
+    (set btn (cons (cons "" nil)
+                   (cons "" nil))))
 
-(defun my-tabbar-buffer-list ()
-  (delq nil
-        (mapcar #'(lambda (b)
-                    (cond
-                     ;; Always include the current buffer.
-                     ((eq (current-buffer) b) b)
-                     ((buffer-file-name b) b)
-                     ((char-equal ?\  (aref (buffer-name b) 0)) nil)
-                     ((equal "*scratch*" (buffer-name b)) b) ; *scratch*バッファは表示する
-                     ((char-equal ?* (aref (buffer-name b) 0)) nil) ; それ以外の * で始まるバッファは表示しない
-                     ((buffer-live-p b) b)))
-                (buffer-list))))
+  (defun my-tabbar-buffer-list ()
+    (delq nil
+          (mapcar #'(lambda (b)
+                      (cond
+                       ;; Always include the current buffer.
+                       ((eq (current-buffer) b) b)
+                       ((buffer-file-name b) b)
+                       ((char-equal ?\  (aref (buffer-name b) 0)) nil)
+                       ((equal "*scratch*" (buffer-name b)) b) ; *scratch*バッファは表示する
+                       ((char-equal ?* (aref (buffer-name b) 0)) nil) ; それ以外の * で始まるバッファは表示しない
+                       ((buffer-live-p b) b)))
+                  (buffer-list))))
 
-(setq tabbar-buffer-list-function 'my-tabbar-buffer-list)
+  (setq tabbar-buffer-list-function 'my-tabbar-buffer-list)
 
-(defun tabbar-buffer-tab-label (tab)
-  "Return a label for TAB.
+  (defun tabbar-buffer-tab-label (tab)
+    "Return a label for TAB.
 That is, a string used to represent it on the tab bar."
-  (let ((label  (if tabbar--buffer-show-groups
-                    (format " [%s] " (tabbar-tab-tabset tab))
-                  (format " %s " (tabbar-tab-value tab)))))
-    ;; Unless the tab bar auto scrolls to keep the selected tab
-    ;; visible, shorten the tab label to keep as many tabs as possible
-    ;; in the visible area of the tab bar.
-    (if tabbar-auto-scroll-flag
-        label
-      (tabbar-shorten
-       label (max 1 (/ (window-width)
-                       (length (tabbar-riew
-                                (tabbar-current-tabset)))))))))
+    (let ((label  (if tabbar--buffer-show-groups
+                      (format " [%s] " (tabbar-tab-tabset tab))
+                    (format " %s " (tabbar-tab-value tab)))))
+      ;; Unless the tab bar auto scrolls to keep the selected tab
+      ;; visible, shorten the tab label to keep as many tabs as possible
+      ;; in the visible area of the tab bar.
+      (if tabbar-auto-scroll-flag
+          label
+        (tabbar-shorten
+         label (max 1 (/ (window-width)
+                         (length (tabbar-riew
+                                  (tabbar-current-tabset)))))))))
+  )
 
 ;; ----------------------------------------------------------------------
 ;; expand-region
