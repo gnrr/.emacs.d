@@ -118,7 +118,7 @@
 ;; (global-set-key "\M-r" 'my/ido-recentf)
 
 ;; ----------------------------------------------------------------------
-;; helm-ag
+;; ag
 ;; ----------------------------------------------------------------------
 (setq helm-ag-base-command "ag --nocolor --nogroup")
 
@@ -208,7 +208,7 @@ That is, a string used to represent it on the tab bar."
         label
       (tabbar-shorten
        label (max 1 (/ (window-width)
-                       (length (tabbar-view
+                       (length (tabbar-riew
                                 (tabbar-current-tabset)))))))))
 
 ;; ----------------------------------------------------------------------
@@ -289,7 +289,6 @@ That is, a string used to represent it on the tab bar."
  '(hl-line ((t (:background "#000000")))))
 
 ;; c-mode
-;;
 (add-to-list 'auto-mode-alist '("\\.h$" . c-mode))
 (electric-indent-mode)
 
@@ -433,5 +432,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (expand-region tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
+    (use-package expand-region tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
 
