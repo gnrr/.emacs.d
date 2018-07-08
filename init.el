@@ -5,8 +5,12 @@
 ;; ----------------------------------------------------------------------
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
+(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 (package-initialize)
+
+(unless (require 'use-package nil t)
+  (defmacro use-package (&rest args)))
 
 ;; ----------------------------------------------------------------------
 ;;; unbinding and key binding
@@ -41,20 +45,23 @@
 
 
 ;; ----------------------------------------------------------------------
-;; theme
+(use-package atom-one-dark-theme
 ;; ----------------------------------------------------------------------
-(load-theme 'atom-one-dark t)
+  :config
+  (load-theme 'atom-one-dark t)
+  )
 
 ;; ----------------------------------------------------------------------
 (use-package dashboard
 ;; ----------------------------------------------------------------------
+;; :defer t
   :config
   (setq inhibit-startup-message t)
   (setq dashboard-banner-logo-title "Life with Evil")
-  ;; Set the banner
   (setq dashboard-startup-banner "~/.emacs.d/img/e_splash.svg")
   (dashboard-setup-startup-hook)
   (setq dashboard-items '((recents  . 20)))
+  ;; (widget-forward 1)
   )
 
 ;; ----------------------------------------------------------------------
@@ -69,11 +76,18 @@
   (define-key evil-motion-state-map (kbd "C-f") nil)
   (define-key evil-motion-state-map (kbd "C-b") nil)
   (define-key evil-motion-state-map (kbd "C-o") nil)		; evil-jump-backward
+  (define-key evil-normal-state-map (kbd "C-n") nil)
+  (define-key evil-normal-state-map (kbd "C-p") nil)
+  (define-key evil-normal-state-map (kbd "C")   nil)
 
   (evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
   (define-key evil-normal-state-map (kbd "SPC SPC") 'evil-scroll-down)
   (define-key evil-normal-state-map (kbd "S-SPC S-SPC") 'evil-scroll-up)
-  (define-key evil-normal-state-map (kbd "Q") 'er/expand-region)
+
+  (defun evil-return-insert-mode-after-save ()
+    (when evil-insert-state-minor-mode
+      (funcall (evil-escape--escape-normal-state))))
+  (add-hook 'after-save-hook 'evil-return-insert-mode-after-save)
   )
 
 (use-package evil-escape
@@ -88,17 +102,20 @@
 (use-package helm
 ;; ----------------------------------------------------------------------
   :config
+  (helm-mode 1)
   (setq helm-buffers-fuzzy-matching t
-        helm-recentf-fuzzy-match    t)
-
+        helm-recentf-fuzzy-match t)
   (setq helm-ag-base-command "ag --nocolor --nogroup")
 
-  (global-set-key (kbd "M-x") 'helm-M-x)
-  (global-set-key (kbd "M-y") 'helm-show-kill-ring)
-  (global-set-key (kbd "C-x b") 'helm-mini)
-  (global-set-key (kbd "C-x C-f") 'helm-find-files)
-  (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
-  )
+  :bind (("M-x" . helm-M-x)
+	 ("M-y" . helm-show-kill-ring)
+	 ("C-x b" . helm-mini)
+	 ("C-x C-f" . helm-find-files)
+	 ("C-x C-b" . helm-buffers-list))
+
+  ;; (:map helm-find-files-map ("TAB" . helm-execute-persistent-action))
+  ;; (define-key helm-read-file-map (kbd "TAB") 'helm-execute-persistent-action)
+)
 
 ;; ----------------------------------------------------------------------
 ;; ido
@@ -232,16 +249,27 @@ That is, a string used to represent it on the tab bar."
   )
 
 ;; ----------------------------------------------------------------------
-;; expand-region
+(use-package expand-region
 ;; ----------------------------------------------------------------------
-;(push 'er/mark-outside-pairs er/try-expand-list)
+  :config
+  (push 'er/mark-outside-pairs er/try-expand-list)
+  (define-key evil-normal-state-map (kbd "+") 'er/expand-region)
+  ;; (define-key evil-visual-state-map (kbd "x") 'er/expand-region)
+  ;; (define-key evil-visual-state-map (kbd "X") 'er/contract-region)
+  (define-key evil-visual-state-map (kbd "+") 'er/expand-region)
+  (define-key evil-visual-state-map (kbd "_") 'er/contract-region)
+  (setq expand-region-smart-cursor t)
+  )
+
 
 ;; ----------------------------------------------------------------------
 ;; discrete setting
 ;; ----------------------------------------------------------------------
+(setq vc-follow-symlinks t)
 (tool-bar-mode -1)
 
-(setq linum-format "%5d ")
+;; linum
+(setq linum-format "%5d")
 (global-linum-mode t)
 (column-number-mode t)
 (set-face-attribute 'linum nil
@@ -251,11 +279,13 @@ That is, a string used to represent it on the tab bar."
 
 ;; (set-face-background 'fringe "dark red")
 
-(show-paren-mode 1)
-(setq vc-follow-symlinks t)
-
 (blink-cursor-mode 0)
 (setq cursor-type 'box)
+
+(show-paren-mode 1)
+(setq show-paren-delay 0.3)
+(setq show-paren-style 'expression)
+(set-face-background 'show-paren-match "#2E4163")
 
 (setq ring-bell-function 'ignore)
 (setq parens-require-spaces nil)
@@ -439,7 +469,7 @@ That is, a string used to represent it on the tab bar."
        ((eq system-type 'gnu/linux)  "~/.emacs.d/elisp/_linux.el")
        (t                            "~/.emacs.d/elisp/_mac.el")))
 
-
+;;ins:tkkk
 ;; ----------------------------------------------------------------------
 ;; automatically added
 ;; ----------------------------------------------------------------------
@@ -453,5 +483,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (dashboard use-package expand-region tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
+    (expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
 
