@@ -4,42 +4,11 @@
 ;;   2. select the package you want and install it
 ;; ----------------------------------------------------------------------
 (require 'package)
+(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
-(package-initialize)
 
 (unless (require 'use-package nil t)
-  (defmacro use-package (&rest args)))
-
-;; ----------------------------------------------------------------------
-;;; unbinding and key binding
-;; ----------------------------------------------------------------------
-(keyboard-translate ?\C-h ?\C-?)        ; c-h
-
-(global-unset-key (kbd "C-z"))                          ; suspend-frame
-(global-unset-key (kbd "C-x C-z"))                      ; suspend-frame
-(global-unset-key (kbd "C-x o"))                         ; other-window
-(global-unset-key (kbd "M-t"))                          ; transpose-word
-
-(global-set-key (kbd "C-0") 'delete-window)
-(global-set-key (kbd "C-1") 'delete-other-windows)
-(global-set-key (kbd "C-2") 'split-window-below)
-(global-set-key (kbd "C-3") 'split-window-right)
-(global-set-key (kbd "C-o") 'other-window)
-
-(global-set-key (kbd "M-g") 'goto-line)
-(global-set-key (kbd "M-v") 'new-empty-buffer-other-frame)
-(global-set-key ";" 'comment-set-column)         ; c-x ;
-(global-set-key [24 67108923] 'comment-indent)     ; c-x c-;
-(global-set-key (kbd "C-x t") 'revert-buffer)
-(global-set-key (kbd "C-x C-t") 'toggle-truncate-lines)
-(global-set-key (kbd "C-x n f") 'narrow-to-defun)
-
-(global-set-key (kbd "M-9") 'insert-parentheses)
-(global-set-key (kbd "M-P") 'beginning-of-buffer)
-(global-set-key (kbd "M-N") 'end-of-buffer)
-(global-set-key (kbd "M-;") 'comment-line)
 
 (define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
 
@@ -79,6 +48,9 @@
   (define-key evil-normal-state-map (kbd "C-n") nil)
   (define-key evil-normal-state-map (kbd "C-p") nil)
   (define-key evil-normal-state-map (kbd "C")   nil)
+
+  (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
+  (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
 
   (evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
   (define-key evil-normal-state-map (kbd "SPC SPC") 'evil-scroll-down)
@@ -158,7 +130,9 @@
 (use-package dumb-jump
 ;; ----------------------------------------------------------------------
   :config
-  (dumb-jump-mode)
+  (setq dumb-jump-default-project "") ;; これをしないとホームディレクトリ以下が検索対象になる
+  ;; (setq dumb-jump-force-searcher 'rg) ;; 日本語を含むパスだとgit grepがちゃんと動かない…
+  (dumb-jump-mode) ;; 標準キーバインドを有効にする
   (setq dumb-jump-selector 'helm)
   )
 
@@ -483,5 +457,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
+    (markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
 
