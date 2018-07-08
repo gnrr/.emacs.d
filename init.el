@@ -46,6 +46,18 @@
 (load-theme 'atom-one-dark t)
 
 ;; ----------------------------------------------------------------------
+(use-package dashboard
+;; ----------------------------------------------------------------------
+  :config
+  (setq inhibit-startup-message t)
+  (setq dashboard-banner-logo-title "Life with Evil")
+  ;; Set the banner
+  (setq dashboard-startup-banner "~/.emacs.d/img/e_splash.svg")
+  (dashboard-setup-startup-hook)
+  (setq dashboard-items '((recents  . 20)))
+  )
+
+;; ----------------------------------------------------------------------
 (use-package evil
 ;; ----------------------------------------------------------------------
   :config
@@ -60,8 +72,8 @@
 
   (evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
   (define-key evil-normal-state-map (kbd "SPC SPC") 'evil-scroll-down)
-  (define-key evil-normal-state-map (kbd "S-SPC S-SPC") 'evil-scroll-up) 
-  (define-key evil-normal-state-map (kbd "E") 'er/expand-region)
+  (define-key evil-normal-state-map (kbd "S-SPC S-SPC") 'evil-scroll-up)
+  (define-key evil-normal-state-map (kbd "Q") 'er/expand-region)
   )
 
 (use-package evil-escape
@@ -129,7 +141,7 @@
 (use-package dumb-jump
 ;; ----------------------------------------------------------------------
   :config
-  (dumb-jump-mode) 
+  (dumb-jump-mode)
   (setq dumb-jump-selector 'helm)
   )
 
@@ -236,12 +248,12 @@ That is, a string used to represent it on the tab bar."
             :foreground "#898989"
             :background "Gray20"
             :height 0.9)
-;; (set-face-background 'fringe "dark red") 
+
+;; (set-face-background 'fringe "dark red")
 
 (show-paren-mode 1)
 (setq vc-follow-symlinks t)
 
-(setq inhibit-startup-message t)
 (blink-cursor-mode 0)
 (setq cursor-type 'box)
 
@@ -256,7 +268,6 @@ That is, a string used to represent it on the tab bar."
 ;; mode-line
 (set-face-attribute 'mode-line          nil :box nil) ; モードラインを非3D化
 (set-face-attribute 'mode-line-inactive nil :box nil)
-(setq scroll-preserve-screen-position t)
 (setq initial-scratch-message "")
 
 ;; tab
@@ -274,9 +285,11 @@ That is, a string used to represent it on the tab bar."
 (plist-put minibuffer-prompt-properties
            'point-entered 'minibuffer-avoid-prompt)
 
-(setq scroll-conservatively most-positive-fixnum)
-; カーソルが画面外にはみ出した時10000行以内のはみ出しならスクロールする
-(setq next-screen-context-lines 1)
+;; 1行スクロール
+;; (setq scroll-conservatively most-positive-fixnum)
+(setq scroll-margin 5)
+(setq next-screen-context-lines 5)
+(setq scroll-preserve-screen-position t)
 
 (defun indent-or-insert-tab ()
   (interactive)
@@ -294,7 +307,7 @@ That is, a string used to represent it on the tab bar."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(hl-line ((t (:background "#000000")))))
+ '(hl-line ((t (:background "#080808")))))
 
 ;; c-mode
 (add-to-list 'auto-mode-alist '("\\.h$" . c-mode))
@@ -341,7 +354,7 @@ That is, a string used to represent it on the tab bar."
 ;;   (bs--redisplay t))
 
 
-;; (add-hook 'bs-mode-hook 
+;; (add-hook 'bs-mode-hook
 ;;           '(lambda ()
 ;;              (define-key bs-mode-map "j" 'bs-down)
 ;;              (define-key bs-mode-map "k" 'bs-up)
@@ -440,5 +453,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (use-package expand-region tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
+    (dashboard use-package expand-region tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
 
