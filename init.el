@@ -7,8 +7,38 @@
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
-
+(package-initialize)
 (unless (require 'use-package nil t)
+  (defmacro use-package (&rest args)))
+
+;; ----------------------------------------------------------------------
+;;; unbinding and key binding
+;; ----------------------------------------------------------------------
+(keyboard-translate ?\C-h ?\C-?)        ; c-h
+
+(global-unset-key (kbd "C-z"))                          ; suspend-frame
+(global-unset-key (kbd "C-x C-z"))                      ; suspend-frame
+(global-unset-key (kbd "C-x o"))                         ; other-window
+(global-unset-key (kbd "M-t"))                          ; transpose-word
+
+(global-set-key (kbd "C-0") 'delete-window)
+(global-set-key (kbd "C-1") 'delete-other-windows)
+(global-set-key (kbd "C-2") 'split-window-below)
+(global-set-key (kbd "C-3") 'split-window-right)
+(global-set-key (kbd "C-o") 'other-window)
+
+(global-set-key (kbd "M-g") 'goto-line)
+(global-set-key (kbd "M-v") 'new-empty-buffer-other-frame)
+(global-set-key (kbd "C-x ;") 'comment-set-column)         ; c-x ;
+(global-set-key [24 67108923] 'comment-indent)     ; c-x c-;
+(global-set-key (kbd "C-x t") 'revert-buffer)
+(global-set-key (kbd "C-x C-t") 'toggle-truncate-lines)
+(global-set-key (kbd "C-x n f") 'narrow-to-defun)
+
+(global-set-key (kbd "M-9") 'insert-parentheses)
+(global-set-key (kbd "M-P") 'beginning-of-buffer)
+(global-set-key (kbd "M-N") 'end-of-buffer)
+(global-set-key (kbd "M-;") 'comment-line)
 
 (define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
 
