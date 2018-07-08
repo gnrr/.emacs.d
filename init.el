@@ -101,6 +101,19 @@
 )
 
 ;; ----------------------------------------------------------------------
+(use-package all-the-icons)
+;; ----------------------------------------------------------------------
+
+;; ----------------------------------------------------------------------
+(use-package neotree
+;; ----------------------------------------------------------------------
+  :config
+  (setq neo-show-hidden-files t)
+  (global-set-key (kbd "C-q") 'neotree-toggle)
+  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+  )
+
+;; ----------------------------------------------------------------------
 (use-package helm
 ;; ----------------------------------------------------------------------
   :config
@@ -309,7 +322,8 @@ That is, a string used to represent it on the tab bar."
 (setq-default tab-width 4)
 (setq tab-stop-list  '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60))
 
-(setq default-truncate-lines t)
+(setq truncate-partial-width-windows nil)
+(setq-default truncate-lines t)
 
 ;; kill-ringに同じ内容を重複して入れない
 (defadvice kill-new (before ys:no-kill-new-duplication activate)
@@ -487,5 +501,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
+    (neotree all-the-icons markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
 
