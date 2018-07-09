@@ -13,7 +13,7 @@
 				    ;(left   . 1007)
 				    (left   . 71)
 				    (height . 64)
-				    (width  . 90))
+				    (width  . 110))
 				  default-frame-alist))
 
 ;;;
@@ -23,10 +23,8 @@
 
 (mapc
    (lambda (face)
-     (cond ((eq (face-attribute face :weight) 'normal)
-            (set-face-attribute face nil :weight 'light))
-           ((eq (face-attribute face :weight) 'bold)
-            (set-face-attribute face nil :weight 'normal))))
+     (cond ((eq (face-attribute face :weight) 'normal) (set-face-attribute face nil :weight 'light))
+           ((eq (face-attribute face :weight) 'bold)   (set-face-attribute face nil :weight 'normal))))
    (face-list))
 
 ;; ;; アイコンやdockから起動したemacsのpathやexec-pathが正しく設定されてないのをなんとかする
