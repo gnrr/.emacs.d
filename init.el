@@ -147,13 +147,16 @@
   (helm-mode 1)
   (setq helm-buffers-fuzzy-matching t
         helm-recentf-fuzzy-match t)
-  (setq helm-ag-base-command "ag --nocolor --nogroup")
+
+  ;; (setq helm-ag-base-command "ag --nocolor --nogroup")
+  (setq helm-ag-base-command "rg --vimgrep --no-heading")
+  (setq helm-ag-insert-at-point 'symbol)
 
   :bind (("M-x" . helm-M-x)
-	 ("M-y" . helm-show-kill-ring)
-	 ("C-x b" . helm-mini)
-	 ("C-x C-f" . helm-find-files)
-	 ("C-x C-b" . helm-buffers-list))
+	     ("M-y" . helm-show-kill-ring)
+	     ("C-x b" . helm-mini)
+	     ("C-x C-f" . helm-find-files)
+	     ("C-x C-b" . helm-buffers-list))
 
   ;; (:map helm-find-files-map ("TAB" . helm-execute-persistent-action))
   ;; (define-key helm-read-file-map (kbd "TAB") 'helm-execute-persistent-action)
@@ -186,10 +189,10 @@
 (use-package recentf
 ;; ----------------------------------------------------------------------
   :config
-  (setq recentf-max-saved-items 2000) ;; 2000ファイルまで履歴保存する
-                                        ;(setq recentf-auto-cleanup 'never)  ;; 存在しないファイルは消さない
+  (setq recentf-max-saved-items 5000) ;; 履歴保存の数
+  ;; (setq recentf-auto-cleanup 'never)  ;; 存在しないファイルは消さない
   (setq recentf-exclude '("/recentf" ".recentf"))
-  (setq recentf-auto-save-timer (run-with-idle-timer 30 t 'recentf-save-list))
+  ;; (setq recentf-auto-save-timer (run-with-idle-timer 30 t 'recentf-save-list))
 
   (recentf-mode 1)
   (global-set-key (kbd "M-r") 'helm-recentf)

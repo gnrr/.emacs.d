@@ -94,10 +94,10 @@ otherwise return nil,if whole line is consisted of comment characters."
 	      (eq props 'font-lock-comment-delimiter-face))
 	  t nil))))
 
-(defun pt ()
-  "represent point value at point."
-  (interactive)
-  (message "point :%d" (point)))
+;; (defun pt ()
+;;   "represent point value at point."
+;;   (interactive)
+;;   (message "point :%d" (point)))
 
 (defun remove-heading-spaces (s)
   "Return string which is removed heading spaces in string."
