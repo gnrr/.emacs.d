@@ -217,30 +217,37 @@
 
   (set-face-attribute 'tabbar-default nil
                       :family (face-attribute 'fixed-pitch-serif :family)
-                      :background (face-attribute 'tabbar-default :background)
+                      ;; :background (face-attribute 'tabbar-default :background)
+                      ;; :background (face-attribute 'linum :background)
                       :foreground (face-attribute 'tool-bar :foreground)
-                      :height 0.9)
+                      ;; :weight 'light
+                      ;; :slant 'normal
+                      :height 1.0)
 
   (set-face-attribute 'tabbar-unselected nil
+                      :background (face-attribute 'tabbar-default :background)
                       :background (face-attribute 'menu :background)
-                      :foreground (face-attribute 'mode-line-inactive :foreground)
+                      ;; :foreground (face-attribute 'mode-line-inactive :foreground)
+                      :foreground "#080808"
                       :box nil)
 
   (set-face-attribute 'tabbar-selected nil
                       :background (face-attribute 'default :background)
-                      :foreground (face-attribute 'mode-line :foreground)
+                      ;; :foreground (face-attribute 'mode-line :foreground)
+                      :foreground "#E8E8E8"
+                      ;; :slant 'normal
                       :box nil)
 
   (set-face-attribute 'tabbar-selected-modified nil
                       :background (face-attribute 'default :background)
                       :foreground (face-attribute 'mode-line :foreground)
-                      :bold t
+                      ;; :slant 'italic
                       :box nil)
 
   (set-face-attribute 'tabbar-modified nil
                       :background (face-attribute 'menu :background)
                       :foreground (face-attribute 'mode-line-inactive :foreground)
-                      :bold t
+                      ;; :slant 'italic
                       ;; :underline t
                       :box nil)
 
@@ -315,15 +322,6 @@ That is, a string used to represent it on the tab bar."
 (setq vc-follow-symlinks t)
 (tool-bar-mode -1)
 
-;; linum
-(setq linum-format "%5d")
-(global-linum-mode t)
-(column-number-mode t)
-(set-face-attribute 'linum nil
-            :foreground "#898989"
-            :background "Gray20"
-            :height 0.9)
-
 ;; (set-face-background 'fringe "dark red")
 
 (blink-cursor-mode 0)
@@ -332,7 +330,7 @@ That is, a string used to represent it on the tab bar."
 (show-paren-mode 1)
 (setq show-paren-delay 0.3)
 (setq show-paren-style 'expression)
-(set-face-background 'show-paren-match "#2E4163")
+(set-face-background 'show-paren-match "#263652")
 
 (setq ring-bell-function 'ignore)
 (setq parens-require-spaces nil)
@@ -341,11 +339,19 @@ That is, a string used to represent it on the tab bar."
 (setq indent-line-function 'indent-relative-maybe)
 (global-set-key "\C-m" 'newline-and-indent)  ; Returnキーで改行＋オートイン
 
-
 ;; mode-line
 (set-face-attribute 'mode-line          nil :box nil) ; モードラインを非3D化
 (set-face-attribute 'mode-line-inactive nil :box nil)
 (setq initial-scratch-message "")
+
+;; linum
+(global-linum-mode t)
+(column-number-mode t)
+(setq linum-format "%5d")
+(set-face-attribute 'linum nil
+            :foreground "#898989"
+            :background "Gray20"
+            :height 0.9)
 
 ;; tab
 (setq-default indent-tabs-mode nil)
