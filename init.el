@@ -313,7 +313,7 @@
 
   (set-face-attribute 'tabbar-unselected nil
                       :background (face-attribute 'tabbar-default :background)
-                      :background (face-attribute 'menu :background)
+                      :background (face-attribute 'tool-bar :background)
                       ;; :foreground (face-attribute 'mode-line-inactive :foreground)
                       :foreground "#080808"
                       :box nil)
@@ -343,8 +343,8 @@
 
   (setq tabbar-separator '(0.2))
 
-  (global-set-key (kbd "<f12>") 'tabbar-forward-tab)
-  (global-set-key (kbd "<f11>") 'tabbar-backward-tab)
+  (define-key evil-normal-state-map (kbd "M-l") 'tabbar-forward-tab)
+  (define-key evil-normal-state-map (kbd "M-h") 'tabbar-backward-tab)
 
   (tabbar-mwheel-mode nil)                  ;; マウスホイール無効
   (setq tabbar-buffer-groups-function nil)  ;; グループ無効
