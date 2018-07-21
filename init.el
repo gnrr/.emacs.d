@@ -47,7 +47,8 @@
  scroll-margin 5
  next-screen-context-lines 5
  scroll-preserve-screen-position t
- )
+
+)
 
 (fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
 (global-hl-line-mode 1)                           ; Hightlight current line
@@ -59,6 +60,10 @@
 (setq cursor-type 'box)
 (blink-cursor-mode 0)
 
+ ;; ミニバッファの履歴を保存する
+(savehist-mode 1)
+(setq history-length 3000)
+
 ;; show-paren
 (show-paren-mode 1)
 (setq show-paren-delay 0.3)
@@ -66,7 +71,7 @@
 (set-face-background 'show-paren-match "#263652")
 
 (setq indent-line-function 'indent-relative-maybe)
-(global-set-key "\C-m" 'newline-and-indent)  ; Returnキーで改行＋オートイン
+(global-set-key "\C-m" 'newline-and-indent)  ; Returnキーで改行＋オートインデント
 
 ;; mode-line
 (set-face-attribute 'mode-line          nil :box nil) ; モードラインを非3D化
@@ -80,6 +85,19 @@
             :foreground "#898989"
             :background "Gray20"
             :height 0.9)
+
+;; タイトルバーにファイルのフルパス表示
+(defmacro replace-home-directory-string (file-name)
+  `(if ,file-name 
+      (let ((regexp "^/Users/[^/]+/"))
+        (replace-regexp-in-string regexp "~/" ,file-name))
+    ""))
+
+(defun emacs-version-briefly ()
+  (let ((lst (split-string (emacs-version))))
+    (concat (nth 1 lst) (nth 2 lst))))
+
+(setq frame-title-format (format "%%f - %s" (emacs-version-briefly)))
 
 ;; tab
 ;; ----------------------------------------------------------------------
@@ -139,6 +157,7 @@
 ;; ----------------------------------------------------------------------
   :config
   (evil-mode 1)
+  (evil-set-initial-state 'help-mode 'emacs)
   (evil-set-initial-state 'edebug-mode 'emacs)
   (defalias #'forward-evil-word #'forward-evil-symbol)
 
@@ -157,7 +176,8 @@
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
 
   (evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
-  (define-key undo-tree-map (kbd "U") 'undo-tree-redo)
+  ;; (define-key undo-tree-map (kbd "U") 'undo-tree-redo)
+  (define-key evil-normal-state-map (kbd "U") 'undo-tree-redo)
   (define-key evil-normal-state-map (kbd "SPC SPC") 'evil-scroll-down)
   (define-key evil-normal-state-map (kbd "S-SPC S-SPC") 'evil-scroll-up)
 
@@ -168,6 +188,7 @@
   )
 
 (use-package evil-escape
+  :diminish evil-escape-mode
   :config
   (evil-escape-mode 1)
   (setq-default evil-escape-delay 0.2)
@@ -178,6 +199,33 @@
 ;; ----------------------------------------------------------------------
 (use-package all-the-icons)
 ;; ----------------------------------------------------------------------
+
+;; ----------------------------------------------------------------------
+(use-package telephone-line
+;; ----------------------------------------------------------------------
+  :config
+(setq telephone-line-lhs
+      '((evil   . (telephone-line-evil-tag-segment))
+        (accent . (telephone-line-vc-segment
+                   telephone-line-erc-modified-channels-segment
+                   telephone-line-process-segment))
+        (nil    . (telephone-line-minor-mode-segment
+                   telephone-line-buffer-segment))))
+(setq telephone-line-rhs
+      '((nil    . (telephone-line-misc-info-segment))
+        (accent . (telephone-line-major-mode-segment))
+        (evil   . (telephone-line-airline-position-segment))))
+
+(setq telephone-line-primary-left-separator 'telephone-line-identity-left
+      telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
+      telephone-line-primary-right-separator 'telephone-line-identity-left
+      telephone-line-secondary-right-separator 'telephone-line-identity-hollow-left)
+
+(setq telephone-line-height 18
+      telephone-line-evil-use-short-tag nil)
+
+  (telephone-line-mode 1)
+  )
 
 ;; ----------------------------------------------------------------------
 (use-package neotree
@@ -309,10 +357,10 @@
                       :foreground (face-attribute 'tool-bar :foreground)
                       ;; :weight 'light
                       ;; :slant 'normal
+                      :box nil
                       :height 1.0)
 
   (set-face-attribute 'tabbar-unselected nil
-                      :background (face-attribute 'tabbar-default :background)
                       :background (face-attribute 'tool-bar :background)
                       ;; :foreground (face-attribute 'mode-line-inactive :foreground)
                       :foreground "#080808"
@@ -326,16 +374,18 @@
                       :box nil)
 
   (set-face-attribute 'tabbar-selected-modified nil
-                      :background (face-attribute 'default :background)
+                      ;; :background (face-attribute 'default :background)
                       :foreground (face-attribute 'mode-line :foreground)
                       ;; :slant 'italic
+                      :bold t
                       :box nil)
 
   (set-face-attribute 'tabbar-modified nil
                       :background (face-attribute 'menu :background)
-                      :foreground (face-attribute 'mode-line-inactive :foreground)
-                      ;; :slant 'italic
+                      :background (face-attribute 'tool-bar :background)
                       ;; :underline t
+                      ;; :slant 'italic
+                      :bold t
                       :box nil)
 
   (set-face-attribute 'tabbar-separator nil
@@ -343,8 +393,8 @@
 
   (setq tabbar-separator '(0.2))
 
-  (define-key evil-normal-state-map (kbd "M-l") 'tabbar-forward-tab)
-  (define-key evil-normal-state-map (kbd "M-h") 'tabbar-backward-tab)
+  (global-set-key (kbd "M-9") 'tabbar-forward-tab)
+  (global-set-key (kbd "M-8") 'tabbar-backward-tab)
 
   (tabbar-mwheel-mode nil)                  ;; マウスホイール無効
   (setq tabbar-buffer-groups-function nil)  ;; グループ無効
@@ -411,7 +461,7 @@ That is, a string used to represent it on the tab bar."
   (setq sl-restore-scratch-p t)           ;復元
   (setq sl-prohibit-kill-scratch-buffer-p t) ;削除不能
   ;; *scratch*とscratch-logのメジャーモードをorg-modeにする
-  (setq initial-major-mode 'org-mode)
+  ;; (setq initial-major-mode 'org-mode)
   (add-to-list 'auto-mode-alist '("scratch-log" . org-mode))
   ;; 30秒ごとに自動保存
   (setq sl-use-timer t)
@@ -442,6 +492,18 @@ That is, a string used to represent it on the tab bar."
   :config
   (setq my-backup-directory "~/bak")
   )
+
+;; ----------------------------------------------------------------------
+;; diminish
+;; ----------------------------------------------------------------------
+(defmacro safe-diminish (file mode &optional new-name)
+  "https://github.com/larstvei/dot-emacs/blob/master/init.org"
+  `(with-eval-after-load ,file
+     (diminish ,mode ,new-name)))
+
+(safe-diminish "undo-tree" 'undo-tree-mode)
+(safe-diminish "eldoc" 'eldoc-mode)
+(safe-diminish "helm-mode" 'helm-mode)
 
 ;; ----------------------------------------------------------------------
 ;; discrete setting
@@ -478,6 +540,7 @@ That is, a string used to represent it on the tab bar."
 ;; c-mode
 (add-to-list 'auto-mode-alist '("\\.h$" . c-mode))
 (electric-indent-mode)
+(setq global-cwarn-mode 1)
 
 (add-hook 'c-mode-hook
           (lambda ()
@@ -532,26 +595,6 @@ That is, a string used to represent it on the tab bar."
 ;(setq paren-delay 0.5)
 ;(paren-activate)
 
-;; jump to paren
-(defvar my-paren-open "\\s(")
-(make-variable-buffer-local 'my-paren-open)
-(defvar my-paren-close "\\s)")
-(make-variable-buffer-local 'my-paren-close)
-
-(defun my-paren (ARG)
-  (interactive "P")
-  (let ((FOL-CHAR (char-to-string (following-char)))
-        (PRE-CHAR (char-to-string (preceding-char))))
-    (save-match-data
-      (cond
-       ((and (string-match my-paren-open FOL-CHAR) (string-match my-paren-close PRE-CHAR))
-  (if ARG (paren-forward-sexp) (paren-backward-sexp)))
-       ((string-match my-paren-open FOL-CHAR)  (paren-forward-sexp))
-       ((string-match my-paren-close PRE-CHAR) (paren-backward-sexp))
-       (t (re-search-backward my-paren-open))))))
-
-(global-set-key "\M-]" 'my-paren)
-
 
 ;; ----------------------------------------------------------------------
 ; computer independent
@@ -575,5 +618,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (helm-gtags scratch-log neotree all-the-icons markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
+    (telephone-line helm-gtags scratch-log neotree all-the-icons markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
 
