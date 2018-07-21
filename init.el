@@ -135,9 +135,22 @@
 (use-package neotree
 ;; ----------------------------------------------------------------------
   :config
-  (setq neo-show-hidden-files t)
-  (global-set-key (kbd "C-q") 'neotree-toggle)
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+  (setq neo-show-hidden-files t)
+  (setq neo-create-file-auto-open t)
+  (setq neo-smart-open nil)
+  (setq neo-persist-show t)
+  (setq neo-keymap-style 'concise)
+  (global-set-key (kbd "C-q") 'neotree-toggle)
+  (evil-define-key 'normal neotree-mode-map (kbd "RET") 'neotree-enter)
+  (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
+  (evil-define-key 'normal neotree-mode-map (kbd "SPC") 'neotree-quick-look)
+  (evil-define-key 'normal neotree-mode-map (kbd "q") 'neotree-hide)
+  (defun text-scale-twice ()
+    (interactive)
+    (text-scale-adjust 0)
+    (text-scale-decrease 1))
+  (add-hook 'neo-after-create-hook (lambda (_)(call-interactively 'text-scale-twice)))
   )
 
 ;; ----------------------------------------------------------------------
@@ -148,6 +161,9 @@
   (setq helm-buffers-fuzzy-matching t
         helm-recentf-fuzzy-match t)
 
+  (setq-default helm-ff-skip-boring-files t)
+  (add-to-list 'helm-boring-file-regexp-list "scratch-log-.*$")
+  
   ;; (setq helm-ag-base-command "ag --nocolor --nogroup")
   (setq helm-ag-base-command "rg --vimgrep --no-heading")
   (setq helm-ag-insert-at-point 'symbol)
@@ -315,6 +331,23 @@ That is, a string used to represent it on the tab bar."
   (setq expand-region-smart-cursor t)
   )
 
+;; ----------------------------------------------------------------------
+(use-package scratch-log
+;; ----------------------------------------------------------------------
+  :config
+  ;; (setq sl-scratch-log-file "~/.emacs.d/.scratch-log")  ;; default
+  ;; (setq sl-prev-scratch-string-file "~/.emacs.d/.scratch-log-prev")
+  (setq sl-restore-scratch-p t)           ;復元
+  (setq sl-prohibit-kill-scratch-buffer-p t) ;削除不能
+  ;; *scratch*とscratch-logのメジャーモードをorg-modeにする
+  (setq initial-major-mode 'org-mode)
+  (add-to-list 'auto-mode-alist '("scratch-log" . org-mode))
+  ;; 30秒ごとに自動保存
+  (setq sl-use-timer t)
+  ;; (setq sl-timer-interval 3)
+
+  (add-to-list 'recentf-exclude "scratch-log-autoloads.el")
+  ) 
 
 ;; ----------------------------------------------------------------------
 ;; discrete setting
@@ -537,5 +570,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (neotree all-the-icons markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
+    (scratch-log neotree all-the-icons markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
 

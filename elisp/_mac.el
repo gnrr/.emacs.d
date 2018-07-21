@@ -75,3 +75,11 @@
 (when (fboundp 'mac-auto-ascii-mode)
   (mac-auto-ascii-mode 1))
 
+;;
+;; fullscreen
+;;
+(defun mac-fullscreen ()
+  (interactive)
+  (if )
+
+  )

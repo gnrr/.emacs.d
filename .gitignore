@@ -2,6 +2,10 @@ _Store
 *~
 \#*
 *.swp
+*.bak
 url/*
 auto-save-list/*
+\.scratch-log*
+scratch-log*
+_windows.el
 
