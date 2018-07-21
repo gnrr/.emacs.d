@@ -421,6 +421,15 @@ That is, a string used to represent it on the tab bar."
   ) 
 
 ;; ----------------------------------------------------------------------
+(use-package quick-back
+;; ----------------------------------------------------------------------
+  :load-path "elisp"
+  :bind (:map evil-normal-state-map
+              ("g m" . quick-back-mark)
+              ("g q" . quick-back-jump))
+  )
+
+;; ----------------------------------------------------------------------
 (use-package discrete
 ;; ----------------------------------------------------------------------
   :load-path "elisp"
