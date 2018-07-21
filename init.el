@@ -32,12 +32,56 @@
  tab-width 4                                      ; Set width for tabs
  uniquify-buffer-name-style 'forward              ; Uniquify buffer names
  window-combination-resize t                      ; Resize windows proportionally
+
+ vc-follow-symlinks t
+ ring-bell-function 'ignore
+ parens-require-spaces nil
+ transient-mark-mode nil
+ initial-scratch-message ""
+ indent-tabs-mode nil
+ tab-width 4
+ tab-stop-list  '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60)
+
+ ;; 1行スクロール
+ ;; (setq scroll-conservatively most-positive-fixnum)
+ scroll-margin 5
+ next-screen-context-lines 5
+ scroll-preserve-screen-position t
  )
+
 (fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
 (global-hl-line-mode 1)                           ; Hightlight current line
+(tool-bar-mode -1)
 (menu-bar-mode 0)                                 ; Disable the menu bar
+(save-place-mode 1)                               ; Enable saveplace
 (add-hook 'focus-out-hook #'garbage-collect)
 
+(setq cursor-type 'box)
+(blink-cursor-mode 0)
+
+;; show-paren
+(show-paren-mode 1)
+(setq show-paren-delay 0.3)
+(setq show-paren-style 'expression)
+(set-face-background 'show-paren-match "#263652")
+
+(setq indent-line-function 'indent-relative-maybe)
+(global-set-key "\C-m" 'newline-and-indent)  ; Returnキーで改行＋オートイン
+
+;; mode-line
+(set-face-attribute 'mode-line          nil :box nil) ; モードラインを非3D化
+(set-face-attribute 'mode-line-inactive nil :box nil)
+
+;; linum
+(global-linum-mode t)
+(column-number-mode t)
+(setq linum-format "%5d")
+(set-face-attribute 'linum nil
+            :foreground "#898989"
+            :background "Gray20"
+            :height 0.9)
+
+;; tab
 ;; ----------------------------------------------------------------------
 ;;; unbinding and key binding
 ;; ----------------------------------------------------------------------
@@ -110,6 +154,7 @@
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
 
   (evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
+  (define-key undo-tree-map (kbd "U") 'undo-tree-redo)
   (define-key evil-normal-state-map (kbd "SPC SPC") 'evil-scroll-down)
   (define-key evil-normal-state-map (kbd "S-SPC S-SPC") 'evil-scroll-up)
 
@@ -176,6 +221,22 @@
 
   ;; (:map helm-find-files-map ("TAB" . helm-execute-persistent-action))
   ;; (define-key helm-read-file-map (kbd "TAB") 'helm-execute-persistent-action)
+)
+
+;; ----------------------------------------------------------------------
+(use-package helm-gtags
+;; ----------------------------------------------------------------------
+  :config
+  (helm-gtags-mode t)
+  (setq helm-gtags-auto-update t)
+
+  :bind (:map evil-normal-state-map
+              ("g t" . helm-gtags-dwim)
+              ("g d" . helm-gtags-find-tag)
+              ("g r" . helm-gtags-find-rtag)
+              ("g s" . helm-gtags-find-symbol)
+              ("g h" . helm-gtags-previous-history)
+              ("g l" . helm-gtags-next-history))
 )
 
 ;; ----------------------------------------------------------------------
@@ -350,47 +411,22 @@ That is, a string used to represent it on the tab bar."
   ) 
 
 ;; ----------------------------------------------------------------------
+(use-package discrete
+;; ----------------------------------------------------------------------
+  :load-path "elisp"
+  )
+
+;; ----------------------------------------------------------------------
+(use-package my-backup
+;; ----------------------------------------------------------------------
+  :load-path "elisp"
+  :config
+  (setq my-backup-directory "~/bak")
+  )
+
+;; ----------------------------------------------------------------------
 ;; discrete setting
 ;; ----------------------------------------------------------------------
-(setq vc-follow-symlinks t)
-(tool-bar-mode -1)
-
-;; (set-face-background 'fringe "dark red")
-
-(blink-cursor-mode 0)
-(setq cursor-type 'box)
-
-(show-paren-mode 1)
-(setq show-paren-delay 0.3)
-(setq show-paren-style 'expression)
-(set-face-background 'show-paren-match "#263652")
-
-(setq ring-bell-function 'ignore)
-(setq parens-require-spaces nil)
-(setq transient-mark-mode nil)
-
-(setq indent-line-function 'indent-relative-maybe)
-(global-set-key "\C-m" 'newline-and-indent)  ; Returnキーで改行＋オートイン
-
-;; mode-line
-(set-face-attribute 'mode-line          nil :box nil) ; モードラインを非3D化
-(set-face-attribute 'mode-line-inactive nil :box nil)
-(setq initial-scratch-message "")
-
-;; linum
-(global-linum-mode t)
-(column-number-mode t)
-(setq linum-format "%5d")
-(set-face-attribute 'linum nil
-            :foreground "#898989"
-            :background "Gray20"
-            :height 0.9)
-
-;; tab
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 4)
-(setq tab-stop-list  '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60))
-
 (setq truncate-partial-width-windows nil)
 (setq-default truncate-lines t)
 
@@ -401,12 +437,6 @@ That is, a string used to represent it on the tab bar."
 ;; prevent annoying message "Text is read only" at mimibuffer
 (plist-put minibuffer-prompt-properties
            'point-entered 'minibuffer-avoid-prompt)
-
-;; 1行スクロール
-;; (setq scroll-conservatively most-positive-fixnum)
-(setq scroll-margin 5)
-(setq next-screen-context-lines 5)
-(setq scroll-preserve-screen-position t)
 
 (defun indent-or-insert-tab ()
   (interactive)
@@ -455,32 +485,6 @@ That is, a string used to represent it on the tab bar."
       (cons '("\\.emacs.*$" . lisp-interaction-mode)
         auto-mode-alist))
 
-;;
-;; bs-mode / bs-cycle-buffer (pre-installed)
-;;
-;; (global-set-key [(f11)]       'bs-cycle-previous)
-;; (global-set-key [(f12)]       'bs-cycle-next)
-;(setq bs-default-configuration "files-and-scratch")
-;(setq bs-cycle-configuration-name "files-and-scratch")
-
-;; (defun my-bs-toggle-configuration ()
-;;   (interactive)
-;;   (bs-set-configuration (if (string= bs-current-configuration bs-default-configuration)
-;;                                         bs-cycle-configuration-name
-;;                                       bs-default-configuration))
-;;   (bs--redisplay t))
-
-
-;; (add-hook 'bs-mode-hook
-;;           '(lambda ()
-;;              (define-key bs-mode-map "j" 'bs-down)
-;;              (define-key bs-mode-map "k" 'bs-up)
-;;              (define-key bs-mode-map "/" 'isearch-forward)
-;;              (define-key bs-mode-map "s" 'isearch-forward)
-;;              (define-key bs-mode-map "\C-x\C-b" 'my-bs-toggle-configuration)))
-
-
-
 ;;;
 ;;; command aliases
 ;;;
@@ -497,17 +501,8 @@ That is, a string used to represent it on the tab bar."
 (defalias 'a 'apropos)
 (defalias 'l 'linum-mode)
 
-(defalias 'yes-or-no-p 'y-or-n-p)
-
 (defalias 'com 'comment-region)
 (defalias 'ind 'indent-region)
-
-;;
-;; saveplace
-;;
-;(require 'saveplace)
-;(setq save-place-limit 50)
-;(setq-default save-place t)
 
 ;;
 ;; mic-paren
@@ -540,15 +535,6 @@ That is, a string used to represent it on the tab bar."
 
 
 ;; ----------------------------------------------------------------------
-;; my discrete functions
-;; ----------------------------------------------------------------------
-(add-to-list 'load-path "~/.emacs.d/elisp")
-(load "~/.emacs.d/elisp/discrete.el")
-
-(require 'my-backup)
-(setq my-backup-directory "~/bak")
-
-;; ----------------------------------------------------------------------
 ; computer independent
 ;; ----------------------------------------------------------------------
 (load
@@ -570,5 +556,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (scratch-log neotree all-the-icons markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
+    (helm-gtags scratch-log neotree all-the-icons markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
 
