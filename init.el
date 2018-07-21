@@ -139,6 +139,9 @@
 ;; ----------------------------------------------------------------------
   :config
   (evil-mode 1)
+  (evil-set-initial-state 'edebug-mode 'emacs)
+  (defalias #'forward-evil-word #'forward-evil-symbol)
+
   ;; インサートモードではEmacsキーバインド
   (setcdr evil-insert-state-map nil)
   (define-key evil-insert-state-map [escape] 'evil-normal-state)
@@ -210,7 +213,7 @@
   (add-to-list 'helm-boring-file-regexp-list "scratch-log-.*$")
   
   ;; (setq helm-ag-base-command "ag --nocolor --nogroup")
-  (setq helm-ag-base-command "rg --vimgrep --no-heading")
+  (setq helm-ag-base-command "rg --vimgrep --no-heading")		; ripgrep
   (setq helm-ag-insert-at-point 'symbol)
 
   :bind (("M-x" . helm-M-x)
@@ -229,6 +232,13 @@
   :config
   (helm-gtags-mode t)
   (setq helm-gtags-auto-update t)
+
+  (defun gtags-update ()
+    (interactive)
+    (let ((s (shell-command-to-string "global -uv")))
+      (if (string-match "not found" s)
+          (call-interactively 'helm-gtags-create-tags)
+        (message "Updated GTAGS files."))))
 
   :bind (:map evil-normal-state-map
               ("g t" . helm-gtags-dwim)
