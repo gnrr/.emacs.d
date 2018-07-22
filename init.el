@@ -65,10 +65,10 @@
 (setq history-length 3000)
 
 ;; show-paren
-(show-paren-mode 1)
-(setq show-paren-delay 0.3)
-(setq show-paren-style 'expression)
-(set-face-background 'show-paren-match "#263652")
+;; (show-paren-mode 1)
+;; (setq show-paren-delay 0.3)
+;; (setq show-paren-style 'mixed)
+;; (set-face-background 'show-paren-match "#263652")
 
 (setq indent-line-function 'indent-relative-maybe)
 (global-set-key "\C-m" 'newline-and-indent)  ; Returnキーで改行＋オートインデント
@@ -82,8 +82,8 @@
 (column-number-mode t)
 (setq linum-format "%5d")
 (set-face-attribute 'linum nil
-            :foreground "#898989"
-            :background "Gray20"
+            :foreground "#687080"
+            :background "#282c34"
             :height 0.9)
 
 ;; タイトルバーにファイルのフルパス表示
@@ -133,10 +133,57 @@
 
 
 ;; ----------------------------------------------------------------------
+(use-package all-the-icons)
+;; ----------------------------------------------------------------------
+
+;; ----------------------------------------------------------------------
+(use-package telephone-line
+;; ----------------------------------------------------------------------
+  :config
+(setq telephone-line-lhs
+      '((evil   . (telephone-line-evil-tag-segment))
+        (accent . (telephone-line-vc-segment
+                   telephone-line-erc-modified-channels-segment
+                   telephone-line-process-segment))
+        (nil    . (telephone-line-minor-mode-segment
+                   telephone-line-buffer-segment))))
+(setq telephone-line-rhs
+      '((nil    . (telephone-line-misc-info-segment))
+        (accent . (telephone-line-major-mode-segment))
+        (evil   . (telephone-line-airline-position-segment))))
+
+(setq telephone-line-primary-left-separator 'telephone-line-identity-left
+      telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
+      telephone-line-primary-right-separator 'telephone-line-identity-left
+      telephone-line-secondary-right-separator 'telephone-line-identity-hollow-left)
+
+;; (setq telephone-line-height 15
+      ;; telephone-line-evil-use-short-tag nil)
+
+  (telephone-line-mode 1)
+  )
+
+;; ----------------------------------------------------------------------
 (use-package atom-one-dark-theme
 ;; ----------------------------------------------------------------------
   :config
-  (load-theme 'atom-one-dark t)
+  ;; (load-theme 'atom-one-dark t)
+  )
+
+;; ----------------------------------------------------------------------
+(use-package zerodark-theme
+;; ----------------------------------------------------------------------
+  :config
+  (load-theme 'zerodark t)
+  (setq zerodark-use-paddings-in-mode-line nil)
+  (set-face-attribute 'cursor nil
+                      :background (face-attribute 'mode-line :foreground)
+                      :foreground "#000000"
+                      :weight 'bold)
+  ;; (set-face-attribute 'default nil
+                      ;; :background "#1D2026")
+  ;; (set-face-attribute 'fringe nil
+                      ;; :background "#1D2026")
   )
 
 ;; ----------------------------------------------------------------------
@@ -195,37 +242,6 @@
   (setq-default evil-escape-key-sequence "jj")
   (setq-default evil-escape-excluded-states '(normal visual multiedit emacs motion))
 )
-
-;; ----------------------------------------------------------------------
-(use-package all-the-icons)
-;; ----------------------------------------------------------------------
-
-;; ----------------------------------------------------------------------
-(use-package telephone-line
-;; ----------------------------------------------------------------------
-  :config
-(setq telephone-line-lhs
-      '((evil   . (telephone-line-evil-tag-segment))
-        (accent . (telephone-line-vc-segment
-                   telephone-line-erc-modified-channels-segment
-                   telephone-line-process-segment))
-        (nil    . (telephone-line-minor-mode-segment
-                   telephone-line-buffer-segment))))
-(setq telephone-line-rhs
-      '((nil    . (telephone-line-misc-info-segment))
-        (accent . (telephone-line-major-mode-segment))
-        (evil   . (telephone-line-airline-position-segment))))
-
-(setq telephone-line-primary-left-separator 'telephone-line-identity-left
-      telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
-      telephone-line-primary-right-separator 'telephone-line-identity-left
-      telephone-line-secondary-right-separator 'telephone-line-identity-hollow-left)
-
-(setq telephone-line-height 18
-      telephone-line-evil-use-short-tag nil)
-
-  (telephone-line-mode 1)
-  )
 
 ;; ----------------------------------------------------------------------
 (use-package neotree
@@ -352,46 +368,52 @@
 
   (set-face-attribute 'tabbar-default nil
                       :family (face-attribute 'fixed-pitch-serif :family)
-                      ;; :background (face-attribute 'tabbar-default :background)
-                      ;; :background (face-attribute 'linum :background)
+                      :height 1.0
+  ;;                     ;; :background (face-attribute 'tabbar-default :background)
+  ;;                     ;; :background (face-attribute 'linum :background)
                       :foreground (face-attribute 'tool-bar :foreground)
-                      ;; :weight 'light
-                      ;; :slant 'normal
+  ;;                     ;; :weight 'light
+  ;;                     ;; :slant 'normal
                       :box nil
-                      :height 1.0)
+                      )
 
   (set-face-attribute 'tabbar-unselected nil
                       :background (face-attribute 'tool-bar :background)
-                      ;; :foreground (face-attribute 'mode-line-inactive :foreground)
+  ;;                     ;; :foreground (face-attribute 'mode-line-inactive :foreground)
                       :foreground "#080808"
-                      :box nil)
+                      :slant 'normal
+                      :box nil
+                      )
 
   (set-face-attribute 'tabbar-selected nil
-                      :background (face-attribute 'default :background)
-                      ;; :foreground (face-attribute 'mode-line :foreground)
-                      :foreground "#E8E8E8"
-                      ;; :slant 'normal
-                      :box nil)
+  ;;                     :background (face-attribute 'default :background)
+                      :foreground (face-attribute 'mode-line :foreground)
+                      ;; :foreground "#E8E8E8"
+  ;;                     ;; :slant 'normal
+                      :box nil
+                      )
 
   (set-face-attribute 'tabbar-selected-modified nil
-                      ;; :background (face-attribute 'default :background)
-                      :foreground (face-attribute 'mode-line :foreground)
-                      ;; :slant 'italic
-                      :bold t
-                      :box nil)
+  ;;                     ;; :background (face-attribute 'default :background)
+  ;;                     :foreground (face-attribute 'mode-line :foreground)
+  ;;                     ;; :slant 'italic
+  ;;                     :bold t
+                      :box nil
+                      )
 
   (set-face-attribute 'tabbar-modified nil
-                      :background (face-attribute 'menu :background)
+  ;;                     :background (face-attribute 'menu :background)
                       :background (face-attribute 'tool-bar :background)
-                      ;; :underline t
-                      ;; :slant 'italic
-                      :bold t
-                      :box nil)
+  ;;                     ;; :underline t
+  ;;                     ;; :slant 'italic
+  ;;                     :bold t
+                      :box nil
+                      )
 
-  (set-face-attribute 'tabbar-separator nil
-                      :background (face-attribute 'default :background))
+  ;; (set-face-attribute 'tabbar-separator nil
+  ;;                     :background (face-attribute 'default :background))
 
-  (setq tabbar-separator '(0.2))
+  ;; (setq tabbar-separator '(0.2))
 
   (global-set-key (kbd "M-9") 'tabbar-forward-tab)
   (global-set-key (kbd "M-8") 'tabbar-backward-tab)
@@ -437,6 +459,21 @@ That is, a string used to represent it on the tab bar."
          label (max 1 (/ (window-width)
                          (length (tabbar-riew
                                   (tabbar-current-tabset)))))))))
+  )
+
+;; ----------------------------------------------------------------------
+(use-package mic-paren
+;; ----------------------------------------------------------------------
+  :config
+  (setq paren-sexp-mode t)
+  (setq paren-delay 0.1)
+  (set-face-background 'paren-face-match "#263652")
+  (paren-activate)
+
+  ;; for hilight paired parenthesis
+  (show-paren-mode 1)
+  (setq show-paren-style 'parenthesis)
+  (set-face-background 'show-paren-match "#4A6AA1")
   )
 
 ;; ----------------------------------------------------------------------
@@ -586,15 +623,6 @@ That is, a string used to represent it on the tab bar."
 (defalias 'com 'comment-region)
 (defalias 'ind 'indent-region)
 
-;;
-;; mic-paren
-;;
-;(setq paren-match-face 'region)  ;; coloring inside between each parentheses
-;(setq paren-sexp-mode t)
-;(setq show-paren-delay 1)
-;(setq paren-delay 0.5)
-;(paren-activate)
-
 
 ;; ----------------------------------------------------------------------
 ; computer independent
@@ -604,7 +632,6 @@ That is, a string used to represent it on the tab bar."
        ((eq system-type 'gnu/linux)  "~/.emacs.d/elisp/_linux.el")
        (t                            "~/.emacs.d/elisp/_mac.el")))
 
-;;ins:tkkk
 ;; ----------------------------------------------------------------------
 ;; automatically added
 ;; ----------------------------------------------------------------------
@@ -618,5 +645,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (telephone-line helm-gtags scratch-log neotree all-the-icons markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
+    (zerodark-theme telephone-line helm-gtags scratch-log neotree all-the-icons markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
 

@@ -23,8 +23,9 @@
 
 (mapc
    (lambda (face)
-     (cond ((eq (face-attribute face :weight) 'normal) (set-face-attribute face nil :weight 'light))
-           ((eq (face-attribute face :weight) 'bold)   (set-face-attribute face nil :weight 'normal))))
+     (cond ((eq (face-attribute face :weight) 'normal)      (set-face-attribute face nil :weight 'light))
+           ((eq (face-attribute face :weight) 'semi-bold)   (set-face-attribute face nil :weight 'light))
+           ((eq (face-attribute face :weight) 'bold)        (set-face-attribute face nil :weight 'normal))))
    (face-list))
 
 ;; ;; アイコンやdockから起動したemacsのpathやexec-pathが正しく設定されてないのをなんとかする
