@@ -8,13 +8,14 @@
 ;;; window size and position
 ;;;
 ;; (tool-bar-mode 0)
-(setq default-frame-alist (append '(
+(setq initial-frame-alist (append '(
 				    (top    . 0)
-				    ;(left   . 1007)
-				    (left   . 71)
+				    (left   . 1009)
+				    ;; (left   . 71)
 				    (height . 64)
 				    (width  . 110))
-				  default-frame-alist))
+				  initial-frame-alist))
+(setq default-frame-alist initial-frame-alist)
 
 ;;;
 ;;; font
@@ -79,8 +80,34 @@
 ;;
 ;; fullscreen
 ;;
-(defun mac-fullscreen ()
-  (interactive)
-  (if )
+(global-set-key (kbd "C-M-f") 'toggle-frame-fullscreen)
 
-  )
+;;
+;; open current folder with file manager such as Explorer.exe or Finder.app
+;;
+(defun open-current-folder ()
+  (interactive)
+  (let ((cmd "open %s %s")
+        (opt "-R")
+        (path (buffer-file-name)))
+    (unless path
+      (setq opt "")
+      (setq path "."))
+    (shell-command (format cmd opt path))))
+
+(defalias 'e 'open-current-folder)
+
+;;
+;; open terminal at current folder
+;; using ttab (https://www.npmjs.com/package/ttab)
+;;
+(defun open-terminal ()
+  (interactive)
+  (let ((cmd "ttab %s .")
+        (opt "-w -a iterm2")
+        ;; (opt "-w")
+        )
+    (shell-command (format cmd opt))))
+
+(defalias 'c 'open-terminal)
+
