@@ -2,12 +2,11 @@
 ;;;
 ;;; _mac.el
 ;;;
-(message "loading _mac.el")
+(message "--> loading \"_mac.el\"...")
 
 ;;;
 ;;; window size and position
 ;;;
-;; (tool-bar-mode 0)
 (setq initial-frame-alist (append '(
 				    (top    . 0)
 				    (left   . 1009)
@@ -83,7 +82,8 @@
 (global-set-key (kbd "C-M-f") 'toggle-frame-fullscreen)
 
 ;;
-;; open current folder with file manager such as Explorer.exe or Finder.app
+;; open current folder
+;; using Finder.app
 ;;
 (defun open-current-folder ()
   (interactive)
@@ -111,3 +111,4 @@
 
 (defalias 'c 'open-terminal)
 
+(message "<-- loaded \"_mac.el\"")

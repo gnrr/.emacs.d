@@ -1,3 +1,9 @@
+;;; -*- coding:utf-8; mode:emacs-lisp -*-
+;;;
+;;; init.el
+;;;
+(message "--> loading \"init.el\"...")
+
 ;; ----------------------------------------------------------------------
 ;; packages for melpa
 ;;   1. type 'M-x package-list-packages'
@@ -54,13 +60,15 @@
 (global-hl-line-mode 1)                           ; Hightlight current line
 (tool-bar-mode -1)
 (menu-bar-mode 0)                                 ; Disable the menu bar
-(save-place-mode 1)                               ; Enable saveplace
 (add-hook 'focus-out-hook #'garbage-collect)
-
+(which-func-mode 1)
 (setq cursor-type 'box)
 (blink-cursor-mode 0)
 
- ;; ミニバッファの履歴を保存する
+(setq save-place-file "~/.emacs.d/.emacs-places")
+(save-place-mode 1)                               ; Enable saveplace
+
+;; ミニバッファの履歴を保存する
 (savehist-mode 1)
 (setq history-length 3000)
 
@@ -97,7 +105,8 @@
   (let ((lst (split-string (emacs-version))))
     (concat (nth 1 lst) (nth 2 lst))))
 
-(setq frame-title-format (format "%%f - %s" (emacs-version-briefly)))
+(setq frame-title-format '(format "%s"
+      (:eval (if (buffer-file-name) (replace-home-directory-string (buffer-file-name)) (buffer-name)))))
 
 ;; tab
 ;; ----------------------------------------------------------------------
@@ -107,8 +116,9 @@
 
 (global-unset-key (kbd "C-z"))                          ; suspend-frame
 (global-unset-key (kbd "C-x C-z"))                      ; suspend-frame
-(global-unset-key (kbd "C-x o"))                         ; other-window
+(global-unset-key (kbd "C-x o"))                        ; other-window
 (global-unset-key (kbd "M-t"))                          ; transpose-word
+(global-unset-key [f11])                                ; toggle-frame-fullscreen
 
 (global-set-key (kbd "C-0") 'delete-window)
 (global-set-key (kbd "C-1") 'delete-other-windows)
@@ -157,8 +167,8 @@
       telephone-line-primary-right-separator 'telephone-line-identity-left
       telephone-line-secondary-right-separator 'telephone-line-identity-hollow-left)
 
-;; (setq telephone-line-height 15
-      ;; telephone-line-evil-use-short-tag nil)
+(setq telephone-line-height 15
+      telephone-line-evil-use-short-tag nil)
 
   (telephone-line-mode 1)
   )
@@ -173,9 +183,11 @@
 ;; ----------------------------------------------------------------------
 (use-package zerodark-theme
 ;; ----------------------------------------------------------------------
+  :load-path "~/git-clone/zerodark-theme"
   :config
-  (load-theme 'zerodark t)
   (setq zerodark-use-paddings-in-mode-line nil)
+
+  (load-theme 'zerodark t)
   (set-face-attribute 'cursor nil
                       :background (face-attribute 'mode-line :foreground)
                       :foreground "#000000"
@@ -369,54 +381,57 @@
   (set-face-attribute 'tabbar-default nil
                       :family (face-attribute 'fixed-pitch-serif :family)
                       :height 1.0
-  ;;                     ;; :background (face-attribute 'tabbar-default :background)
-  ;;                     ;; :background (face-attribute 'linum :background)
-                      :foreground (face-attribute 'tool-bar :foreground)
-  ;;                     ;; :weight 'light
-  ;;                     ;; :slant 'normal
+                      :background (face-attribute 'tool-bar :background)
+                      ;; :background (face-attribute 'tabbar-default :background)
+                      ;; :background (face-attribute 'linum :background)
+                      ;; :foreground (face-attribute 'tool-bar :foreground)
+                      :weight 'light
+                      :slant 'normal
                       :box nil
                       )
-
+   
   (set-face-attribute 'tabbar-unselected nil
                       :background (face-attribute 'tool-bar :background)
   ;;                     ;; :foreground (face-attribute 'mode-line-inactive :foreground)
                       :foreground "#080808"
+                      :weight 'light
                       :slant 'normal
                       :box nil
                       )
 
   (set-face-attribute 'tabbar-selected nil
-  ;;                     :background (face-attribute 'default :background)
+                      :background (face-attribute 'default :background)
                       :foreground (face-attribute 'mode-line :foreground)
                       ;; :foreground "#E8E8E8"
-  ;;                     ;; :slant 'normal
+                      :weight 'normal
+                      :slant 'normal
                       :box nil
                       )
 
   (set-face-attribute 'tabbar-selected-modified nil
-  ;;                     ;; :background (face-attribute 'default :background)
-  ;;                     :foreground (face-attribute 'mode-line :foreground)
-  ;;                     ;; :slant 'italic
-  ;;                     :bold t
+                      :background (face-attribute 'default :background)
+                      :foreground (face-attribute 'mode-line :foreground)
+                      ;; :foreground "#E8E8E8"
+                      :weight 'normal
+                      :slant 'italic
                       :box nil
                       )
 
   (set-face-attribute 'tabbar-modified nil
-  ;;                     :background (face-attribute 'menu :background)
                       :background (face-attribute 'tool-bar :background)
-  ;;                     ;; :underline t
-  ;;                     ;; :slant 'italic
-  ;;                     :bold t
+                      :foreground "#080808"
+                      :weight 'normal
+                      :slant 'italic
                       :box nil
                       )
 
-  ;; (set-face-attribute 'tabbar-separator nil
-  ;;                     :background (face-attribute 'default :background))
+  (set-face-attribute 'tabbar-separator nil
+                      :background (face-attribute 'default :background))
 
   ;; (setq tabbar-separator '(0.2))
 
-  (global-set-key (kbd "M-9") 'tabbar-forward-tab)
-  (global-set-key (kbd "M-8") 'tabbar-backward-tab)
+  (global-set-key (kbd "M-k") 'tabbar-forward-tab)
+  (global-set-key (kbd "M-j") 'tabbar-backward-tab)
 
   (tabbar-mwheel-mode nil)                  ;; マウスホイール無効
   (setq tabbar-buffer-groups-function nil)  ;; グループ無効
@@ -479,14 +494,18 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package expand-region
 ;; ----------------------------------------------------------------------
+  :load-path "~/git-clone/expand-region"
   :config
   (push 'er/mark-outside-pairs er/try-expand-list)
+  (setq expand-region-smart-cursor t)
+  ;; (setq expand-region-autocopy-register "e")
+  (setq expand-region-autocopy-kill-ring t)
+
   (define-key evil-normal-state-map (kbd "+") 'er/expand-region)
   ;; (define-key evil-visual-state-map (kbd "x") 'er/expand-region)
   ;; (define-key evil-visual-state-map (kbd "X") 'er/contract-region)
   (define-key evil-visual-state-map (kbd "+") 'er/expand-region)
   (define-key evil-visual-state-map (kbd "_") 'er/contract-region)
-  (setq expand-region-smart-cursor t)
   )
 
 ;; ----------------------------------------------------------------------
@@ -620,7 +639,7 @@ That is, a string used to represent it on the tab bar."
 (defalias 'a 'apropos)
 (defalias 'l 'linum-mode)
 
-(defalias 'com 'comment-region)
+(defalias 'com 'comment-or-uncomment-region)
 (defalias 'ind 'indent-region)
 
 
@@ -631,6 +650,8 @@ That is, a string used to represent it on the tab bar."
  (cond ((eq system-type 'windows-nt) "~/.emacs.d/elisp/_windows.el")
        ((eq system-type 'gnu/linux)  "~/.emacs.d/elisp/_linux.el")
        (t                            "~/.emacs.d/elisp/_mac.el")))
+
+(message "<-- loaded \"init.el\"")
 
 ;; ----------------------------------------------------------------------
 ;; automatically added
@@ -645,5 +666,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (zerodark-theme telephone-line helm-gtags scratch-log neotree all-the-icons markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
+    (telephone-line helm-gtags scratch-log neotree all-the-icons markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
 
