@@ -329,6 +329,14 @@ Return nil for blank/empty strings."
 )
 
 ;; ----------------------------------------------------------------------
+(use-package evil-org
+;; ----------------------------------------------------------------------
+  :after evil
+  ;; :diminish evil-surround-mode
+  :config
+)
+
+;; ----------------------------------------------------------------------
 (use-package neotree
 ;; ----------------------------------------------------------------------
   :after all-the-icons
@@ -357,6 +365,7 @@ Return nil for blank/empty strings."
   :functions my-font-lighter
   :config
   (helm-mode 1)
+  (helm-autoresize-mode t)
   (setq helm-buffers-fuzzy-matching t
         helm-recentf-fuzzy-match t)
 
@@ -735,5 +744,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (rainbow-mode smartparens all-the-icons telephone-line helm-gtags scratch-log neotree markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no helm atom-one-dark-theme evil-escape evil))))
+    (helm-swoop rainbow-mode smartparens all-the-icons telephone-line helm-gtags scratch-log neotree markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no helm atom-one-dark-theme evil-escape evil))))
 
