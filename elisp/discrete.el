@@ -247,6 +247,33 @@ double quotation characters \(\"\) from given string."
     (point)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;@@ my-comment-indent-function
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun my-comment-indent-function (&optional arg)
+  (interactive "P")
+  (if arg
+      (progn
+        (setq comment-column (current-column))
+        (message "Comment column set to %d" comment-column))
+    (comment-indent)                            
+    (when (= (preceding-char) ?\;) (insert " "))
+    (when (and evil-mode (not (eq evil-state 'insert))) 
+      (evil-insert-state))))
+
+(global-set-key (kbd "C-;") 'my-comment-indent-function) ;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;@@ my-current-path
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun my-current-path ()
+  (interactive)
+  (when buffer-file-name
+    (let ((path (file-truename buffer-file-name)))
+      (kill-new path)
+      (message "copied \"%s\"" path))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ goto-match-paren
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (defun goto-match-paren (arg)
@@ -260,7 +287,7 @@ double quotation characters \(\"\) from given string."
 ;; (global-set-key (kbd "M-]") 'goto-match-paren)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ goto-match-paren
+;;;@@ my-kill-buffer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun my-kill-buffer ()
   (interactive)

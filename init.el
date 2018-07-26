@@ -54,6 +54,8 @@
  next-screen-context-lines 5
  scroll-preserve-screen-position t
 
+ next-line-add-newlines nil                  ; バッファ末尾に余計な改行コードを防ぐための設定
+ make-backup-files nil                       ; #のバックアップファイルを作成しない
 )
 
 (fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
@@ -61,7 +63,7 @@
 (tool-bar-mode -1)
 (menu-bar-mode 0)                                 ; Disable the menu bar
 (add-hook 'focus-out-hook #'garbage-collect)
-(which-func-mode 1)
+;; (which-func-mode 1)
 (setq cursor-type 'box)
 (blink-cursor-mode 0)
 
@@ -82,12 +84,21 @@
 (global-set-key "\C-m" 'newline-and-indent)  ; Returnキーで改行＋オートインデント
 
 ;; mode-line
+(column-number-mode t)
 (set-face-attribute 'mode-line          nil :box nil) ; モードラインを非3D化
 (set-face-attribute 'mode-line-inactive nil :box nil)
 
+;; モードラインの割合表示を総行数表示に
+(defvar my-lines-page-mode t)
+
+(when my-lines-page-mode
+  (setq my-mode-line-format "%3d:%%4l/%d")
+  (setq mode-line-position '(:eval (format my-mode-line-format
+                                           (current-column)
+                                           (count-lines (point-max) (point-min))))))
+
 ;; linum
 (global-linum-mode t)
-(column-number-mode t)
 (setq linum-format "%5d")
 (set-face-attribute 'linum nil
             :foreground "#687080"
@@ -150,27 +161,48 @@
 (use-package telephone-line
 ;; ----------------------------------------------------------------------
   :config
-(setq telephone-line-lhs
-      '((evil   . (telephone-line-evil-tag-segment))
-        (accent . (telephone-line-vc-segment
-                   telephone-line-erc-modified-channels-segment
-                   telephone-line-process-segment))
-        (nil    . (telephone-line-minor-mode-segment
-                   telephone-line-buffer-segment))))
-(setq telephone-line-rhs
-      '((nil    . (telephone-line-misc-info-segment))
-        (accent . (telephone-line-major-mode-segment))
-        (evil   . (telephone-line-airline-position-segment))))
 
-(setq telephone-line-primary-left-separator 'telephone-line-identity-left
-      telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
-      telephone-line-primary-right-separator 'telephone-line-identity-left
-      telephone-line-secondary-right-separator 'telephone-line-identity-hollow-left)
+  (setq telephone-line-lhs
+        '((evil   . (telephone-line-evil-tag-segment))
+          (accent . (telephone-line-vc-segment
+                     telephone-line-erc-modified-channels-segment
+                     telephone-line-process-segment))
+          (nil    . (telephone-line-minor-mode-segment
+                     telephone-line-buffer-segment))))
+  (setq telephone-line-rhs
+        '((nil    . (telephone-line-misc-info-segment))
+          (accent . (telephone-line-major-mode-segment))
+          ;; (evil   . (telephone-line-airline-position-segment))))
+          (evil   . (telephone-line-position-segment))))
 
-(setq telephone-line-height 15
-      telephone-line-evil-use-short-tag nil)
+  (setq telephone-line-primary-left-separator 'telephone-line-identity-left
+        telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
+        telephone-line-primary-right-separator 'telephone-line-identity-left
+        telephone-line-secondary-right-separator 'telephone-line-identity-hollow-left)
+
+  (setq telephone-line-height 15
+        telephone-line-evil-use-short-tag nil)
 
   (telephone-line-mode 1)
+
+  ;; mod
+  (defun telephone-line-raw (str &optional preformatted)
+    "Conditionally render STR as mode-line data, or just verify output if not PREFORMATTED.
+Return nil for blank/empty strings."
+    (let ((fmt (format-mode-line str)))
+      (unless (seq-empty-p fmt)
+        (if preformatted
+                                        ; format-mode-line will condense all escaped %s, so we need
+                                        ; to re-escape them.
+            (replace-regexp-in-string "%" "%%" fmt)
+          str))))
+
+  (telephone-line-defsegment* telephone-line-position-segment ()
+    (telephone-line-raw
+     (if (eq major-mode 'paradox-menu-mode)
+         ;;Paradox fills this with position info.
+         mode-line-front-space
+       mode-line-position) t))
   )
 
 ;; ----------------------------------------------------------------------
@@ -296,10 +328,14 @@
 	     ("M-y" . helm-show-kill-ring)
 	     ("C-x b" . helm-mini)
 	     ("C-x C-f" . helm-find-files)
-	     ("C-x C-b" . helm-buffers-list))
+	     ("C-x C-b" . helm-buffers-list)
 
-  ;; (:map helm-find-files-map ("TAB" . helm-execute-persistent-action))
-  ;; (define-key helm-read-file-map (kbd "TAB") 'helm-execute-persistent-action)
+         :map helm-map
+         ;; TAB, SHIFT-TABで候補選択を移動
+         ([tab]     . helm-next-line)
+         ([backtab] . helm-previous-line)
+         ([?`]      . helm-select-action))
+
 )
 
 ;; ----------------------------------------------------------------------
@@ -413,7 +449,7 @@
                       :foreground (face-attribute 'mode-line :foreground)
                       ;; :foreground "#E8E8E8"
                       :weight 'normal
-                      :slant 'italic
+                      :slant 'normal
                       :box nil
                       )
 
@@ -421,7 +457,7 @@
                       :background (face-attribute 'tool-bar :background)
                       :foreground "#080808"
                       :weight 'normal
-                      :slant 'italic
+                      :slant 'normal
                       :box nil
                       )
 
@@ -494,12 +530,12 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package expand-region
 ;; ----------------------------------------------------------------------
-  :load-path "~/git-clone/expand-region"
+  :load-path "~/git-clone/expand-region.el"
   :config
   (push 'er/mark-outside-pairs er/try-expand-list)
   (setq expand-region-smart-cursor t)
   ;; (setq expand-region-autocopy-register "e")
-  (setq expand-region-autocopy-kill-ring t)
+  ;; (setq expand-region-autocopy-kill-ring t)
 
   (define-key evil-normal-state-map (kbd "+") 'er/expand-region)
   ;; (define-key evil-visual-state-map (kbd "x") 'er/expand-region)
