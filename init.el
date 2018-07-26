@@ -92,7 +92,7 @@
 (defvar my-lines-page-mode t)
 
 (when my-lines-page-mode
-  (setq my-mode-line-format "%3d:%%4l/%d")
+  (setq my-mode-line-format "%2d:%%4l/%d")
   (setq mode-line-position '(:eval (format my-mode-line-format
                                            (current-column)
                                            (count-lines (point-max) (point-min))))))
@@ -162,16 +162,25 @@
 (use-package telephone-line
 ;; ----------------------------------------------------------------------
   :config
+  (set-face-background 'mode-line-inactive "#404157")
+  (set-face-background 'mode-line "#38394c")
+  (set-face-background 'telephone-line-accent-active "#5e5e5e")
+  (set-face-background 'telephone-line-accent-inactive "#363636")
+
+  (set-face-background 'telephone-line-evil-visual "#00cc88")
+  (set-face-background 'telephone-line-evil-insert "#cc4444")
+  (set-face-background 'telephone-line-evil-emacs  "#cc8800")
+  (set-face-background 'telephone-line-evil-normal "#0088cc")
 
   (setq telephone-line-lhs
         '((evil   . (telephone-line-evil-tag-segment))
           (accent . (telephone-line-vc-segment
                      telephone-line-erc-modified-channels-segment
                      telephone-line-process-segment))
-          (nil    . (telephone-line-minor-mode-segment
-                     telephone-line-buffer-segment))))
+          (nil    . (telephone-line-buffer-segment))))
   (setq telephone-line-rhs
-        '((nil    . (telephone-line-misc-info-segment))
+        '((nil    . (telephone-line-misc-info-segment
+                    telephone-line-minor-mode-segment))
           (accent . (telephone-line-major-mode-segment))
           ;; (evil   . (telephone-line-airline-position-segment))))
           (evil   . (telephone-line-position-segment))))
@@ -330,10 +339,8 @@ Return nil for blank/empty strings."
 
   (setq-default helm-ff-skip-boring-files t)
   (add-to-list 'helm-boring-file-regexp-list "scratch-log-.*$")
-  
-  ;; (setq helm-ag-base-command "ag --nocolor --nogroup")
-  (setq helm-ag-base-command "rg --vimgrep --no-heading")		; ripgrep
-  (setq helm-ag-insert-at-point 'symbol)
+
+  (my-font-lighter)
 
   :bind (("M-x" . helm-M-x)
 	     ("M-y" . helm-show-kill-ring)
@@ -347,6 +354,17 @@ Return nil for blank/empty strings."
          ([backtab] . helm-previous-line)
          ([?`]      . helm-select-action))
 
+)
+
+;; ----------------------------------------------------------------------
+(use-package helm-ag
+;; ----------------------------------------------------------------------
+  :config
+  ;; (setq helm-ag-base-command "ag --nocolor --nogroup")
+  (setq helm-ag-base-command "rg --vimgrep --no-heading")		; ripgrep
+  (setq helm-ag-insert-at-point 'symbol)
+
+  :bind (("M-o" . helm-do-ag))
 )
 
 ;; ----------------------------------------------------------------------
@@ -702,6 +720,8 @@ That is, a string used to represent it on the tab bar."
  (cond ((eq system-type 'windows-nt) "~/.emacs.d/elisp/_windows.el")
        ((eq system-type 'gnu/linux)  "~/.emacs.d/elisp/_linux.el")
        (t                            "~/.emacs.d/elisp/_mac.el")))
+
+(my-font-lighter)
 
 (message "<-- loaded \"init.el\"")
 

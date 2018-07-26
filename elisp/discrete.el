@@ -247,6 +247,18 @@ double quotation characters \(\"\) from given string."
     (point)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;@@ my-font-lighter
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun my-font-lighter ()
+  (interactive)
+  (mapc
+   (lambda (face)
+     (cond ((eq (face-attribute face :weight) 'normal)      (set-face-attribute face nil :weight 'light))
+           ((eq (face-attribute face :weight) 'semi-bold)   (set-face-attribute face nil :weight 'light))
+           ((eq (face-attribute face :weight) 'bold)        (set-face-attribute face nil :weight 'normal))))
+   (face-list)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ my-comment-indent-function
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun my-comment-indent-function (&optional arg)

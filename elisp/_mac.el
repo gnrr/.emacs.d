@@ -21,13 +21,6 @@
 ;;;
 (set-default-font "Source Han Code JP N")
 
-(mapc
-   (lambda (face)
-     (cond ((eq (face-attribute face :weight) 'normal)      (set-face-attribute face nil :weight 'light))
-           ((eq (face-attribute face :weight) 'semi-bold)   (set-face-attribute face nil :weight 'light))
-           ((eq (face-attribute face :weight) 'bold)        (set-face-attribute face nil :weight 'normal))))
-   (face-list))
-
 ;; ;; アイコンやdockから起動したemacsのpathやexec-pathが正しく設定されてないのをなんとかする
 ;; ;; http://yukihr.github.com/blog/2012/03/02/emacs-path-settings/
 ;; ;; when opened from desktep entry, path won't be set to shell's value.
