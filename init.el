@@ -141,7 +141,7 @@
 (global-set-key (kbd "M-g") 'goto-line)
 (global-set-key (kbd "M-v") 'new-empty-buffer-other-frame)
 (global-set-key (kbd "C-x ;") 'comment-set-column)         ; c-x ;
-(global-set-key [24 67108923] 'comment-indent)     ; c-x c-;
+(global-set-key [24 67108923] 'comment-indent)             ; c-x c-;
 (global-set-key (kbd "C-x t") 'revert-buffer)
 (global-set-key (kbd "C-x C-t") 'toggle-truncate-lines)
 (global-set-key (kbd "C-x n f") 'narrow-to-defun)
@@ -268,10 +268,13 @@ Return nil for blank/empty strings."
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
 
   (evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
+
   ;; (define-key undo-tree-map (kbd "U") 'undo-tree-redo)
   (define-key evil-normal-state-map (kbd "U") 'undo-tree-redo)
   (define-key evil-normal-state-map (kbd "SPC SPC") 'evil-scroll-down)
   (define-key evil-normal-state-map (kbd "S-SPC S-SPC") 'evil-scroll-up)
+
+  (define-key evil-motion-state-map (kbd "]") 'evil-jump-item)
 
   (defun evil-return-insert-mode-after-save ()
     (when evil-insert-state-minor-mode
@@ -514,6 +517,7 @@ That is, a string used to represent it on the tab bar."
 (use-package rainbow-mode
 ;; ----------------------------------------------------------------------
   :config
+  (setq rainbow-html-colors nil)
   (add-hook 'lisp-interaction-mode-hook 'rainbow-mode)
   (add-hook 'emacs-lisp-mode-hook 'rainbow-mode)
   (add-hook 'css-mode-hook 'rainbow-mode)
