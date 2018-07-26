@@ -129,6 +129,7 @@
 (global-unset-key (kbd "C-x C-z"))                      ; suspend-frame
 (global-unset-key (kbd "C-x o"))                        ; other-window
 (global-unset-key (kbd "M-t"))                          ; transpose-word
+(global-unset-key (kbd "M-'"))                          ; abbrev-prefix-mark
 (global-unset-key [f11])                                ; toggle-frame-fullscreen
 
 (global-set-key (kbd "C-0") 'delete-window)
@@ -406,13 +407,12 @@ Return nil for blank/empty strings."
   )
 
 ;; ----------------------------------------------------------------------
-(use-package dumb-jump
+(use-package smartparens
 ;; ----------------------------------------------------------------------
   :config
-  (setq dumb-jump-default-project "") ;; これをしないとホームディレクトリ以下が検索対象になる
-  ;; (setq dumb-jump-force-searcher 'rg) ;; 日本語を含むパスだとgit grepがちゃんと動かない…
-  (dumb-jump-mode) ;; 標準キーバインドを有効にする
-  (setq dumb-jump-selector 'helm)
+  (smartparens-global-mode)
+  (ad-disable-advice 'delete-backward-char 'before 'sp-delete-pair-advice) ; disable C-h
+  (ad-activate 'delete-backward-char)
   )
 
 ;; ----------------------------------------------------------------------
@@ -709,5 +709,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (all-the-icons telephone-line helm-gtags scratch-log neotree markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
+    (smartparens all-the-icons telephone-line helm-gtags scratch-log neotree markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no helm atom-one-dark-theme mic-paren evil-escape evil))))
 
