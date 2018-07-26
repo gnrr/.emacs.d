@@ -1,4 +1,4 @@
 # .emacs.d
 
-![Life with Evil.](./img/ss.png)
+![Life with Evil.](./img/ss_20180726.png)
 
