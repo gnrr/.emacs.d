@@ -255,7 +255,7 @@ Return nil for blank/empty strings."
   (setq dashboard-banner-logo-title "Life with Evil")
   (setq dashboard-startup-banner "~/.emacs.d/img/e_splash.svg")
   (dashboard-setup-startup-hook)
-  (setq dashboard-items '((recents  . 20)))
+  (setq dashboard-items '((recents  . 10)))
   ;; (widget-forward 1)
   )
 
