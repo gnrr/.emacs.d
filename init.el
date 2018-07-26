@@ -55,7 +55,7 @@
  scroll-preserve-screen-position t
 
  next-line-add-newlines nil                  ; バッファ末尾に余計な改行コードを防ぐための設定
- make-backup-files nil                       ; #のバックアップファイルを作成しない
+ ;; make-backup-files nil                       ; #のバックアップファイルを作成しない
 )
 
 (fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
@@ -101,9 +101,9 @@
 (global-linum-mode t)
 (setq linum-format "%5d")
 (set-face-attribute 'linum nil
-            :foreground "#687080"
-            :background "#282c34"
-            :height 0.9)
+                    :foreground "#687080"
+                    :background "#282c34"
+                    :height 0.9)
 
 ;; タイトルバーにファイルのフルパス表示
 (defmacro replace-home-directory-string (file-name)
@@ -407,15 +407,6 @@ Return nil for blank/empty strings."
   )
 
 ;; ----------------------------------------------------------------------
-(use-package smartparens
-;; ----------------------------------------------------------------------
-  :config
-  (smartparens-global-mode)
-  (ad-disable-advice 'delete-backward-char 'before 'sp-delete-pair-advice) ; disable C-h
-  (ad-activate 'delete-backward-char)
-  )
-
-;; ----------------------------------------------------------------------
 (use-package tabbar
 ;; ----------------------------------------------------------------------
   :config
@@ -520,18 +511,32 @@ That is, a string used to represent it on the tab bar."
   )
 
 ;; ----------------------------------------------------------------------
-(use-package mic-paren
+(use-package rainbow-mode
 ;; ----------------------------------------------------------------------
   :config
-  (setq paren-sexp-mode t)
-  (setq paren-delay 0.1)
-  (set-face-background 'paren-face-match "#263652")
-  (paren-activate)
+  (add-hook 'lisp-interaction-mode-hook 'rainbow-mode)
+  (add-hook 'emacs-lisp-mode-hook 'rainbow-mode)
+  (add-hook 'css-mode-hook 'rainbow-mode)
+  (add-hook 'less-mode-hook 'rainbow-mode)
+  (add-hook 'web-mode-hook 'rainbow-mode)
+  (add-hook 'html-mode-hook 'rainbow-mode)
+  )
 
-  ;; for hilight paired parenthesis
+;; ----------------------------------------------------------------------
+(use-package smartparens
+;; ----------------------------------------------------------------------
+  :config
+  (smartparens-global-mode)
+  (show-smartparens-global-mode t)
+  (set-face-background 'sp-show-pair-match-face "#4C6DA6")
+
+  (ad-disable-advice 'delete-backward-char 'before 'sp-delete-pair-advice) ; disable C-h
+  (ad-activate 'delete-backward-char)
+
+  ;; use show-paren to hilight content in parenthesis
   (show-paren-mode 1)
-  (setq show-paren-style 'parenthesis)
-  (set-face-background 'show-paren-match "#4A6AA1")
+  (setq show-paren-style 'expression)
+  (set-face-background 'show-paren-match "#263652")
   )
 
 ;; ----------------------------------------------------------------------
@@ -709,5 +714,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (smartparens all-the-icons telephone-line helm-gtags scratch-log neotree markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no helm atom-one-dark-theme mic-paren evil-escape evil))))
+    (rainbow-mode smartparens all-the-icons telephone-line helm-gtags scratch-log neotree markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no helm atom-one-dark-theme evil-escape evil))))
 
