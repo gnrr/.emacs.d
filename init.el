@@ -180,7 +180,7 @@
         telephone-line-primary-right-separator 'telephone-line-identity-left
         telephone-line-secondary-right-separator 'telephone-line-identity-hollow-left)
 
-  (setq telephone-line-height 15
+  (setq telephone-line-height 16
         telephone-line-evil-use-short-tag nil)
 
   (telephone-line-mode 1)
@@ -285,6 +285,13 @@ Return nil for blank/empty strings."
   (setq-default evil-escape-delay 0.2)
   (setq-default evil-escape-key-sequence "jj")
   (setq-default evil-escape-excluded-states '(normal visual multiedit emacs motion))
+  )
+
+(use-package evil-surround
+  ;; :diminish evil-surround-mode
+  :ensure t
+  :config
+  (global-evil-surround-mode 1)
 )
 
 ;; ----------------------------------------------------------------------
@@ -530,10 +537,10 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package expand-region
 ;; ----------------------------------------------------------------------
-  :load-path "~/git-clone/expand-region.el"
+  ;; :load-path "~/git-clone/expand-region.el"
   :config
   (push 'er/mark-outside-pairs er/try-expand-list)
-  (setq expand-region-smart-cursor t)
+  (setq expand-region-smart-cursor nil)
   ;; (setq expand-region-autocopy-register "e")
   ;; (setq expand-region-autocopy-kill-ring t)
 
@@ -702,5 +709,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (telephone-line helm-gtags scratch-log neotree all-the-icons markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
+    (all-the-icons telephone-line helm-gtags scratch-log neotree markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no dumb-jump helm atom-one-dark-theme mic-paren evil-escape evil))))
 
