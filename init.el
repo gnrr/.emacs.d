@@ -72,13 +72,7 @@
 
 ;; ミニバッファの履歴を保存する
 (savehist-mode 1)
-(setq history-length 3000)
-
-;; show-paren
-;; (show-paren-mode 1)
-;; (setq show-paren-delay 0.3)
-;; (setq show-paren-style 'mixed)
-;; (set-face-background 'show-paren-match "#263652")
+(setq history-length 1000)
 
 (setq indent-line-function 'indent-relative-maybe)
 (global-set-key "\C-m" 'newline-and-indent)  ; Returnキーで改行＋オートインデント
@@ -96,14 +90,6 @@
   (setq mode-line-position '(:eval (format my-mode-line-format
                                            (current-column)
                                            (count-lines (point-max) (point-min))))))
-
-;; linum
-(global-linum-mode t)
-(setq linum-format "%5d")
-(set-face-attribute 'linum nil
-                    :foreground "#687080"
-                    :background "#282c34"
-                    :height 0.9)
 
 ;; タイトルバーにファイルのフルパス表示
 (defmacro replace-home-directory-string (file-name)
@@ -218,26 +204,46 @@ Return nil for blank/empty strings."
 ;; ----------------------------------------------------------------------
 (use-package atom-one-dark-theme
 ;; ----------------------------------------------------------------------
+  :disabled
   :config
-  ;; (load-theme 'atom-one-dark t)
+  (load-theme 'atom-one-dark t)
   )
 
 ;; ----------------------------------------------------------------------
 (use-package zerodark-theme
 ;; ----------------------------------------------------------------------
+  ;; :disabled
   :load-path "~/git-clone/zerodark-theme"
   :config
   (setq zerodark-use-paddings-in-mode-line nil)
 
   (load-theme 'zerodark t)
+  (set-face-background 'default "#21252B")
+  (set-face-background 'fringe "#21252B")
+ 
   (set-face-attribute 'cursor nil
                       :background (face-attribute 'mode-line :foreground)
                       :foreground "#000000"
                       :weight 'bold)
-  ;; (set-face-attribute 'default nil
-                      ;; :background "#1D2026")
-  ;; (set-face-attribute 'fringe nil
-                      ;; :background "#1D2026")
+  (set-face-attribute 'font-lock-builtin-face nil :weight 'light)
+  (set-face-attribute 'font-lock-comment-face nil :weight 'light)
+  (set-face-attribute 'font-lock-constant-face nil :weight 'light)
+  (set-face-attribute 'font-lock-function-name-face nil :weight 'light) 
+  (set-face-attribute 'font-lock-keyword-face nil :weight 'light)
+  (set-face-attribute 'font-lock-string-face nil :weight 'light)
+  (set-face-attribute 'font-lock-doc-face nil :weight 'light)
+  (set-face-attribute 'font-lock-type-face nil :weight 'light)
+  (set-face-attribute 'font-lock-variable-name-face nil :weight 'light)
+  (set-face-attribute 'font-lock-warning-face nil :weight 'light)
+
+  ;; linum
+  (global-linum-mode t)
+  (setq linum-format "%5d")
+  (set-face-attribute 'linum nil
+                      :foreground "#7A8496"
+                      :background "#2F343D"
+                      :height 1.0)
+
   )
 
 ;; ----------------------------------------------------------------------
@@ -269,6 +275,7 @@ Return nil for blank/empty strings."
   (define-key evil-motion-state-map (kbd "C-f") nil)
   (define-key evil-motion-state-map (kbd "C-b") nil)
   (define-key evil-motion-state-map (kbd "C-o") nil)		; evil-jump-backward
+
   (define-key evil-normal-state-map (kbd "C-n") nil)
   (define-key evil-normal-state-map (kbd "C-p") nil)
   (define-key evil-normal-state-map (kbd "C")   nil)
@@ -288,10 +295,22 @@ Return nil for blank/empty strings."
   (defun evil-return-insert-mode-after-save ()
     (when evil-insert-state-minor-mode
       (funcall (evil-escape--escape-normal-state))))
+
   (add-hook 'after-save-hook 'evil-return-insert-mode-after-save)
+
+  (defun my-evil-paste (&optional arg)
+    (interactive  "P")
+    (if (memq last-command '(evil-paste-before evil-paste-after))
+        (call-interactively 'evil-paste-pop)
+      (call-interactively (if arg 'evil-paste-before 'evil-paste-after))))
+
+  (define-key evil-normal-state-map (kbd "p") 'my-evil-paste)
   )
 
+;; ----------------------------------------------------------------------
 (use-package evil-escape
+;; ----------------------------------------------------------------------
+  :after evil
   :diminish evil-escape-mode
   :config
   (evil-escape-mode 1)
@@ -300,9 +319,11 @@ Return nil for blank/empty strings."
   (setq-default evil-escape-excluded-states '(normal visual multiedit emacs motion))
   )
 
+;; ----------------------------------------------------------------------
 (use-package evil-surround
+;; ----------------------------------------------------------------------
+  :after evil
   ;; :diminish evil-surround-mode
-  :ensure t
   :config
   (global-evil-surround-mode 1)
 )
@@ -310,6 +331,7 @@ Return nil for blank/empty strings."
 ;; ----------------------------------------------------------------------
 (use-package neotree
 ;; ----------------------------------------------------------------------
+  :after all-the-icons
   :config
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
   (setq neo-show-hidden-files t)
@@ -332,6 +354,7 @@ Return nil for blank/empty strings."
 ;; ----------------------------------------------------------------------
 (use-package helm
 ;; ----------------------------------------------------------------------
+  :functions my-font-lighter
   :config
   (helm-mode 1)
   (setq helm-buffers-fuzzy-matching t
@@ -353,12 +376,12 @@ Return nil for blank/empty strings."
          ([tab]     . helm-next-line)
          ([backtab] . helm-previous-line)
          ([?`]      . helm-select-action))
-
 )
 
 ;; ----------------------------------------------------------------------
 (use-package helm-ag
 ;; ----------------------------------------------------------------------
+  :after helm
   :config
   ;; (setq helm-ag-base-command "ag --nocolor --nogroup")
   (setq helm-ag-base-command "rg --vimgrep --no-heading")		; ripgrep
@@ -370,6 +393,7 @@ Return nil for blank/empty strings."
 ;; ----------------------------------------------------------------------
 (use-package helm-gtags
 ;; ----------------------------------------------------------------------
+  :after helm
   :config
   (helm-gtags-mode t)
   (setq helm-gtags-auto-update t)
@@ -389,29 +413,6 @@ Return nil for blank/empty strings."
               ("g h" . helm-gtags-previous-history)
               ("g l" . helm-gtags-next-history))
 )
-
-;; ----------------------------------------------------------------------
-;; ido
-;; ----------------------------------------------------------------------
-;; (ido-mode 1)
-;; (ido-everywhere 1)
-
-;; (setq ido-enable-flex-matching t) ;; 中間/あいまい一致
-;; (global-set-key (kbd "M-x") 'smex) ;; for M-x
-;; (ido-ubiquitous-mode 1)
-
-;; (smex-initialize) ; Can be omitted. This might cause a (minimal) delay
-;;                   ; when Smex is auto-initialized on its first run.
-;; (global-set-key (kbd "M-x") 'smex)
-;; (global-set-key (kbd "M-X") 'smex-major-mode-commands)
-
-;; (ido-vertical-mode 1)
-;; (ido-yes-or-no-mode 1)
-
-;; (defun my/ido-recentf ()
-;;   (interactive)
-;;   (find-file (ido-completing-read "Find recent file: " recentf-list)))
-
 
 ;; ----------------------------------------------------------------------
 (use-package recentf
@@ -697,11 +698,7 @@ That is, a string used to represent it on the tab bar."
 ;;; command aliases
 ;;;
 
-;; iro mihon
-(defalias 'color-list 'list-colors-display)
-
 ;; edebug-defun
-(require 'edebug)
 (eval-after-load "edebug"
   '(defalias 'ede 'edebug-defun))
 
