@@ -372,6 +372,26 @@ Return nil for blank/empty strings."
   (setq-default helm-ff-skip-boring-files t)
   (add-to-list 'helm-boring-file-regexp-list "scratch-log-.*$")
 
+  (defun helm-font-families ()
+    (interactive)
+    (helm :sources (helm-build-sync-source "font-families"
+                     :candidates (mapcar '(lambda (f)
+                                            (propertize f 'font-lock-face
+                                                        (list :family f :height 1.4 :weight 'normal)))
+                                         (font-family-list))
+                     :fuzzy-match t
+                     :action (helm-make-actions
+                              "Insert font family name" 'insert
+                              "Yank font family name" 'kill-new
+                              "Test as 'default" '(lambda (x)
+                                                      (set-face-attribute 'default nil
+                                                                          :family (format "%s" x)))
+                              "Test as 'mode-line" '(lambda (x)
+                                                        (set-face-attribute 'mode-line nil
+                                                                            :family (format "%s" x)))
+                              ))
+          :buffer "*helm font families*"))
+
   (my-font-lighter)
 
   :bind (("M-x" . helm-M-x)
