@@ -17,7 +17,7 @@
 (unless (require 'use-package nil t)
   (defmacro use-package (&rest args)))
 
-; ----------------------------------------------------------------------
+;;; ----------------------------------------------------------------------
 ;;; defaults
 ;; ----------------------------------------------------------------------
 (setq-default
@@ -31,11 +31,9 @@
  inhibit-startup-screen t                         ; Disable start-up screen
  initial-scratch-message ""                       ; Empty the initial *scratch* buffer
  left-margin-width 1 right-margin-width 1         ; Add left and right margins
- scroll-margin 10                                 ; Add a margin when scrolling vertically
  select-enable-clipboard t                        ; Merge system's and Emacs' clipboard
  sentence-end-double-space nil                    ; End a sentence after a dot and a space
  show-trailing-whitespace nil                     ; Display trailing whitespaces
- tab-width 4                                      ; Set width for tabs
  uniquify-buffer-name-style 'forward              ; Uniquify buffer names
  window-combination-resize t                      ; Resize windows proportionally
 
@@ -47,6 +45,7 @@
  indent-tabs-mode nil
  tab-width 4
  tab-stop-list  '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60)
+ comment-column 80
 
  ;; 1行スクロール
  ;; (setq scroll-conservatively most-positive-fixnum)
@@ -56,16 +55,27 @@
 
  next-line-add-newlines nil                  ; バッファ末尾に余計な改行コードを防ぐための設定
  ;; make-backup-files nil                       ; #のバックアップファイルを作成しない
-)
+ idle-update-delay 0.3
+
+ )
 
 (fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
-(global-hl-line-mode 1)                           ; Hightlight current line
 (tool-bar-mode -1)
 (menu-bar-mode 0)                                 ; Disable the menu bar
 (add-hook 'focus-out-hook #'garbage-collect)
-;; (which-func-mode 1)
+(electric-indent-mode)
+
 (setq cursor-type 'box)
 (blink-cursor-mode 0)
+
+;; カーソル行をハイライト
+(global-hl-line-mode t)
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(hl-line ((t (:background "#080808")))))
 
 (setq save-place-file "~/.emacs.d/.emacs-places")
 (save-place-mode 1)                               ; Enable saveplace
@@ -86,9 +96,9 @@
 (defvar my-lines-page-mode t)
 
 (when my-lines-page-mode
-  (setq my-mode-line-format "%2d:%%4l/%d")
+  (setq my-mode-line-format "%3d:%%4l/%d")
   (setq mode-line-position '(:eval (format my-mode-line-format
-                                           (current-column)
+                                           (1+ (current-column))
                                            (count-lines (point-max) (point-min))))))
 
 ;; タイトルバーにファイルのフルパス表示
@@ -141,8 +151,22 @@
 
 
 ;; ----------------------------------------------------------------------
+(use-package cl)
 (use-package all-the-icons)
 ;; ----------------------------------------------------------------------
+
+;; ----------------------------------------------------------------------
+(use-package linum
+;; ----------------------------------------------------------------------
+  :config
+  (global-linum-mode 0)
+  (setq linum-format "%5d")
+  (set-face-attribute 'linum nil
+                      :foreground "#7A8496"
+                      :background "#2F343D"
+                      :height 1.0)
+
+  )
 
 ;; ----------------------------------------------------------------------
 (use-package telephone-line
@@ -153,7 +177,7 @@
   (set-face-background 'telephone-line-accent-active "#5e5e5e")
   (set-face-background 'telephone-line-accent-inactive "#363636")
 
-  (set-face-background 'telephone-line-evil-visual "#00cc88")
+  (set-face-background 'telephone-line-evil-visual "#009161")
   (set-face-background 'telephone-line-evil-insert "#cc4444")
   (set-face-background 'telephone-line-evil-emacs  "#cc8800")
   (set-face-background 'telephone-line-evil-normal "#0088cc")
@@ -213,13 +237,14 @@ Return nil for blank/empty strings."
 (use-package zerodark-theme
 ;; ----------------------------------------------------------------------
   ;; :disabled
+  :after linum
   :load-path "~/git-clone/zerodark-theme"
   :config
   (setq zerodark-use-paddings-in-mode-line nil)
 
   (load-theme 'zerodark t)
   (set-face-background 'default "#21252B")
-  (set-face-background 'fringe "#21252B")
+  (set-face-background 'fringe  "#21252B")
  
   (set-face-attribute 'cursor nil
                       :background (face-attribute 'mode-line :foreground)
@@ -236,14 +261,9 @@ Return nil for blank/empty strings."
   (set-face-attribute 'font-lock-variable-name-face nil :weight 'light)
   (set-face-attribute 'font-lock-warning-face nil :weight 'light)
 
-  ;; linum
-  (global-linum-mode t)
-  (setq linum-format "%5d")
-  (set-face-attribute 'linum nil
-                      :foreground "#7A8496"
-                      :background "#2F343D"
-                      :height 1.0)
-
+  (set-face-attribute 'mode-line          nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
+  (set-face-attribute 'mode-line-inactive nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
+  (set-face-attribute 'minibuffer-prompt  nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1 :foreground "#cc8800")
   )
 
 ;; ----------------------------------------------------------------------
@@ -280,8 +300,10 @@ Return nil for blank/empty strings."
   (define-key evil-normal-state-map (kbd "C-p") nil)
   (define-key evil-normal-state-map (kbd "C")   nil)
 
-  (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
-  (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+  (define-key evil-motion-state-map (kbd "j") 'evil-next-visual-line)
+  (define-key evil-motion-state-map (kbd "k") 'evil-previous-visual-line)
+  (define-key evil-motion-state-map (kbd "4") 'evil-end-of-line)
+  (define-key evil-motion-state-map (kbd "]") 'evil-jump-item)
 
   (evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
 
@@ -289,8 +311,6 @@ Return nil for blank/empty strings."
   (define-key evil-normal-state-map (kbd "U") 'undo-tree-redo)
   (define-key evil-normal-state-map (kbd "SPC SPC") 'evil-scroll-down)
   (define-key evil-normal-state-map (kbd "S-SPC S-SPC") 'evil-scroll-up)
-
-  (define-key evil-motion-state-map (kbd "]") 'evil-jump-item)
 
   (defun evil-return-insert-mode-after-save ()
     (when evil-insert-state-minor-mode
@@ -362,6 +382,7 @@ Return nil for blank/empty strings."
 ;; ----------------------------------------------------------------------
 (use-package helm
 ;; ----------------------------------------------------------------------
+  :diminish helm-mode
   :functions my-font-lighter
   :config
   (helm-mode 1)
@@ -373,13 +394,20 @@ Return nil for blank/empty strings."
   (add-to-list 'helm-boring-file-regexp-list "scratch-log-.*$")
 
   (defun helm-font-families ()
+    (require 'cl)
     (interactive)
     (helm :sources (helm-build-sync-source "font-families"
+                     ;; :candidates (delete-duplicates (font-family-list))
                      :candidates (mapcar '(lambda (f)
                                             (propertize f 'font-lock-face
-                                                        (list :family f :height 1.4 :weight 'normal)))
-                                         (font-family-list))
-                     :fuzzy-match t
+                                                        (list :family f :height 1.4)))
+                                         (sort (delete-duplicates (font-family-list)) 'string>))
+                     ;; :candidates (mapcar '(lambda (f)
+                     ;;                        (propertize f 'font-lock-face
+                     ;;                                    (list :family f :height 1.4)))
+                     ;;                     (sort (delete-duplicates (font-family-list)) 'string<))
+                     :volatile t	
+                     ;; :fuzzy-match t
                      :action (helm-make-actions
                               "Insert font family name" 'insert
                               "Yank font family name" 'kill-new
@@ -422,6 +450,7 @@ Return nil for blank/empty strings."
 ;; ----------------------------------------------------------------------
 (use-package helm-gtags
 ;; ----------------------------------------------------------------------
+  :diminish helm-gtags-mode
   :after helm
   :config
   (helm-gtags-mode t)
@@ -577,6 +606,7 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package smartparens
 ;; ----------------------------------------------------------------------
+  :diminish smartparens-mode
   :config
   (smartparens-global-mode)
   (show-smartparens-global-mode t)
@@ -629,10 +659,52 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package quick-back
 ;; ----------------------------------------------------------------------
+  :after evil
   :load-path "elisp"
   :bind (:map evil-normal-state-map
               ("g m" . quick-back-mark)
               ("g q" . quick-back-jump))
+  )
+
+;; ----------------------------------------------------------------------
+(use-package c-mode
+;; ----------------------------------------------------------------------
+  :after linum
+  :mode "\\.h$"
+  :init
+  (add-hook 'c-mode-hook
+            (lambda ()
+              (c-set-style "stroustrup")
+              (define-key c-mode-map "\C-i" 'indent-or-insert-tab)
+              (modify-syntax-entry ?_ "w")                ; アンダーバーをワード区切りとしない
+              (setq comment-start "// ")                  ; コメントを // にする
+              (setq comment-end "")
+              (setq compilation-read-command nil)         ; make のオプションの確認は不要
+              (setq compilation-ask-about-save nil)       ; make するとき save する
+              (setq compile-command "make")               ; make時のデフォルトコマンド
+              (setq case-fold-search nil)            ; case sensitive
+              (cwarn-mode)
+              (which-func-mode 1)
+              (linum-mode 1)
+              ))
+  :config
+  (add-to-list 'align-rules-list
+                '(tab-stop-assignment
+                  (regexp   . "\\(\\s-+\\)")
+                  (tab-stop . t)              ; タブ位置でそろえる
+                  (modes     . '(c-mode c++-mode))))
+
+(setq which-func-format
+  `(""
+    (:propertize which-func-current
+		 local-map ,which-func-keymap
+		 face which-func
+		 mouse-face mode-line-highlight
+		 help-echo "mouse-1: go to beginning\n\
+mouse-2: toggle rest visibility\n\
+mouse-3: go to end")
+    "()"))
+
   )
 
 ;; ----------------------------------------------------------------------
@@ -650,6 +722,13 @@ That is, a string used to represent it on the tab bar."
   )
 
 ;; ----------------------------------------------------------------------
+;; which-func-mode
+;; ----------------------------------------------------------------------
+(setq which-func-unknown "-")
+(setq which-func-modes '(c-mode python-mode ruby-mode))
+(setq which-func-format '(:propertize which-func-current face which-func))
+
+;; ----------------------------------------------------------------------
 ;; diminish
 ;; ----------------------------------------------------------------------
 (defmacro safe-diminish (file mode &optional new-name)
@@ -659,7 +738,7 @@ That is, a string used to represent it on the tab bar."
 
 (safe-diminish "undo-tree" 'undo-tree-mode)
 (safe-diminish "eldoc" 'eldoc-mode)
-(safe-diminish "helm-mode" 'helm-mode)
+(safe-diminish "abbrev" 'abbrev-mode)
 
 ;; ----------------------------------------------------------------------
 ;; discrete setting
@@ -683,45 +762,6 @@ That is, a string used to represent it on the tab bar."
       (insert "\t"))))
 
 (global-set-key "\C-i" 'indent-or-insert-tab)
-
-;; カーソル行をハイライト
-(global-hl-line-mode t)
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(hl-line ((t (:background "#080808")))))
-
-;; c-mode
-(add-to-list 'auto-mode-alist '("\\.h$" . c-mode))
-(electric-indent-mode)
-(setq global-cwarn-mode 1)
-
-(add-hook 'c-mode-hook
-          (lambda ()
-            (c-set-style "stroustrup")
-            (define-key c-mode-map "\C-i" 'indent-or-insert-tab)
-            (setq comment-column 58)
-            (modify-syntax-entry ?_ "w")                ; アンダーバーをワード区切りとしない
-            (setq comment-start "// ")                  ; コメントを // にする
-            (setq comment-end "")
-            (cwarn-mode)
-            (setq compilation-read-command nil)         ; make のオプションの確認は不要
-            (setq compilation-ask-about-save nil)       ; make するとき save する
-            (setq compile-command "make")               ; make時のデフォルトコマンド
-            (setq case-fold-search nil)))               ; case sensitive
-
-(eval-after-load "align"
-  '(add-to-list 'align-rules-list
-                '(tab-stop-assignment
-                  (regexp   . "\\(\\s-+\\)")
-                  (tab-stop . t)              ; タブ位置でそろえる
-                  (modes     . '(c-mode c++-mode)))))
-
-(setq auto-mode-alist
-      (cons '("\\.emacs.*$" . lisp-interaction-mode)
-        auto-mode-alist))
 
 ;;;
 ;;; command aliases
@@ -764,5 +804,6 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (helm-swoop rainbow-mode smartparens all-the-icons telephone-line helm-gtags scratch-log neotree markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no helm atom-one-dark-theme evil-escape evil))))
+    (helm-swoop rainbow-mode smartparens all-the-icons telephone-line helm-gtags scratch-log neotree markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no helm atom-one-dark-theme evil-escape evil)))
+     )
 
