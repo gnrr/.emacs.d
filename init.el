@@ -178,19 +178,16 @@
   (set-face-background 'telephone-line-evil-emacs  "#cc8800")
   (set-face-background 'telephone-line-evil-normal "#0088cc")
 
-  (set-face-background 'mode-line          "#38394c")
-  (set-face-background 'mode-line-inactive "#38394c")
-
   (set-face-attribute 'telephone-line-accent-active nil
                       :background "#7e7e7e" :foreground "#f9f9f9")
   (set-face-attribute 'telephone-line-accent-inactive nil
-                      :background "#5e5e5e" :foreground (face-attribute 'mode-line-inactive :foreground))
+                      :background "#4e4e4e" :foreground (face-attribute 'mode-line-inactive :foreground))
 
   (defface telephone-line-accent2-active
     '((t (:background "#5e5e5e" :inherit telephone-line-accent-active))) "")
   
   (defface telephone-line-accent2-inactive
-    '((t (:background "#3e3e3e" :inherit telephone-line-accent-inactive))) "")
+    '((t (:background "#3a3a3a" :inherit telephone-line-accent-inactive))) "")
   
   (add-to-list 'telephone-line-faces
                '(accent2 . (telephone-line-accent2-active . telephone-line-accent2-inactive)))
@@ -536,23 +533,25 @@ Return nil for blank/empty strings."
   (tabbar-mode)
 
   (set-face-attribute 'tabbar-default nil
-                      :family (face-attribute 'fixed-pitch-serif :family)
-                      :height 1.0
+                      ;; :family (face-attribute 'fixed-pitch-serif :family)
+                      :family "x14y24pxHeadUpDaisy"
+                      :height 0.85
                       :background (face-attribute 'tool-bar :background)
                       ;; :background (face-attribute 'tabbar-default :background)
                       ;; :background (face-attribute 'linum :background)
                       ;; :foreground (face-attribute 'tool-bar :foreground)
-                      :weight 'light
-                      :slant 'normal
+                      ;; :weight 'light
+                      :slant 'italic
                       :box nil
                       )
    
   (set-face-attribute 'tabbar-unselected nil
+                      ;; :inherit tabbar-default
                       :background (face-attribute 'tool-bar :background)
-  ;;                     ;; :foreground (face-attribute 'mode-line-inactive :foreground)
+                      ;; :foreground (face-attribute 'mode-line-inactive :foreground)
                       :foreground "#080808"
-                      :weight 'light
-                      :slant 'normal
+                      ;; :weight 'light
+                      :slant 'italic
                       :box nil
                       )
 
@@ -560,8 +559,8 @@ Return nil for blank/empty strings."
                       :background (face-attribute 'default :background)
                       :foreground (face-attribute 'mode-line :foreground)
                       ;; :foreground "#E8E8E8"
-                      :weight 'normal
-                      :slant 'normal
+                      ;; :weight 'normal
+                      :slant 'italic
                       :box nil
                       )
 
@@ -569,16 +568,16 @@ Return nil for blank/empty strings."
                       :background (face-attribute 'default :background)
                       :foreground (face-attribute 'mode-line :foreground)
                       ;; :foreground "#E8E8E8"
-                      :weight 'normal
-                      :slant 'normal
+                      ;; :weight 'normal
+                      :slant 'italic
                       :box nil
                       )
 
   (set-face-attribute 'tabbar-modified nil
                       :background (face-attribute 'tool-bar :background)
                       :foreground "#080808"
-                      :weight 'normal
-                      :slant 'normal
+                      ;; :weight 'normal
+                      :slant 'italic
                       :box nil
                       )
 
