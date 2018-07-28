@@ -75,7 +75,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(hl-line ((t (:background "#080808")))))
+ '(hl-line ((t (:background "#141619")))))
 
 (setq save-place-file "~/.emacs.d/.emacs-places")
 (save-place-mode 1)                               ; Enable saveplace
@@ -750,6 +750,15 @@ mouse-3: go to end")
   )
 
 ;; ----------------------------------------------------------------------
+(use-package hiwin
+;; ----------------------------------------------------------------------
+  :diminish hiwin-mode
+  :config
+  (set-face-background 'hiwin-face "#313640")
+  (hiwin-mode)
+  )
+
+;; ----------------------------------------------------------------------
 (use-package discrete
 ;; ----------------------------------------------------------------------
   :load-path "elisp"
@@ -846,6 +855,5 @@ mouse-3: go to end")
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (helm-swoop rainbow-mode smartparens all-the-icons telephone-line helm-gtags scratch-log neotree markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no helm atom-one-dark-theme evil-escape evil)))
-     )
+    (hiwin helm-swoop rainbow-mode smartparens all-the-icons telephone-line helm-gtags scratch-log neotree markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no helm atom-one-dark-theme evil-escape evil))))
 
