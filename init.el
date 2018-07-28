@@ -714,6 +714,19 @@ That is, a string used to represent it on the tab bar."
   )
 
 ;; ----------------------------------------------------------------------
+(use-package hiwin
+;; ----------------------------------------------------------------------
+  :diminish hiwin-mode
+  :config
+  (set-face-background 'hiwin-face "#313640")
+  (hiwin-mode)
+  )
+
+;; ----------------------------------------------------------------------
+(use-package gist)
+;; ----------------------------------------------------------------------
+
+;; ----------------------------------------------------------------------
 (use-package c-mode
 ;; ----------------------------------------------------------------------
   :after linum
@@ -741,15 +754,6 @@ That is, a string used to represent it on the tab bar."
                   (tab-stop . t)              ; タブ位置でそろえる
                   (modes     . '(c-mode c++-mode))))
 
-  )
-
-;; ----------------------------------------------------------------------
-(use-package hiwin
-;; ----------------------------------------------------------------------
-  :diminish hiwin-mode
-  :config
-  (set-face-background 'hiwin-face "#313640")
-  (hiwin-mode)
   )
 
 ;; ----------------------------------------------------------------------
@@ -849,5 +853,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (hiwin helm-swoop rainbow-mode smartparens all-the-icons telephone-line helm-gtags scratch-log neotree markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no helm atom-one-dark-theme evil-escape evil))))
+    (gist hiwin helm-swoop rainbow-mode smartparens all-the-icons telephone-line helm-gtags scratch-log neotree markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no helm atom-one-dark-theme evil-escape evil))))
 
