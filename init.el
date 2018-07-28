@@ -424,11 +424,21 @@ Return nil for blank/empty strings."
 ;; ----------------------------------------------------------------------
   :diminish helm-mode
   :functions my-font-lighter
+  :init
+  (setq helm-display-source-at-screen-top nil
+        helm-display-header-line nil
+        helm-buffers-fuzzy-matching t
+        helm-recentf-fuzzy-match t
+        helm-ff-auto-update-initial-value nil
+        helm-find-files-doc-header nil
+        ;; helm-split-window-in-side-p t
+        helm-move-to-line-cycle-in-source t
+        ;; helm-candidate-number-limit 200
+        )
+
   :config
   (helm-mode 1)
   (helm-autoresize-mode t)
-  (setq helm-buffers-fuzzy-matching t
-        helm-recentf-fuzzy-match t)
 
   (setq-default helm-ff-skip-boring-files t)
   (add-to-list 'helm-boring-file-regexp-list "scratch-log-.*$")
