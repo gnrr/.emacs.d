@@ -171,29 +171,59 @@
 ;; ----------------------------------------------------------------------
 (use-package telephone-line
 ;; ----------------------------------------------------------------------
+  :after zerodark-theme
   :config
-  (set-face-background 'mode-line-inactive "#404157")
-  (set-face-background 'mode-line "#38394c")
-  (set-face-background 'telephone-line-accent-active "#5e5e5e")
-  (set-face-background 'telephone-line-accent-inactive "#363636")
-
   (set-face-background 'telephone-line-evil-visual "#009161")
   (set-face-background 'telephone-line-evil-insert "#cc4444")
   (set-face-background 'telephone-line-evil-emacs  "#cc8800")
   (set-face-background 'telephone-line-evil-normal "#0088cc")
 
+  (set-face-background 'mode-line          "#38394c")
+  (set-face-background 'mode-line-inactive "#38394c")
+
+  (set-face-attribute 'telephone-line-accent-active nil
+                      :background "#7e7e7e" :foreground "#f9f9f9")
+  (set-face-attribute 'telephone-line-accent-inactive nil
+                      :background "#5e5e5e" :foreground (face-attribute 'mode-line-inactive :foreground))
+
+  (defface telephone-line-accent2-active
+    '((t (:background "#5e5e5e" :inherit telephone-line-accent-active))) "")
+  
+  (defface telephone-line-accent2-inactive
+    '((t (:background "#3e3e3e" :inherit telephone-line-accent-inactive))) "")
+  
+  (add-to-list 'telephone-line-faces
+               '(accent2 . (telephone-line-accent2-active . telephone-line-accent2-inactive)))
+
   (setq telephone-line-lhs
         '((evil   . (telephone-line-evil-tag-segment))
           (accent . (telephone-line-vc-segment
-                     telephone-line-erc-modified-channels-segment
                      telephone-line-process-segment))
+          (accent2 . (telephone-line-buffer-info-segment))
           (nil    . (telephone-line-buffer-segment))))
   (setq telephone-line-rhs
-        '((nil    . (telephone-line-misc-info-segment
-                    telephone-line-minor-mode-segment))
+        '((nil    . (telephone-line-misc-info-segment))
+          (accent2 . (telephone-line-minor-mode-segment))
           (accent . (telephone-line-major-mode-segment))
-          ;; (evil   . (telephone-line-airline-position-segment))))
           (evil   . (telephone-line-position-segment))))
+
+  (telephone-line-defsegment* telephone-line-buffer-info-segment ()
+    `(""
+      mode-line-mule-info
+      mode-line-modified
+      ;; mode-line-client
+      ;; mode-line-remote
+      ;; mode-line-frame-identification
+      ;; ,(telephone-line-raw mode-line-buffer-identification t)
+      ))
+
+  (telephone-line-defsegment* telephone-line-buffer-segment ()
+    `(; mode-line-mule-info
+      ;; mode-line-modified
+      ;; mode-line-client
+      ;; mode-line-remote
+      mode-line-frame-identification
+      ,(telephone-line-raw mode-line-buffer-identification t)))
 
   (setq telephone-line-primary-left-separator 'telephone-line-identity-left
         telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
@@ -203,10 +233,16 @@
   (setq telephone-line-height 16
         telephone-line-evil-use-short-tag nil)
 
+  (telephone-line-defsegment* telephone-line-position-segment ()
+    (telephone-line-raw-mod
+     (if (eq major-mode 'paradox-menu-mode)
+         ;;Paradox fills this with position info.
+         mode-line-front-space
+       mode-line-position) t))
+
   (telephone-line-mode 1)
 
-  ;; mod
-  (defun telephone-line-raw (str &optional preformatted)
+  (defun telephone-line-raw-mod (str &optional preformatted)
     "Conditionally render STR as mode-line data, or just verify output if not PREFORMATTED.
 Return nil for blank/empty strings."
     (let ((fmt (format-mode-line str)))
@@ -217,12 +253,18 @@ Return nil for blank/empty strings."
             (replace-regexp-in-string "%" "%%" fmt)
           str))))
 
-  (telephone-line-defsegment* telephone-line-position-segment ()
-    (telephone-line-raw
-     (if (eq major-mode 'paradox-menu-mode)
-         ;;Paradox fills this with position info.
-         mode-line-front-space
-       mode-line-position) t))
+  ;; mod
+  (defun telephone-line-raw (str &optional preformatted)
+    "Conditionally render STR as mode-line data, or just verify output if not PREFORMATTED.
+Return nil for blank/empty strings."
+    (let ((trimmed-str (string-trim (format-mode-line str))))
+      (unless (seq-empty-p trimmed-str)
+        (if preformatted
+                                        ; format-mode-line will condense all escaped %s, so we need
+                                        ; to re-escape them.
+            (replace-regexp-in-string "%" "%%" trimmed-str)
+          str))))
+
   )
 
 ;; ----------------------------------------------------------------------
@@ -258,7 +300,7 @@ Return nil for blank/empty strings."
   (set-face-attribute 'font-lock-string-face nil :weight 'light)
   (set-face-attribute 'font-lock-doc-face nil :weight 'light)
   (set-face-attribute 'font-lock-type-face nil :weight 'light)
-  (set-face-attribute 'font-lock-variable-name-face nil :weight 'light)
+  ;; (set-face-attribute 'fant-lock-variable-name-face nil :weight 'light)
   (set-face-attribute 'font-lock-warning-face nil :weight 'light)
 
   (set-face-attribute 'mode-line          nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
@@ -292,13 +334,14 @@ Return nil for blank/empty strings."
   (setcdr evil-insert-state-map nil)
   (define-key evil-insert-state-map [escape] 'evil-normal-state)
 
+  (define-key evil-normal-state-map (kbd "M-.") nil)        ; evil-repeat-pop-next
   (define-key evil-motion-state-map (kbd "C-f") nil)
   (define-key evil-motion-state-map (kbd "C-b") nil)
   (define-key evil-motion-state-map (kbd "C-o") nil)		; evil-jump-backward
+  (define-key evil-motion-state-map (kbd "C-e") nil)		; evil-scroll-down
 
-  (define-key evil-normal-state-map (kbd "C-n") nil)
-  (define-key evil-normal-state-map (kbd "C-p") nil)
-  (define-key evil-normal-state-map (kbd "C")   nil)
+  (define-key evil-motion-state-map (kbd "C-n") nil)
+  (define-key evil-motion-state-map (kbd "C-p") nil)
 
   (define-key evil-motion-state-map (kbd "j") 'evil-next-visual-line)
   (define-key evil-motion-state-map (kbd "k") 'evil-previous-visual-line)
@@ -544,8 +587,8 @@ Return nil for blank/empty strings."
 
   ;; (setq tabbar-separator '(0.2))
 
-  (global-set-key (kbd "M-k") 'tabbar-forward-tab)
   (global-set-key (kbd "M-j") 'tabbar-backward-tab)
+  (global-set-key (kbd "M-k") 'tabbar-forward-tab)
 
   (tabbar-mwheel-mode nil)                  ;; マウスホイール無効
   (setq tabbar-buffer-groups-function nil)  ;; グループ無効
@@ -565,7 +608,7 @@ Return nil for blank/empty strings."
                        ;; Always include the current buffer.
                        ((eq (current-buffer) b) b)
                        ((buffer-file-name b) b)
-                       ((char-equal ?\  (aref (buffer-name b) 0)) nil)
+                      ((char-equal ?\  (aref (buffer-name b) 0)) nil)
                        ((equal "*scratch*" (buffer-name b)) b) ; *scratch*バッファは表示する
                        ((char-equal ?* (aref (buffer-name b) 0)) nil) ; それ以外の * で始まるバッファは表示しない
                        ((buffer-live-p b) b)))
