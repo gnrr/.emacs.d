@@ -444,31 +444,26 @@ Return nil for blank/empty strings."
   (add-to-list 'helm-boring-file-regexp-list "scratch-log-.*$")
 
   (defun helm-font-families ()
+    "helm version of the `anything-font-families' at http://d.hatena.ne.jp/mooz/20110320/p1"
     (require 'cl)
     (interactive)
-    (helm :sources (helm-build-sync-source "font-families"
-                     ;; :candidates (delete-duplicates (font-family-list))
-                     :candidates (mapcar '(lambda (f)
-                                            (propertize f 'font-lock-face
-                                                        (list :family f :height 1.4)))
-                                         (sort (delete-duplicates (font-family-list)) 'string>))
-                     ;; :candidates (mapcar '(lambda (f)
-                     ;;                        (propertize f 'font-lock-face
-                     ;;                                    (list :family f :height 1.4)))
-                     ;;                     (sort (delete-duplicates (font-family-list)) 'string<))
-                     :volatile t	
-                     ;; :fuzzy-match t
-                     :action (helm-make-actions
-                              "Insert font family name" 'insert
-                              "Yank font family name" 'kill-new
-                              "Test as 'default" '(lambda (x)
+    (let ((helm-candidate-number-limit 1000))
+      (helm :sources (helm-build-sync-source "font-families"
+                       :candidates (mapcar '(lambda (f)
+                                              (propertize f 'font-lock-face
+                                                          (list :family f :height 1.4)))
+                                           (sort (delete-duplicates (font-family-list)) 'string<))
+                       :fuzzy-match t
+                       :action (helm-make-actions
+                                "Yank font family name" 'kill-new
+                                "Test as 'default" '(lambda (x)
                                                       (set-face-attribute 'default nil
                                                                           :family (format "%s" x)))
-                              "Test as 'mode-line" '(lambda (x)
+                                "Test as 'mode-line" '(lambda (x)
                                                         (set-face-attribute 'mode-line nil
                                                                             :family (format "%s" x)))
-                              ))
-          :buffer "*helm font families*"))
+                                ))
+            :buffer "*helm font families*")))
 
   (my-font-lighter)
 
