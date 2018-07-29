@@ -54,8 +54,33 @@
  scroll-preserve-screen-position t
 
  next-line-add-newlines nil                  ; バッファ末尾に余計な改行コードを防ぐための設定
- ;; make-backup-files nil                       ; #のバックアップファイルを作成しない
  idle-update-delay 0.3
+
+ ;; make-backup-files nil                       ; #のバックアップファイルを作成しない
+
+ ;;
+ ;; backup files
+ ;; http://yohshiy.blog.fc2.com/blog-entry-319.html
+ ;;
+ ;; backup to `hoge.txt~'
+ backup-directory-alist '((".*" . "~/bak"))
+ version-control     t  ;; 番号付けによる複数保存 存実行の有無
+ kept-new-versions   5  ;;                   最新の保持数
+ kept-old-versions   1  ;;                   最古の保持数
+ delete-old-versions t  ;;                   範囲外を削除
+
+ ;; backup to `#hoge.txt#'
+ auto-save-file-name-transforms   '((".*" "~/bak" t))
+ ;; auto-save-default nil
+ auto-save-timeout 10     ;; 保存の間隔 秒   (デフォルト : 30)
+ auto-save-interval 100   ;;         打鍵  (デフォルト : 300)
+
+ ;; backup to `~/.emacs.d/auto-save-list/.saves-xxxx'
+ auto-save-list-file-prefix nil         ; disabled
+
+ ;; lock file to `.#hoge'
+ create-lockfiles nil                   ; disabled
+
 
  )
 
