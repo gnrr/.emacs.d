@@ -177,7 +177,7 @@
 
 ;; ----------------------------------------------------------------------
 (use-package cl)
-(use-package all-the-icons)
+;; (use-package all-the-icons)
 ;; ----------------------------------------------------------------------
 
 ;; ----------------------------------------------------------------------
@@ -364,11 +364,16 @@ Return nil for blank/empty strings."
 
   (define-key evil-motion-state-map (kbd "C-n") nil)
   (define-key evil-motion-state-map (kbd "C-p") nil)
+  (define-key evil-motion-state-map (kbd "C-h") nil)
+  (define-key evil-motion-state-map (kbd "M-h") nil)
 
   (define-key evil-motion-state-map (kbd "j") 'evil-next-visual-line)
   (define-key evil-motion-state-map (kbd "k") 'evil-previous-visual-line)
   (define-key evil-motion-state-map (kbd "4") 'evil-end-of-line)
   (define-key evil-motion-state-map (kbd "]") 'evil-jump-item)
+
+  (define-key evil-insert-state-map (kbd "C-h") 'delete-backward-char)
+  (define-key evil-insert-state-map (kbd "M-h") 'my-backward-kill-word)
 
   (evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
 
@@ -878,5 +883,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (gist hiwin helm-swoop rainbow-mode smartparens all-the-icons telephone-line helm-gtags scratch-log neotree markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no helm atom-one-dark-theme evil-escape evil))))
+    (neotree gist hiwin helm-swoop rainbow-mode smartparens telephone-line helm-gtags scratch-log markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no helm atom-one-dark-theme evil-escape evil))))
 

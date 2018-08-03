@@ -49,7 +49,7 @@ Show the NeoTree window, and change root to PATH.
 (defalias 'neotree 'neotree-show "\
 Show the NeoTree window.")
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "neotree" '("neo" "off-p")))
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "neotree" '(#("neo" 0 3 (fontified nil)) #("off-p" 0 5 (fontified nil)))))
 
 ;;;***
 
