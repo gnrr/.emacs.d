@@ -456,13 +456,13 @@ Return nil for blank/empty strings."
   :functions my-font-lighter
   :init
   (setq helm-display-source-at-screen-top nil
-        helm-display-header-line nil
         helm-buffers-fuzzy-matching t
         helm-recentf-fuzzy-match t
         helm-ff-auto-update-initial-value nil
+        helm-display-header-line nil
         helm-find-files-doc-header nil
         ;; helm-split-window-in-side-p t
-        helm-move-to-line-cycle-in-source t
+        ;; helm-move-to-line-cycle-in-source t
         ;; helm-candidate-number-limit 200
         )
 
