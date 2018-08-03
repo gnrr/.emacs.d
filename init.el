@@ -548,6 +548,15 @@ Return nil for blank/empty strings."
 )
 
 ;; ----------------------------------------------------------------------
+(use-package helm-descbinds
+;; ----------------------------------------------------------------------
+  :diminish helm-descbinds
+  :after helm
+  :config
+  (helm-descbinds-mode)
+  )
+
+;; ----------------------------------------------------------------------
 (use-package recentf
 ;; ----------------------------------------------------------------------
   :config
@@ -883,5 +892,5 @@ That is, a string used to represent it on the tab bar."
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
  '(package-selected-packages
    (quote
-    (neotree gist hiwin helm-swoop rainbow-mode smartparens telephone-line helm-gtags scratch-log markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no helm atom-one-dark-theme evil-escape evil))))
+    (helm-descbinds neotree gist hiwin helm-swoop rainbow-mode smartparens telephone-line helm-gtags scratch-log markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no helm atom-one-dark-theme evil-escape evil))))
 

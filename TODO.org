@@ -11,6 +11,9 @@
 * TODO dashboard の recentf リストのアンダーラインをなくす
 
 ** note
+* TODO helm-fild-files をリカーシブに
+
+** note
 * 
 
 ** memo
