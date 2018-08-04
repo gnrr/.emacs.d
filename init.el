@@ -130,7 +130,7 @@
 
 ;; タイトルバーにファイルのフルパス表示
 (defmacro replace-home-directory-string (file-name)
-  `(if ,file-name 
+  `(if ,file-name
       (let ((regexp "^/Users/[^/]+/"))
         (replace-regexp-in-string regexp "~/" ,file-name))
     ""))
@@ -214,10 +214,10 @@
 
   (defface telephone-line-accent2-active
     '((t (:background "#5e5e5e" :inherit telephone-line-accent-active))) "")
-  
+
   (defface telephone-line-accent2-inactive
     '((t (:background "#3a3a3a" :inherit telephone-line-accent-inactive))) "")
-  
+
   (add-to-list 'telephone-line-faces
                '(accent2 . (telephone-line-accent2-active . telephone-line-accent2-inactive)))
 
@@ -313,7 +313,7 @@ Return nil for blank/empty strings."
   (load-theme 'zerodark t)
   (set-face-background 'default "#21252B")
   (set-face-background 'fringe  "#21252B")
- 
+
   (set-face-attribute 'cursor nil
                       :background (face-attribute 'mode-line :foreground)
                       :foreground "#000000"
@@ -321,7 +321,7 @@ Return nil for blank/empty strings."
   (set-face-attribute 'font-lock-builtin-face nil :weight 'light)
   (set-face-attribute 'font-lock-comment-face nil :weight 'light)
   (set-face-attribute 'font-lock-constant-face nil :weight 'light)
-  (set-face-attribute 'font-lock-function-name-face nil :weight 'light) 
+  (set-face-attribute 'font-lock-function-name-face nil :weight 'light)
   (set-face-attribute 'font-lock-keyword-face nil :weight 'light)
   (set-face-attribute 'font-lock-string-face nil :weight 'light)
   (set-face-attribute 'font-lock-doc-face nil :weight 'light)
@@ -475,7 +475,7 @@ Return nil for blank/empty strings."
   ;; configure regexp engine.
   (setq ivy-re-builders-alist
         ;; allow input not in order
-        '((t   . ivy--regex-ignore-order))) 
+        '((t   . ivy--regex-ignore-order)))
 
   ;; my-ivy-find-file
   (defvar my-ivy-find-file-exclude "-not \\( -path '*\\/.svn\\/*' -o -path '*\\/.git\\/*' -o -path '*\\~' -o -path '*\\.DS_Store' -o -path '\\.emacs-places' \\)")
@@ -654,7 +654,7 @@ Return nil for blank/empty strings."
                       :slant 'italic
                       :box nil
                       )
-   
+
   (set-face-attribute 'tabbar-unselected nil
                       ;; :inherit tabbar-default
                       :background (face-attribute 'tool-bar :background)
@@ -807,7 +807,7 @@ That is, a string used to represent it on the tab bar."
   ;; (setq sl-timer-interval 3)
 
   (add-to-list 'recentf-exclude "scratch-log-autoloads.el")
-  ) 
+  )
 
 ;; ----------------------------------------------------------------------
 (use-package quick-back
