@@ -11,4 +11,8 @@ scratch-log*
 _windows.el
 history
 .emacs-places
+.historian
+init.el.last-load
+init.el.old
+
 
