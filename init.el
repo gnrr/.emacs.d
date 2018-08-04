@@ -144,10 +144,12 @@
 
 ;; tab
 ;; ----------------------------------------------------------------------
-;;; unbinding and key binding
+;;; key unbinding and key binding
 ;; ----------------------------------------------------------------------
 (keyboard-translate ?\C-h ?\C-?)        ; c-h
 
+(global-unset-key (kbd "C-f"))                          ; scroll
+(global-unset-key (kbd "C-b"))                          ; scroll
 (global-unset-key (kbd "C-z"))                          ; suspend-frame
 (global-unset-key (kbd "C-x C-z"))                      ; suspend-frame
 (global-unset-key (kbd "C-x o"))                        ; other-window
@@ -335,6 +337,7 @@ Return nil for blank/empty strings."
 ;; ----------------------------------------------------------------------
 (use-package dashboard
 ;; ----------------------------------------------------------------------
+  :disabled
 ;; :defer t
   :config
   (setq inhibit-startup-message t)
@@ -352,6 +355,7 @@ Return nil for blank/empty strings."
   (evil-mode 1)
   (evil-set-initial-state 'help-mode 'emacs)
   (evil-set-initial-state 'edebug-mode 'emacs)
+  (evil-make-intercept-map edebug-mode-map nil)
   (defalias #'forward-evil-word #'forward-evil-symbol)
 
   ;; インサートモードではEmacsキーバインド
@@ -424,7 +428,7 @@ Return nil for blank/empty strings."
 (use-package evil-org
 ;; ----------------------------------------------------------------------
   :after evil
-  ;; :diminish evil-surround-mode
+  ;; :diminish evil-org-mode
   :config
 )
 
@@ -444,16 +448,76 @@ Return nil for blank/empty strings."
   (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
   (evil-define-key 'normal neotree-mode-map (kbd "SPC") 'neotree-quick-look)
   (evil-define-key 'normal neotree-mode-map (kbd "q") 'neotree-hide)
+
   (defun text-scale-twice ()
     (interactive)
     (text-scale-adjust 0)
     (text-scale-decrease 1))
   (add-hook 'neo-after-create-hook (lambda (_)(call-interactively 'text-scale-twice)))
+
   )
 
 ;; ----------------------------------------------------------------------
+(use-package ivy
+;; ----------------------------------------------------------------------
+  ;; :disabled
+  :diminish counsel-mode
+  :init
+  (ivy-mode 1)
+
+  :config
+  (counsel-mode 1)
+  (setq ivy-use-virtual-buffers t)         ;; add ‘recentf-mode’ and bookmarks to ‘ivy-switch-buffer’.
+  (setq ivy-height 20)
+  ;; (setq ivy-count-format "")            ;; does not count candidates
+  (setq ivy-initial-inputs-alist nil)      ;; no regexp by default
+
+  ;; configure regexp engine.
+  (setq ivy-re-builders-alist
+        ;; allow input not in order
+        '((t   . ivy--regex-ignore-order))) 
+
+  ;; my-ivy-find-file
+  (defvar my-ivy-find-file-exclude "-not \\( -path '*\\/.svn\\/*' -o -path '*\\/.git\\/*' -o -path '*\\~' -o -path '*\\.DS_Store' -o -path '\\.emacs-places' \\)")
+
+  ;; (defun my-ivy-find-file-exclude-p (str)
+  ;;   (catch 'loop
+  ;;     (dolist (regex my-ivy-find-file-exclude-regex-list)
+  ;;       (when (string-match regex str)
+  ;;         (throw 'loop t)))))
+
+  (defun my-ivy-find-file (&optional dir)
+    "list files recursively under specified directory"
+    (interactive "")
+    ;; (let* ((cmd (format "find %s -type f" (if dir dir ".")))
+    ;;        (cands (remove-if 'my-ivy-find-file-exclude-p
+    ;;                          (split-string (shell-command-to-string cmd) "\n" t))))
+    ;;   (ivy-read "%d File: " cands
+    ;;             :action #'find-file
+    ;;             :caller 'my-ivy-find-file)))
+
+    (let* ((dir (cond ((and dir (file-exists-p dir)) dir)
+                      ((buffer-file-name) (directory-file-name
+                                           (file-name-directory (buffer-file-name))))
+                       (t (file-name-directory (expand-file-name "~")))))
+           (cmd (format "find %s -type f %s" dir my-ivy-find-file-exclude))
+           (cands (split-string (shell-command-to-string cmd) "\n" t)))
+      ;; (ivy-read (format "%s %%d: " dir) cands
+      (ivy-read (format "%s %%d: " dir) cands
+                :action #'find-file
+                :caller 'my-ivy-find-file)))
+
+  :bind (("M-r"     . ivy-recentf)
+         ;; ("C-x C-f" . my-ivy-find-file)
+         ;; ("C-s"     . swiper)
+
+         :map ivy-mode-map
+         ("C-'" . ivy-avy))
+  )
+;; ----------------------------------------------------------------------
 (use-package helm
 ;; ----------------------------------------------------------------------
+  :disabled
   :diminish helm-mode
   :functions my-font-lighter
   :init
@@ -681,14 +745,15 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package rainbow-mode
 ;; ----------------------------------------------------------------------
+  :diminish rainbow-mode
   :config
   (setq rainbow-html-colors nil)
   (add-hook 'lisp-interaction-mode-hook 'rainbow-mode)
   (add-hook 'emacs-lisp-mode-hook 'rainbow-mode)
-  (add-hook 'css-mode-hook 'rainbow-mode)
-  (add-hook 'less-mode-hook 'rainbow-mode)
-  (add-hook 'web-mode-hook 'rainbow-mode)
-  (add-hook 'html-mode-hook 'rainbow-mode)
+  ;; (add-hook 'css-mode-hook 'rainbow-mode)
+  ;; (add-hook 'less-mode-hook 'rainbow-mode)
+  ;; (add-hook 'web-mode-hook 'rainbow-mode)
+  ;; (add-hook 'html-mode-hook 'rainbow-mode)
   )
 
 ;; ----------------------------------------------------------------------
@@ -896,3 +961,4 @@ That is, a string used to represent it on the tab bar."
    (quote
     (helm-descbinds neotree gist hiwin helm-swoop rainbow-mode smartparens telephone-line helm-gtags scratch-log markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-vertical-mode ido-yes-or-no helm atom-one-dark-theme evil-escape evil))))
 
+(put 'narrow-to-region 'disabled nil)
