@@ -12,7 +12,7 @@ _windows.el
 history
 .emacs-places
 .historian
+smex-items
 init.el.last-load
-init.el.old
-
+init.el.err
 
