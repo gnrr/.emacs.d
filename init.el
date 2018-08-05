@@ -131,10 +131,12 @@
 
 ;; tab
 ;; ----------------------------------------------------------------------
-;;; key unbinding and key binding
+;;; key unbinding / binding
 ;; ----------------------------------------------------------------------
 (keyboard-translate ?\C-h ?\C-?)        ; c-h
 
+(global-unset-key (kbd "M-,"))                          ; xref
+(global-unset-key (kbd "M-."))                          ; xref
 (global-unset-key (kbd "C-f"))                          ; scroll
 (global-unset-key (kbd "C-b"))                          ; scroll
 (global-unset-key (kbd "C-z"))                          ; suspend-frame
@@ -454,15 +456,15 @@ Return nil for blank/empty strings."
 
   :config
   (counsel-mode 1)
-  (setq ivy-use-virtual-buffers t)         ;; add ‘recentf-mode’ and bookmarks to ‘ivy-switch-buffer’.
-  (setq ivy-height 20)
-  ;; (setq ivy-count-format "")            ;; does not count candidates
-  (setq ivy-initial-inputs-alist nil)      ;; no regexp by default
-
-  ;; configure regexp engine.
-  (setq ivy-re-builders-alist
-        ;; allow input not in order
-        '((t   . ivy--regex-ignore-order)))
+  (setq ivy-use-virtual-buffers t          ;; add ‘recentf-mode’ and bookmarks to ‘ivy-switch-buffer’.
+        ivy-height 20
+        ;; ivy-count-format ""             ;; does not count candidates
+        ivy-initial-inputs-alist nil       ;; no regexp by default
+        ivy-on-del-error-function 'ignore
+        ivy-extra-directories nil          ;; '("../")
+        ivy-re-builders-alist              ;; configure regexp engine.
+        '((t   . ivy--regex-ignore-order)) ;; allow input not in order
+        )
 
   ;; my-ivy-find-file
   (defvar my-ivy-find-file-exclude "-not \\( -path '*\\/.svn\\/*' -o -path '*\\/.git\\/*' -o -path '*\\~' -o -path '*\\.DS_Store' -o -path '\\.emacs-places' \\)")
@@ -495,12 +497,49 @@ Return nil for blank/empty strings."
                 :caller 'my-ivy-find-file)))
 
   :bind (("M-r"     . ivy-recentf)
+         ("M-o"     . counsel-rg)
          ;; ("C-x C-f" . my-ivy-find-file)
          ;; ("C-s"     . swiper)
+
+         :map ivy-minibuffer-map
+         ("M-h" . ivy-backward-delete-char)
 
          :map ivy-mode-map
          ("C-'" . ivy-avy))
   )
+;; ----------------------------------------------------------------------
+(use-package counsel-gtags
+;; ----------------------------------------------------------------------
+  ;; :diminish 
+  :after counsel
+  :init
+  (add-hook 'c-mode-hook 'counsel-gtags-mode)
+
+  (setq counsel-gtags-auto-update t
+        counsel-gtags-path-style 'root
+        )
+  
+  ;; (defun gtags-update ()
+  ;;   (interactive)
+  ;;   (let ((s (shell-command-to-string "global -uv")))
+  ;;     (if (string-match "not found" s)
+  ;;         (call-interactively 'helm-gtags-create-tags)
+  ;;       (message "Updated GTAGS files."))))
+
+  (defalias 'gtags-update 'counsel-gtags-update-tags)
+  (defalias 'gtags-create 'counsel-gtags-create-tags)
+
+  :bind (:map evil-motion-state-map
+              ("f" . avy-goto-word-1)
+         :map evil-normal-state-map
+              ("g t" . counsel-gtags-dwim)
+              ;; ("g t" . counsel-gtags-find-definition)
+              ("g r" . counsel-gtags-find-reference)
+              ("g s" . counsel-gtags-find-symbol)
+              ("g h" . counsel-gtags-go-backward))
+
+)
+
 ;; ----------------------------------------------------------------------
 (use-package helm
 ;; ----------------------------------------------------------------------
@@ -566,6 +605,7 @@ Return nil for blank/empty strings."
 ;; ----------------------------------------------------------------------
 (use-package helm-ag
 ;; ----------------------------------------------------------------------
+  :disabled
   :after helm
   :config
   ;; (setq helm-ag-base-command "ag --nocolor --nogroup")
@@ -578,6 +618,7 @@ Return nil for blank/empty strings."
 ;; ----------------------------------------------------------------------
 (use-package helm-gtags
 ;; ----------------------------------------------------------------------
+  :disabled
   :diminish helm-gtags-mode
   :after helm
   :config
@@ -603,6 +644,7 @@ Return nil for blank/empty strings."
 ;; ----------------------------------------------------------------------
 (use-package helm-descbinds
 ;; ----------------------------------------------------------------------
+  :disabled
   :diminish helm-descbinds
   :after helm
   :config
@@ -612,6 +654,7 @@ Return nil for blank/empty strings."
 ;; ----------------------------------------------------------------------
 (use-package recentf
 ;; ----------------------------------------------------------------------
+  :after ivy
   :config
   (setq recentf-max-saved-items 5000) ;; 履歴保存の数
   ;; (setq recentf-auto-cleanup 'never)  ;; 存在しないファイルは消さない
@@ -619,7 +662,8 @@ Return nil for blank/empty strings."
   ;; (setq recentf-auto-save-timer (run-with-idle-timer 30 t 'recentf-save-list))
 
   (recentf-mode 1)
-  (global-set-key (kbd "M-r") 'helm-recentf)
+  (global-set-key (kbd "M-r") 'ivy-recentf)
+  ;; (global-set-key (kbd "M-r") 'helm-recentf)
   ;; (global-set-key "\M-r" 'my/ido-recentf)
   )
 
