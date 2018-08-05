@@ -43,8 +43,6 @@
  next-line-add-newlines nil                  ; バッファ末尾に余計な改行コードを防ぐための設定
  idle-update-delay 0.3
 
- ;; make-backup-files nil                       ; #のバックアップファイルを作成しない
-
  ;;
  ;; backup files
  ;; http://yohshiy.blog.fc2.com/blog-entry-319.html
@@ -57,6 +55,7 @@
  delete-old-versions t  ;;                   範囲外を削除
 
  ;; backup to `#hoge.txt#'
+ make-backup-files nil                       ; #のバックアップファイルを作成しない
  auto-save-file-name-transforms   '((".*" "~/bak" t))
  ;; auto-save-default nil
  auto-save-timeout 10     ;; 保存の間隔 秒   (デフォルト : 30)
@@ -90,6 +89,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(hl-line ((t (:background "#141619")))))
+
+
+
 
 (setq save-place-file "~/.emacs.d/.emacs-places")
 (save-place-mode 1)                               ; Enable saveplace
@@ -172,19 +174,6 @@
 (use-package cl)
 ;; (use-package all-the-icons)
 ;; ----------------------------------------------------------------------
-
-;; ----------------------------------------------------------------------
-(use-package linum
-;; ----------------------------------------------------------------------
-  :config
-  (global-linum-mode 0)
-  (setq linum-format "%5d")
-  (set-face-attribute 'linum nil
-                      :foreground "#7A8496"
-                      :background "#2F343D"
-                      :height 1.0)
-
-  )
 
 ;; ----------------------------------------------------------------------
 (use-package telephone-line
@@ -294,7 +283,6 @@ Return nil for blank/empty strings."
 (use-package zerodark-theme
 ;; ----------------------------------------------------------------------
   ;; :disabled
-  :after linum
   :load-path "~/git-clone/zerodark-theme"
   :config
   (setq zerodark-use-paddings-in-mode-line nil)
@@ -321,6 +309,9 @@ Return nil for blank/empty strings."
   (set-face-attribute 'mode-line          nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
   (set-face-attribute 'mode-line-inactive nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
   (set-face-attribute 'minibuffer-prompt  nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1 :foreground "#cc8800")
+
+  (set-face-attribute 'line-number nil              :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :foreground "#7A8496" :background "#2F343D")
+  (set-face-attribute 'line-number-current-line nil :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :foreground "#7A8496" :background "#2F343D")
   )
 
 ;; ----------------------------------------------------------------------
@@ -496,17 +487,31 @@ Return nil for blank/empty strings."
                 :action #'find-file
                 :caller 'my-ivy-find-file)))
 
+  (defun counsel-rg-at-point ()
+    (interactive)
+    (counsel-rg (symbol-name (symbol-at-point))))
+
   :bind (("M-r"     . ivy-recentf)
-         ("M-o"     . counsel-rg)
+         ("M-o"     . counsel-rg-at-point)
          ;; ("C-x C-f" . my-ivy-find-file)
          ;; ("C-s"     . swiper)
 
          :map ivy-minibuffer-map
          ("M-h" . ivy-backward-delete-char)
+         ("TAB" . ivy-partial)
 
          :map ivy-mode-map
          ("C-'" . ivy-avy))
   )
+
+;; ----------------------------------------------------------------------
+(use-package counsel-etags
+;; ----------------------------------------------------------------------
+  ;; :diminish 
+  :after counsel
+
+  )
+
 ;; ----------------------------------------------------------------------
 (use-package counsel-gtags
 ;; ----------------------------------------------------------------------
@@ -679,7 +684,6 @@ Return nil for blank/empty strings."
                       :height 0.85
                       :background (face-attribute 'tool-bar :background)
                       ;; :background (face-attribute 'tabbar-default :background)
-                      ;; :background (face-attribute 'linum :background)
                       ;; :foreground (face-attribute 'tool-bar :foreground)
                       ;; :weight 'light
                       :slant 'italic
@@ -866,7 +870,6 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package c-mode
 ;; ----------------------------------------------------------------------
-  :after linum
   :mode "\\.h$"
   :init
   (add-hook 'c-mode-hook
@@ -882,7 +885,7 @@ That is, a string used to represent it on the tab bar."
               (setq case-fold-search nil)            ; case sensitive
               (cwarn-mode)
               (which-func-mode 1)
-              (linum-mode 1)
+              (display-line-numbers-mode)
               ))
   :config
   (add-to-list 'align-rules-list
@@ -959,7 +962,8 @@ That is, a string used to represent it on the tab bar."
 
 ;; apropos
 (defalias 'a 'apropos)
-(defalias 'l 'linum-mode)
+(defalias 'l 'display-line-numbers-mode)
+
 
 (defalias 'com 'comment-or-uncomment-region)
 (defalias 'ind 'indent-region)

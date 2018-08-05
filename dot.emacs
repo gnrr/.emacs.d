@@ -54,6 +54,7 @@
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
+(setq package-user-dir "~/.emacs.d/packages")
 (package-initialize)
 (unless (require 'use-package nil t)
   (defmacro use-package (&rest args)))
@@ -63,7 +64,7 @@
 ;;
 (load "~/.emacs.d/init.el")
 
-(backup-init-files-backup)
+(backup-init-files-backup)                ; backup init files when loaded normaly
 
 ;; Use `M-x backup-init-files-restore' to restore init files if error occurs while startup Emacs.
 
