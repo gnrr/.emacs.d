@@ -496,8 +496,12 @@ Return nil for blank/empty strings."
                 :action #'find-file
                 :caller 'my-ivy-find-file)))
 
+  (defun counsel-rg-at-point ()
+    (interactive)
+    (counsel-rg (symbol-name (symbol-at-point))))
+
   :bind (("M-r"     . ivy-recentf)
-         ("M-o"     . counsel-rg)
+         ("M-o"     . counsel-rg-at-point)
          ;; ("C-x C-f" . my-ivy-find-file)
          ;; ("C-s"     . swiper)
 
@@ -507,6 +511,15 @@ Return nil for blank/empty strings."
          :map ivy-mode-map
          ("C-'" . ivy-avy))
   )
+
+;; ----------------------------------------------------------------------
+(use-package counsel-etags
+;; ----------------------------------------------------------------------
+  ;; :diminish 
+  :after counsel
+
+  )
+
 ;; ----------------------------------------------------------------------
 (use-package counsel-gtags
 ;; ----------------------------------------------------------------------
