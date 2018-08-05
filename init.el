@@ -34,6 +34,11 @@
  tab-stop-list  '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60)
  comment-column 80
 
+ ;; display-line-numbers-grow-only t
+ ;; display-line-numbers-width-start 10
+ ;; line-number-display-width 10
+ display-line-numbers-width 4
+ 
  ;; 1行スクロール
  ;; (setq scroll-conservatively most-positive-fixnum)
  scroll-margin 5
