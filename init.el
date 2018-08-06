@@ -887,6 +887,10 @@ That is, a string used to represent it on the tab bar."
   (set-face-attribute 'git-gutter:added     nil :background (face-attribute 'fringe :background))
   (set-face-attribute 'git-gutter:deleted   nil :background (face-attribute 'fringe :background))
   (set-face-attribute 'git-gutter:unchanged nil :background (face-attribute 'fringe :background))
+
+  :bind (([M-down] . git-gutter:next-hunk)
+         ([M-up]   . git-gutter:previous-hunk))
+
   )
 
 ;; ----------------------------------------------------------------------
