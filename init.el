@@ -72,7 +72,6 @@
  ;; lock file to `.#hoge'
  create-lockfiles nil                   ; disabled
 
-
  )
 
 (fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
@@ -95,11 +94,13 @@
  ;; If there is more than one, they won't work right.
  '(hl-line ((t (:background "#141619")))))
 
+;; margin
+(setq-default left-margin-width 0 right-margin-width 0) ; Define new widths.
+(set-window-buffer nil (current-buffer)) ; Use them now.
 
-
-
+;; save-place
 (setq save-place-file "~/.emacs.d/.emacs-places")
-(save-place-mode 1)                               ; Enable saveplace
+(save-place-mode 1)                               ; Enable save-place
 
 ;; ミニバッファの履歴を保存する
 (savehist-mode 1)
@@ -871,6 +872,19 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package gist)
 ;; ----------------------------------------------------------------------
+
+;; ----------------------------------------------------------------------
+(use-package git-gutter-fringe
+;; ----------------------------------------------------------------------
+  :after git-gutter fringe-helper
+
+  :config
+  (set-face-attribute 'git-gutter:separator nil :background (face-attribute 'fringe :background))
+  (set-face-attribute 'git-gutter:modified  nil :background (face-attribute 'fringe :background))
+  (set-face-attribute 'git-gutter:added     nil :background (face-attribute 'fringe :background))
+  (set-face-attribute 'git-gutter:deleted   nil :background (face-attribute 'fringe :background))
+  (set-face-attribute 'git-gutter:unchanged nil :background (face-attribute 'fringe :background))
+  )
 
 ;; ----------------------------------------------------------------------
 (use-package c-mode
