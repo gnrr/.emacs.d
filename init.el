@@ -294,9 +294,6 @@ Return nil for blank/empty strings."
   (setq zerodark-use-paddings-in-mode-line nil)
 
   (load-theme 'zerodark t)
-  (set-face-background 'default "#21252B")
-  (set-face-background 'fringe  "#21252B")
-
   (set-face-attribute 'cursor nil
                       :background (face-attribute 'mode-line :foreground)
                       :foreground "#000000"
@@ -316,8 +313,12 @@ Return nil for blank/empty strings."
   (set-face-attribute 'mode-line-inactive nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
   (set-face-attribute 'minibuffer-prompt  nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1 :foreground "#cc8800")
 
-  (set-face-attribute 'line-number nil              :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :foreground "#7A8496" :background "#2F343D")
-  (set-face-attribute 'line-number-current-line nil :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :foreground "#7A8496" :background "#2F343D")
+  (set-face-attribute 'line-number nil              :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :background "#2F343D" :foreground "#7A8496")
+  (set-face-attribute 'line-number-current-line nil :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :background "#2F343D")
+
+  (set-face-background 'default "#21252B")
+  (set-face-attribute 'fringe nil :foreground (face-attribute 'line-number :foreground)
+                      	          :background (face-attribute 'line-number :background))
   )
 
 ;; ----------------------------------------------------------------------
@@ -497,7 +498,7 @@ Return nil for blank/empty strings."
     (interactive)
     (counsel-rg (symbol-name (symbol-at-point))))
 
-  :bind (("M-r"     . ivy-recentf)
+  :bind (("M-r"     . counsel-recentf)
          ("M-o"     . counsel-rg-at-point)
          ;; ("C-x C-f" . my-ivy-find-file)
          ;; ("C-s"     . swiper)
@@ -672,8 +673,8 @@ Return nil for blank/empty strings."
   (setq recentf-exclude '("/recentf" ".recentf"))
   ;; (setq recentf-auto-save-timer (run-with-idle-timer 30 t 'recentf-save-list))
 
-  (recentf-mode 1)
-  (global-set-key (kbd "M-r") 'ivy-recentf)
+  ;; (recentf-mode 1)
+  ;; (global-set-key (kbd "M-r") 'counsel-recentf)
   ;; (global-set-key (kbd "M-r") 'helm-recentf)
   ;; (global-set-key "\M-r" 'my/ido-recentf)
   )
@@ -877,7 +878,9 @@ That is, a string used to represent it on the tab bar."
 (use-package git-gutter-fringe
 ;; ----------------------------------------------------------------------
   :after git-gutter fringe-helper
-
+  :init
+  (global-git-gutter-mode t)
+  
   :config
   (set-face-attribute 'git-gutter:separator nil :background (face-attribute 'fringe :background))
   (set-face-attribute 'git-gutter:modified  nil :background (face-attribute 'fringe :background))
