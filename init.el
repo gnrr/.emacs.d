@@ -4,9 +4,8 @@
 ;;;
 (message "--> loading \"init.el\"...")
 
-;;; ----------------------------------------------------------------------
-;;; defaults
-;;; ----------------------------------------------------------------------
+;; ----------------------------------------------------------------------
+;; defaults
 (setq-default
  auto-window-vscroll nil                          ; Lighten vertical scroll
  confirm-kill-emacs 'yes-or-no-p                  ; Confirm before exiting Emacs
@@ -137,10 +136,8 @@
 (setq frame-title-format '(format "%s"
       (:eval (if (buffer-file-name) (replace-home-directory-string (buffer-file-name)) (buffer-name)))))
 
-;; tab
 ;; ----------------------------------------------------------------------
-;;; key unbinding / binding
-;; ----------------------------------------------------------------------
+;; key unbinding / binding
 (keyboard-translate ?\C-h ?\C-?)        ; c-h
 
 (global-unset-key (kbd "M-,"))                          ; xref
@@ -178,12 +175,9 @@
 
 ;; ----------------------------------------------------------------------
 (use-package cl)
-;; (use-package all-the-icons)
-;; ----------------------------------------------------------------------
 
 ;; ----------------------------------------------------------------------
 (use-package telephone-line
-;; ----------------------------------------------------------------------
   :after zerodark-theme
   :config
   (set-face-background 'telephone-line-evil-visual "#009161")
@@ -279,7 +273,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package atom-one-dark-theme
-;; ----------------------------------------------------------------------
   :disabled
   :config
   (load-theme 'atom-one-dark t)
@@ -287,7 +280,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package zerodark-theme
-;; ----------------------------------------------------------------------
   ;; :disabled
   :load-path "~/git-clone/zerodark-theme"
   :config
@@ -323,7 +315,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package dashboard
-;; ----------------------------------------------------------------------
   :disabled
 ;; :defer t
   :config
@@ -337,7 +328,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package evil
-;; ----------------------------------------------------------------------
   :config
   (evil-mode 1)
   (evil-set-initial-state 'help-mode 'emacs)
@@ -392,7 +382,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package evil-escape
-;; ----------------------------------------------------------------------
   :after evil
   :diminish evil-escape-mode
   :config
@@ -404,7 +393,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package evil-surround
-;; ----------------------------------------------------------------------
   :after evil
   ;; :diminish evil-surround-mode
   :config
@@ -413,7 +401,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package evil-org
-;; ----------------------------------------------------------------------
   :after evil
   ;; :diminish evil-org-mode
   :config
@@ -421,7 +408,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package neotree
-;; ----------------------------------------------------------------------
   :after all-the-icons
   :config
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
@@ -446,7 +432,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package ivy
-;; ----------------------------------------------------------------------
   ;; :disabled
   :diminish counsel-mode
   :init
@@ -513,7 +498,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package counsel-etags
-;; ----------------------------------------------------------------------
   ;; :diminish 
   :after counsel
 
@@ -521,7 +505,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package counsel-gtags
-;; ----------------------------------------------------------------------
   ;; :diminish 
   :after counsel
   :init
@@ -554,7 +537,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package helm
-;; ----------------------------------------------------------------------
   :disabled
   :diminish helm-mode
   :functions my-font-lighter
@@ -616,7 +598,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package helm-ag
-;; ----------------------------------------------------------------------
   :disabled
   :after helm
   :config
@@ -629,7 +610,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package helm-gtags
-;; ----------------------------------------------------------------------
   :disabled
   :diminish helm-gtags-mode
   :after helm
@@ -655,7 +635,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package helm-descbinds
-;; ----------------------------------------------------------------------
   :disabled
   :diminish helm-descbinds
   :after helm
@@ -665,7 +644,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package recentf
-;; ----------------------------------------------------------------------
   :after ivy
   :config
   (setq recentf-max-saved-items 5000) ;; 履歴保存の数
@@ -681,7 +659,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package tabbar
-;; ----------------------------------------------------------------------
   :config
   (tabbar-mode)
 
@@ -786,7 +763,6 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package rainbow-mode
-;; ----------------------------------------------------------------------
   :diminish rainbow-mode
   :config
   (setq rainbow-html-colors nil)
@@ -800,7 +776,6 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package smartparens
-;; ----------------------------------------------------------------------
   :diminish smartparens-mode
   :config
   (smartparens-global-mode)
@@ -818,7 +793,6 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package expand-region
-;; ----------------------------------------------------------------------
   ;; :load-path "~/git-clone/expand-region.el"
   :config
   (push 'er/mark-outside-pairs er/try-expand-list)
@@ -835,7 +809,6 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package scratch-log
-;; ----------------------------------------------------------------------
   :config
   ;; (setq sl-scratch-log-file "~/.emacs.d/.scratch-log")  ;; default
   ;; (setq sl-prev-scratch-string-file "~/.emacs.d/.scratch-log-prev")
@@ -853,7 +826,6 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package quick-back
-;; ----------------------------------------------------------------------
   :after evil
   :load-path "elisp"
   :bind (:map evil-normal-state-map
@@ -863,7 +835,6 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package hiwin
-;; ----------------------------------------------------------------------
   :diminish hiwin-mode
   :config
   (set-face-background 'hiwin-face "#313640")
@@ -872,15 +843,24 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package gist)
-;; ----------------------------------------------------------------------
 
 ;; ----------------------------------------------------------------------
 (use-package git-gutter-fringe
-;; ----------------------------------------------------------------------
+  ;; :diminish git-gutter-mode
   :after git-gutter fringe-helper
   :init
   (global-git-gutter-mode t)
-  
+
+(fringe-helper-define 'git-gutter-fr:modified nil
+  "........"
+  ".XXXXXX."
+  ".XXXXXX."
+  ".XXXXXX."
+  ".XXXXXX."
+  ".XXXXXX."
+  ".XXXXXX."
+  "........")
+
   :config
   (set-face-attribute 'git-gutter:separator nil :background (face-attribute 'fringe :background))
   (set-face-attribute 'git-gutter:modified  nil :background (face-attribute 'fringe :background))
@@ -895,7 +875,6 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package c-mode
-;; ----------------------------------------------------------------------
   :mode "\\.h$"
   :init
   (add-hook 'c-mode-hook
@@ -924,13 +903,11 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package discrete
-;; ----------------------------------------------------------------------
   :load-path "elisp"
   )
 
 ;; ----------------------------------------------------------------------
 (use-package my-backup
-;; ----------------------------------------------------------------------
   :load-path "elisp"
   :config
   (setq my-backup-directory "~/bak")
@@ -938,14 +915,12 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 ;; which-func-mode
-;; ----------------------------------------------------------------------
 (setq which-func-unknown "-")
 (setq which-func-modes '(c-mode python-mode ruby-mode))
 (setq which-func-format '(:propertize which-func-current face which-func))
 
 ;; ----------------------------------------------------------------------
 ;; diminish
-;; ----------------------------------------------------------------------
 (defmacro safe-diminish (file mode &optional new-name)
   "https://github.com/larstvei/dot-emacs/blob/master/init.org"
   `(with-eval-after-load ,file
@@ -957,7 +932,6 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 ;; discrete setting
-;; ----------------------------------------------------------------------
 (setq truncate-partial-width-windows nil)
 (setq-default truncate-lines t)
 
@@ -997,7 +971,6 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 ; computer independent
-;; ----------------------------------------------------------------------
 (load
  (cond ((eq system-type 'windows-nt) "~/.emacs.d/elisp/_windows.el")
        ((eq system-type 'gnu/linux)  "~/.emacs.d/elisp/_linux.el")
