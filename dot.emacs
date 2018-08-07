@@ -59,6 +59,8 @@
 (unless (require 'use-package nil t)
   (defmacro use-package (&rest args)))
 
+(add-hook 'after-init-hook #'(lambda () (message ">>>>done")))
+
 ;;
 ;; load ~/.emacs.d/init.d
 ;;

@@ -447,37 +447,47 @@ Return nil for blank/empty strings."
         ivy-extra-directories nil          ;; '("../")
         ivy-re-builders-alist              ;; configure regexp engine.
         '((t   . ivy--regex-ignore-order)) ;; allow input not in order
-        )
+        counsel-find-file-ignore-regexp "\\.elc\\'"
+  )
 
-  ;; my-ivy-find-file
-  (defvar my-ivy-find-file-exclude "-not \\( -path '*\\/.svn\\/*' -o -path '*\\/.git\\/*' -o -path '*\\~' -o -path '*\\.DS_Store' -o -path '\\.emacs-places' \\)")
+  ;; ;; my-ivy-find-file
+  ;; ;; (defvar my-ivy-find-file-exclude "-not \\( -path '*\\/.svn\\/*' -o -path '*\\/.git\\/*' -o -path '*\\~' -o -path '*\\.DS_Store' -o -path '\\.emacs-places' \\)")
 
-  ;; (defun my-ivy-find-file-exclude-p (str)
-  ;;   (catch 'loop
-  ;;     (dolist (regex my-ivy-find-file-exclude-regex-list)
-  ;;       (when (string-match regex str)
-  ;;         (throw 'loop t)))))
+  ;; ;; (defun my-ivy-find-file-exclude-p (str)
+  ;; ;;   (catch 'loop
+  ;; ;;     (dolist (regex my-ivy-find-file-exclude-regex-list)
+  ;; ;;       (when (string-match regex str)
+  ;; ;;         (throw 'loop t)))))
 
-  (defun my-ivy-find-file (&optional dir)
-    "list files recursively under specified directory"
-    (interactive "")
-    ;; (let* ((cmd (format "find %s -type f" (if dir dir ".")))
-    ;;        (cands (remove-if 'my-ivy-find-file-exclude-p
-    ;;                          (split-string (shell-command-to-string cmd) "\n" t))))
-    ;;   (ivy-read "%d File: " cands
-    ;;             :action #'find-file
-    ;;             :caller 'my-ivy-find-file)))
+  ;; (defun my-ivy-find-file (&optional dir)
+  ;;   "list files recursively under specified directory"
+  ;;   (interactive "")
+  ;;   ;; (let* ((cmd (format "find %s -type f" (if dir dir ".")))
+  ;;   ;;        (cands (remove-if 'my-ivy-find-file-exclude-p
+  ;;   ;;                          (split-string (shell-command-to-string cmd) "\n" t))))
+  ;;   ;;   (ivy-read "%d File: " cands
+  ;;   ;;             :action #'find-file
+  ;;   ;;             :caller 'my-ivy-find-file)))
 
-    (let* ((dir (cond ((and dir (file-exists-p dir)) dir)
-                      ((buffer-file-name) (directory-file-name
-                                           (file-name-directory (buffer-file-name))))
-                       (t (file-name-directory (expand-file-name "~")))))
-           (cmd (format "find %s -type f %s" dir my-ivy-find-file-exclude))
-           (cands (split-string (shell-command-to-string cmd) "\n" t)))
-      ;; (ivy-read (format "%s %%d: " dir) cands
-      (ivy-read (format "%s %%d: " dir) cands
-                :action #'find-file
-                :caller 'my-ivy-find-file)))
+  ;;   (let* ((dir (cond ((and dir (file-exists-p dir)) dir)
+  ;;                     ((buffer-file-name) (directory-file-name
+  ;;                                          (file-name-directory (buffer-file-name))))
+  ;;                      (t (file-name-directory (expand-file-name "~")))))
+  ;;          (cmd (format "find %s -type f %s" dir my-ivy-find-file-exclude))
+  ;;          (cands (split-string (shell-command-to-string cmd) "\n" t)))
+  ;;     ;; (ivy-read (format "%s %%d: " dir) cands
+  ;;     (ivy-read (format "%s %%d: " dir) cands
+  ;;               :action #'find-file
+  ;;               :caller 'my-ivy-find-file)))
+
+  (defun my-counsel-find-file ()
+    (interactive)
+    (call-interactively
+     (cond ((and (fboundp 'counsel-gtags-find-file) (locate-dominating-file default-directory "GTAGS"))
+            'counsel-gtags-find-file)
+           ((and (fboundp 'magit-find-file) (locate-dominating-file default-directory ".git"))
+            'magit-find-file)
+           (t 'counsel-find-file))))
 
   (defun counsel-rg-at-point ()
     (interactive)
@@ -485,12 +495,12 @@ Return nil for blank/empty strings."
 
   :bind (("M-r"     . counsel-recentf)
          ("M-o"     . counsel-rg-at-point)
-         ;; ("C-x C-f" . my-ivy-find-file)
+         ("C-x C-f" . my-counsel-find-file)
          ;; ("C-s"     . swiper)
 
          :map ivy-minibuffer-map
          ("M-h" . ivy-backward-delete-char)
-         ("TAB" . ivy-partial)
+         ;; ("TAB" . ivy-partial)
 
          :map ivy-mode-map
          ("C-'" . ivy-avy))
@@ -505,7 +515,7 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package counsel-gtags
-  ;; :diminish 
+  :diminish counsel-gtags-mode 
   :after counsel
   :init
   (add-hook 'c-mode-hook 'counsel-gtags-mode)
@@ -846,20 +856,20 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package git-gutter-fringe
-  ;; :diminish git-gutter-mode
+  :diminish git-gutter-mode
   :after git-gutter fringe-helper
   :init
   (global-git-gutter-mode t)
 
-(fringe-helper-define 'git-gutter-fr:modified nil
-  "........"
-  ".XXXXXX."
-  ".XXXXXX."
-  ".XXXXXX."
-  ".XXXXXX."
-  ".XXXXXX."
-  ".XXXXXX."
-  "........")
+;; (fringe-helper-define 'git-gutter-fr:modified nil
+;;   "........"
+;;   ".XXXXXX."
+;;   ".XXXXXX."
+;;   ".XXXXXX."
+;;   ".XXXXXX."
+;;   ".XXXXXX."
+;;   ".XXXXXX."
+;;   "........")
 
   :config
   (set-face-attribute 'git-gutter:separator nil :background (face-attribute 'fringe :background))
@@ -871,6 +881,31 @@ That is, a string used to represent it on the tab bar."
   :bind (([M-down] . git-gutter:next-hunk)
          ([M-up]   . git-gutter:previous-hunk))
 
+  )
+
+;; ----------------------------------------------------------------------
+(use-package flycheck
+  :config
+  ;; (flycheck-define-checker my-c
+  ;;   "My C checker using gcc"
+  ;;   :command ("gcc" "-Wall" "-Wextra" source)
+  ;;   :standard-input t
+  ;;   :error-patterns  ((error line-start
+  ;;                            (file-name) ":" line ":" column ":" " error: " (message)
+  ;;                            line-end)
+  ;;                     (warning line-start
+  ;;                              (file-name) ":" line ":" column ":" " warning: " (message)
+  ;;                              line-end))
+  ;;   :modes (c-mode c++-mode))
+
+  (defun flycheck-c-mode-hook-func ()
+    ;; (flycheck-select-checker 'my-c) 
+    (flycheck-mode t)
+    )
+  (add-hook 'c-mode-common-hook 'flycheck-c-mode-hook-func)
+
+  :bind (([S-down] . flycheck-next-error)
+         ([S-up]   . flycheck-previous-error))
   )
 
 ;; ----------------------------------------------------------------------
