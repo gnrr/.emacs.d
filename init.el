@@ -82,17 +82,6 @@
 (setq cursor-type 'box)
 (blink-cursor-mode 0)
 
-;; カーソル行をハイライト
-(global-hl-line-mode t)
-(defalias 'hl 'global-hl-line-mode)
-
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(hl-line ((t (:background "#141619")))))
-
 ;; margin
 (setq-default left-margin-width 0 right-margin-width 0) ; Define new widths.
 (set-window-buffer nil (current-buffer)) ; Use them now.
@@ -172,6 +161,11 @@
 
 (define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
 
+(defun my-func ()
+  (interactive)
+  (message "called \'my-func\'"))
+
+(global-set-key [f2] 'my-func)
 
 ;; ----------------------------------------------------------------------
 (use-package cl)
@@ -345,8 +339,8 @@ Return nil for blank/empty strings."
   (define-key evil-motion-state-map (kbd "C-o") nil)		; evil-jump-backward
   (define-key evil-motion-state-map (kbd "C-e") nil)		; evil-scroll-down
 
-  (define-key evil-motion-state-map (kbd "C-n") nil)
-  (define-key evil-motion-state-map (kbd "C-p") nil)
+  ;; (define-key evil-motion-state-map (kbd "C-n") nil)
+  ;; (define-key evil-motion-state-map (kbd "C-p") nil)
   (define-key evil-motion-state-map (kbd "C-h") nil)
   (define-key evil-motion-state-map (kbd "M-h") nil)
 
@@ -360,7 +354,7 @@ Return nil for blank/empty strings."
 
   (evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
 
-  ;; (define-key undo-tree-map (kbd "U") 'undo-tree-redo)
+  (define-key evil-normal-state-map (kbd "TAB") 'indent-or-insert-tab)
   (define-key evil-normal-state-map (kbd "U") 'undo-tree-redo)
   (define-key evil-normal-state-map (kbd "SPC SPC") 'evil-scroll-down)
   (define-key evil-normal-state-map (kbd "S-SPC S-SPC") 'evil-scroll-up)
@@ -376,8 +370,18 @@ Return nil for blank/empty strings."
     (if (memq last-command '(evil-paste-before evil-paste-after))
         (call-interactively 'evil-paste-pop)
       (call-interactively (if arg 'evil-paste-before 'evil-paste-after))))
-
   (define-key evil-normal-state-map (kbd "p") 'my-evil-paste)
+
+
+  (defun my-gg ()
+    (interactive)
+    (if (eq last-command this-command)
+        (exchange-point-and-mark t)
+      (push-mark (point) t)
+      (goto-char (point-min))))
+
+  (define-key evil-motion-state-map (kbd "gg") 'my-gg)
+
   )
 
 ;; ----------------------------------------------------------------------
@@ -772,19 +776,6 @@ That is, a string used to represent it on the tab bar."
   )
 
 ;; ----------------------------------------------------------------------
-(use-package rainbow-mode
-  :diminish rainbow-mode
-  :config
-  (setq rainbow-html-colors nil)
-  (add-hook 'lisp-interaction-mode-hook 'rainbow-mode)
-  (add-hook 'emacs-lisp-mode-hook 'rainbow-mode)
-  ;; (add-hook 'css-mode-hook 'rainbow-mode)
-  ;; (add-hook 'less-mode-hook 'rainbow-mode)
-  ;; (add-hook 'web-mode-hook 'rainbow-mode)
-  ;; (add-hook 'html-mode-hook 'rainbow-mode)
-  )
-
-;; ----------------------------------------------------------------------
 (use-package smartparens
   :diminish smartparens-mode
   :config
@@ -817,6 +808,50 @@ That is, a string used to represent it on the tab bar."
   (define-key evil-visual-state-map (kbd "_") 'er/contract-region)
   )
 
+;; ----------------------------------------------------------------------
+(use-package rainbow-delimiters
+  :config
+  (require 'cl-lib)
+  (require 'color)
+
+  (set-face-foreground 'rainbow-delimiters-depth-1-face "#ca7070")
+  (set-face-foreground 'rainbow-delimiters-depth-2-face "#ff5e5e")
+  (set-face-foreground 'rainbow-delimiters-depth-3-face "#ffaa77")
+  (set-face-foreground 'rainbow-delimiters-depth-4-face "#dddd77")
+  (set-face-foreground 'rainbow-delimiters-depth-5-face "#80ee80")
+  (set-face-foreground 'rainbow-delimiters-depth-6-face "#66bbff")
+  (set-face-foreground 'rainbow-delimiters-depth-7-face "#da6bda")
+  (set-face-foreground 'rainbow-delimiters-depth-8-face "#afafaf")
+  (set-face-foreground 'rainbow-delimiters-depth-9-face "#f0f0f0")
+
+  (rainbow-delimiters-mode 1)
+  (setq rainbow-delimiters-outermost-only-face-count 1)
+  (set-face-bold 'rainbow-delimiters-depth-1-face nil)
+
+  (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
+  (add-hook 'c-mode-hook 'rainbow-delimiters-mode)
+
+  )
+
+;; ----------------------------------------------------------------------
+(use-package rainbow-mode
+  :diminish rainbow-mode
+  :config
+  (setq rainbow-html-colors nil)
+  (add-hook 'lisp-interaction-mode-hook 'rainbow-mode)
+  (add-hook 'emacs-lisp-mode-hook 'rainbow-mode)
+  ;; (add-hook 'css-mode-hook 'rainbow-mode)
+  ;; (add-hook 'less-mode-hook 'rainbow-mode)
+  ;; (add-hook 'web-mode-hook 'rainbow-mode)
+  ;; (add-hook 'html-mode-hook 'rainbow-mode)
+  )
+
+;; ----------------------------------------------------------------------
+(use-package sublimity
+  :config
+  (sublimity-mode 1)
+
+  )
 ;; ----------------------------------------------------------------------
 (use-package scratch-log
   :config
@@ -861,17 +896,17 @@ That is, a string used to represent it on the tab bar."
   :init
   (global-git-gutter-mode t)
 
-;; (fringe-helper-define 'git-gutter-fr:modified nil
-;;   "........"
-;;   ".XXXXXX."
-;;   ".XXXXXX."
-;;   ".XXXXXX."
-;;   ".XXXXXX."
-;;   ".XXXXXX."
-;;   ".XXXXXX."
-;;   "........")
-
   :config
+  (fringe-helper-define 'git-gutter-fr:modified nil
+                        "........"
+                        ".XXXXXX."
+                        ".XXXXXX."
+                        ".XXXXXX."
+                        ".XXXXXX."
+                        ".XXXXXX."
+                        ".XXXXXX."
+                        "........")
+
   (set-face-attribute 'git-gutter:separator nil :background (face-attribute 'fringe :background))
   (set-face-attribute 'git-gutter:modified  nil :background (face-attribute 'fringe :background))
   (set-face-attribute 'git-gutter:added     nil :background (face-attribute 'fringe :background))
@@ -986,6 +1021,15 @@ That is, a string used to represent it on the tab bar."
       (insert "\t"))))
 
 (global-set-key "\C-i" 'indent-or-insert-tab)
+
+;; カーソル行をハイライト
+;; (global-hl-line-mode t)
+(defalias 'hl 'hl-line-mode)
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom. If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance. If there is more than one, they won't work right.
+ '(hl-line ((t (:background "#141619")))))
 
 ;;;
 ;;; command aliases
