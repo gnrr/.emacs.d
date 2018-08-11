@@ -855,6 +855,22 @@ That is, a string used to represent it on the tab bar."
   (sublimity-mode 1)
 
   )
+
+;; ----------------------------------------------------------------------
+(use-package guide-key-tip
+  :disabled
+  :after guide-key pos-tip
+  :init
+  (setq guide-key/guide-key-sequence '("C-x"))
+  (guide-key-mode 1)
+
+  :config
+  (setq guide-key-tip/enabled t)
+  (set-face-attribute 'guide-key-tip/pos-tip-face nil
+                      :family "x14y24pxHeadUpDaisy" :height 1.5 :bold nil
+                      :foreground "#333333" :weight 'light :inherit nil)
+)
+
 ;; ----------------------------------------------------------------------
 (use-package scratch-log
   :config
