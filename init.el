@@ -807,7 +807,7 @@ That is, a string used to represent it on the tab bar."
   (define-key evil-visual-state-map (kbd "+") 'er/expand-region)
   (define-key evil-visual-state-map (kbd "_") 'er/contract-region)
   )
-   
+
 ;; ----------------------------------------------------------------------
 (use-package rainbow-delimiters
   :config
