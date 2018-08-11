@@ -114,16 +114,19 @@
 ;; タイトルバーにファイルのフルパス表示
 (defmacro replace-home-directory-string (file-name)
   `(if ,file-name
-      (let ((regexp "^/Users/[^/]+/"))
-        (replace-regexp-in-string regexp "~/" ,file-name))
-    ""))
+       (let ((regexp (cond ((eq system-type 'windows-nt) "^C:\\Users\\[^\\]+\\")
+                           ((eq system-type 'gnu/linux)  "^/home/[^/]+/")
+                           (t                            "^/Users/[^/]+/"))))
+         (replace-regexp-in-string regexp "~/" ,file-name))
+     nil))
 
-(defun emacs-version-briefly ()
-  (let ((lst (split-string (emacs-version))))
-    (concat (nth 1 lst) (nth 2 lst))))
+;; (defun emacs-version-briefly ()
+;;   (let ((lst (split-string (emacs-version))))
+;;     (concat (nth 1 lst) (nth 2 lst))))
 
 (setq frame-title-format '(format "%s"
-      (:eval (if (buffer-file-name) (replace-home-directory-string (buffer-file-name)) (buffer-name)))))
+      (:eval (or (replace-home-directory-string (buffer-file-name))
+                 (buffer-name)))))
 
 ;; ----------------------------------------------------------------------
 ;; key unbinding / binding
