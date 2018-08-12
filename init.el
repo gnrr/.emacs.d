@@ -103,13 +103,9 @@
 (set-face-attribute 'mode-line-inactive nil :box nil)
 
 ;; モードラインの割合表示を総行数表示に
-(defvar my-lines-page-mode t)
-
-(when my-lines-page-mode
-  (setq my-mode-line-format "%3d:%%4l/%d")
-  (setq mode-line-position '(:eval (format my-mode-line-format
-                                           (1+ (current-column))
-                                           (count-lines (point-max) (point-min))))))
+(defvar my-mode-line-position-format "%%3C:%%4l/%d")
+(setq mode-line-position '(:eval (format my-mode-line-position-format
+                                         (count-lines (point-max) (point-min)))))
 
 ;; タイトルバーにファイルのフルパス表示
 (defmacro replace-home-directory-string (file-name)
@@ -811,7 +807,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package rainbow-delimiters
-  :disabled
+  ;; :disabled
   :config
   (require 'cl-lib)
   (require 'color)
@@ -910,7 +906,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package git-gutter-fringe
-  :disabled
+  ;; :disabled
   :diminish git-gutter-mode
   :after git-gutter fringe-helper
   :init
@@ -994,14 +990,14 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package dired
-  :disabled
+  ;; :disabled
   :config
   (setq dired-dwim-target t                   ; diredを2つのウィンドウで開いている時に、デフォルトの移動orコピー先をもう一方のdiredで開いているディレクトリにする
         dired-recursive-copies 'always        ; ディレクトリを再帰的にコピーする
         dired-isearch-filenames t)            ; diredバッファでC-sした時にファイル名だけにマッチするように
 
   :bind (:map dired-mode-map
-              ("r" . revert-buffer))                                    ; kkkreload
+              ("r" . revert-buffer))                                    ; reload
   
   )
 
