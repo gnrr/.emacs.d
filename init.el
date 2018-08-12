@@ -867,7 +867,7 @@ That is, a string used to represent it on the tab bar."
   :config
   (setq guide-key-tip/enabled t)
   (set-face-attribute 'guide-key-tip/pos-tip-face nil
-                      :family "x14y24pxHeadUpDaisy" :height 1.5 :bold nil
+                      ;; :family "x14y24pxHeadUpDaisy" :height 1.5 :bold nil
                       :foreground "#333333" :weight 'light :inherit nil)
 )
 
