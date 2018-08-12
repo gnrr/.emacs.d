@@ -266,13 +266,13 @@ double quotation characters \(\"\) from given string."
   (if arg
       (progn
         (setq comment-column (current-column))
-        (message "Comment column set to %d" comment-column))
+        (message "Set comment column to %d" comment-column))
     (comment-indent)                            
     (when (= (preceding-char) ?\;) (insert " "))
     (when (and evil-mode (not (eq evil-state 'insert))) 
       (evil-insert-state))))
 
-(global-set-key (kbd "C-;") 'my-comment-indent-function) ;
+;; (global-set-key (kbd "C-;") 'my-comment-indent-function) ;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ my-current-path

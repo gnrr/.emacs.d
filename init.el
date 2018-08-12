@@ -134,8 +134,6 @@
 
 (global-unset-key (kbd "M-,"))                          ; xref
 (global-unset-key (kbd "M-."))                          ; xref
-(global-unset-key (kbd "C-f"))                          ; scroll
-(global-unset-key (kbd "C-b"))                          ; scroll
 (global-unset-key (kbd "C-z"))                          ; suspend-frame
 (global-unset-key (kbd "C-x C-z"))                      ; suspend-frame
 (global-unset-key (kbd "C-x o"))                        ; other-window
@@ -813,6 +811,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package rainbow-delimiters
+  :disabled
   :config
   (require 'cl-lib)
   (require 'color)
@@ -851,6 +850,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package sublimity
+  :disabled
   :config
   (sublimity-mode 1)
 
@@ -867,7 +867,7 @@ That is, a string used to represent it on the tab bar."
   :config
   (setq guide-key-tip/enabled t)
   (set-face-attribute 'guide-key-tip/pos-tip-face nil
-                      :family "x14y24pxHeadUpDaisy" :height 1.5 :bold nil
+                      ;; :family "x14y24pxHeadUpDaisy" :height 1.5 :bold nil
                       :foreground "#333333" :weight 'light :inherit nil)
 )
 
@@ -880,7 +880,7 @@ That is, a string used to represent it on the tab bar."
   (setq sl-prohibit-kill-scratch-buffer-p t) ;削除不能
   ;; *scratch*とscratch-logのメジャーモードをorg-modeにする
   ;; (setq initial-major-mode 'org-mode)
-  (add-to-list 'auto-mode-alist '("scratch-log" . org-mode))
+  ;; (add-to-list 'auto-mode-alist '("scratch-log" . org-mode))
   ;; 30秒ごとに自動保存
   (setq sl-use-timer t)
   ;; (setq sl-timer-interval 3)
@@ -910,6 +910,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package git-gutter-fringe
+  :disabled
   :diminish git-gutter-mode
   :after git-gutter fringe-helper
   :init
@@ -964,7 +965,8 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package c-mode
-  :mode "\\.h$"
+  :mode (("\\.c$" . c-mode)
+         ("\\.h$" . c-mode))
   :init
   (add-hook 'c-mode-hook
             (lambda ()
@@ -988,6 +990,19 @@ That is, a string used to represent it on the tab bar."
                   (tab-stop . t)              ; タブ位置でそろえる
                   (modes     . '(c-mode c++-mode))))
 
+  )
+
+;; ----------------------------------------------------------------------
+(use-package dired
+  :disabled
+  :config
+  (setq dired-dwim-target t                   ; diredを2つのウィンドウで開いている時に、デフォルトの移動orコピー先をもう一方のdiredで開いているディレクトリにする
+        dired-recursive-copies 'always        ; ディレクトリを再帰的にコピーする
+        dired-isearch-filenames t)            ; diredバッファでC-sした時にファイル名だけにマッチするように
+
+  :bind (:map dired-mode-map
+              ("r" . revert-buffer))                                    ; kkkreload
+  
   )
 
 ;; ----------------------------------------------------------------------
