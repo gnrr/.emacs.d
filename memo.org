@@ -1,0 +1,10 @@
+* evil
+** (まで削除
+dt(
+
+
+* syntax table
+http://emacs.rubikitch.com/syntax-table-beginner/
+
+* ivy manual
+http://oremacs.com/swiper/#key-bindings-for-single-selection-action-then-exit-minibuffer

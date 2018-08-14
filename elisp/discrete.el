@@ -247,6 +247,107 @@ double quotation characters \(\"\) from given string."
     (point)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;@@ my-comment-*
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun my-comment-or-uncomment-region (beg end)
+  (interactive)
+  (comment-normalize-vars)
+  (let ((rbeg (progn (goto-char beg) (beginning-of-line) (point)))
+        (rend (progn (goto-char end) (beginning-of-line) (point))))
+    (save-excursion
+      (narrow-to-region rbeg rend)
+      (goto-char (point-min)))
+    (let ((dmy "≈∫≈"))
+      (if (comment-only-p rbeg rend)
+          ;; uncomment
+          (save-excursion
+            (uncomment-region (point-min) (point-max)))
+        ;; comment
+        (save-excursion
+          ;; *WORK AROUND* for `comment-region' 
+          ;;     insert dummy strings to the beginning of each lines
+          ;;     in order to insert string `comment-start' at beginning
+          ;;     of the all lines. 
+          (replace-regexp "^" dmy)
+          (comment-region (point-min) (point-max))
+          (goto-char (point-min))
+          ;; delete dummy strings
+          (replace-regexp (format "^\\(\\(%s\\)+%s\\)%s" comment-start comment-padding dmy) "\\1")))))
+  (goto-char (point-max))
+  (widen))
+
+
+(defun my-comment-dwim (&optional arg)
+  "My *customized* comment-dwim (Do What I Mean) as follows.
+   arg is non-nil:                       call `comment-kill'
+   region is active:                     call `my-comment-or-uncomment-region'
+   point is away from beginning of line: call `indent-for-comment'
+   else:                                 call `comment-line'"
+  (interactive "P")
+  (comment-normalize-vars)
+  (cond (arg (comment-kill nil))
+        ((use-region-p) (my-comment-or-uncomment-region (region-beginning) (region-end)))
+        ((null (bolp))
+         ;; insert comment
+         (comment-indent)
+          (unless (= (char-before) (string-to-char (substring comment-padding -1)))
+            (insert comment-padding)))
+        (t (comment-line 1)
+           (beginning-of-line))))
+
+(defvar my-comment-set-column-threshold 45
+  "`my-comment-set-column' recognized as previous comment-column greater than or equal to this value.")
+(defun my-comment-set-column-get-prev ()
+  (let ((thr (1- my-comment-set-column-threshold))
+        (c 0)
+        (pos nil))
+    (save-excursion
+      (while (and (< thr (point)) (< c thr))
+        (skip-syntax-backward "^<" (point-min))
+        (beginning-of-line)
+        (skip-syntax-forward "^<" (line-end-position))
+        (setq pos (point))
+        (setq c (current-column))))
+    (if (< thr c) (cons c pos) nil)))
+
+(defun my-comment-set-column (&optional arg)
+  "Insert comment and set `comment-column' accordance with current position as follows. 
+   arg is non-nil :             use `current-column'
+   any comment at current line: use beginning position of the comment at current line
+   else:                        use previous beginning position of the comment"
+  (interactive "P")
+  (comment-normalize-vars)
+  (let ((comment-current-line (save-excursion (beginning-of-line)
+                                  (comment-search-forward (line-end-position) t)))
+        (comment-prev (my-comment-set-column-get-prev))
+        (res-pos nil)
+        (col nil))
+    (setq col (cond (arg (current-column))
+                    (comment-current-line (save-excursion
+                                             (beginning-of-line)
+                                             (skip-syntax-forward "^<" (line-end-position))
+                                             (setq res-pos (point))
+                                             (current-column)))
+                    (t (setq res-pos (cdr comment-prev))
+                       (car comment-prev))))
+    (if col
+        (progn
+          (setq comment-column col)
+          (comment-indent)
+          (unless (= (char-before) (string-to-char (substring comment-padding -1)))
+            (insert comment-padding))
+          (message "Comment column set to %d" comment-column)
+          (when res-pos
+            (let ((pos (point)))
+              (goto-char res-pos)
+              (sit-for 1)
+              (goto-char pos))))
+      (message "No comment"))))
+
+(global-set-key (kbd "M-;") 'my-comment-dwim)
+(global-set-key (kbd "M-'") 'my-comment-set-column)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ my-font-lighter
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun my-font-lighter ()
@@ -259,22 +360,6 @@ double quotation characters \(\"\) from given string."
    (face-list)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-comment-indent-function
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun my-comment-indent-function (&optional arg)
-  (interactive "P")
-  (if arg
-      (progn
-        (setq comment-column (current-column))
-        (message "Set comment column to %d" comment-column))
-    (comment-indent)                            
-    (when (= (preceding-char) ?\;) (insert " "))
-    (when (and evil-mode (not (eq evil-state 'insert))) 
-      (evil-insert-state))))
-
-;; (global-set-key (kbd "C-;") 'my-comment-indent-function) ;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ my-current-path
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun my-current-path ()
@@ -284,19 +369,6 @@ double quotation characters \(\"\) from given string."
       (kill-new path)
       (message "copied \"%s\"" path))))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ goto-match-paren
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (defun goto-match-paren (arg)
-;;   "Go to the matching parenthesis if on parenthesis, otherwise insert %.
-;; vi style of % jumping to matching brace."
-;;   (interactive "p")
-;;   (cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
-;;         ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
-;;         (t (self-insert-command (or arg 1)))))
-
-;; (global-set-key (kbd "M-]") 'goto-match-paren)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ my-kill-buffer
@@ -338,21 +410,6 @@ double quotation characters \(\"\) from given string."
 
 (global-set-key "\C-xf" 'my-copy-buffer-file-name)
 
-;;
-;; ;;;@@ copy-buffer-file-name
-;;
-;; (defun copy-buffer-file-name ()
-;;   (interactive)
-;;   (let ((str (buffer-file-name)))
-;;     (if str
-;; 	(progn
-;; 	  (setq str (file-name-nondirectory (buffer-file-name)))
-;; 	  (kill-new str)			;copy to kill-ring
-;; 	  (message (concat "copied \"" str "\"")))
-;;       (message (concat "no filename")))))
-
-;; (global-set-key "\C-c\C-v" 'copy-buffer-file-name)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ message-buffer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -374,7 +431,6 @@ double quotation characters \(\"\) from given string."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ my-customized backward-word, forward-word, backward-kill-word
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (defun my-backward-word ()
   (interactive)
   (if (bolp)
@@ -399,282 +455,6 @@ double quotation characters \(\"\) from given string."
 (global-set-key "\M-b" 'my-backward-word)
 (global-set-key "\M-f" 'my-forward-word)
 (global-set-key "\M-h" 'my-backward-kill-word)
-
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ;;;@@ nippo
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (defvar nippo-dir "~/biz/nippo/")
-;; (defvar work-end-time '(18 . 10)
-;;   "hour . minute")
-
-;; (defvar work-end-time-margin 20
-;;   "minute")
-
-;; (defun nippo-get-the-date-list (time-list arg)
-;;   (let ((ty (nth 5 time-list))
-;; 	(tm (nth 4 time-list))
-;; 	(td (nth 3 time-list))
-;; 	(not-yet t))
-;;     (setq td (+ td arg))
-;;     (list (nth 0 time-list) (nth 1 time-list) (nth 2 time-list) td tm ty)))
-
-;; (defun nippo-get-proper-file-name (time arg &optional no-today)
-;;   (let* ((ext ".txt")
-;; 	 (tl (decode-time time))
-;; 	 (file-name-today (concat (format-time-string "%y%m%d" time) ext))
-;; 	 (file-name file-name-today)
-;; 	 (path nil)
-;; 	 (is-today nil)
-;; 	 (not-yet t)
-;; 	 (no-err t))
-;;     (while (and not-yet no-err)
-;;       (setq path (concat (directory-file-name (expand-file-name nippo-dir)) "/"
-;; 			 file-name))
-;;       (when (file-exists-p path)
-;; 	(setq is-today (if (string= file-name file-name-today) t nil))
-;; 	(if no-today
-;; 	    (unless is-today
-;; 	      (setq not-yet nil))
-;; 	  (setq not-yet nil)))
-;;       (when not-yet
-;; 	(let ((pl (nippo-get-the-date-list tl arg))
-;; 	      (pt nil))
-;; 	  (if pl
-;; 	      (progn
-;; 		(setq pt (encode-time (nth 0 pl) (nth 1 pl) (nth 2 pl) (nth 3 pl) (nth 4 pl) (nth 5 pl)))
-;; 		(setq file-name (concat (format-time-string "%y%m%d" pt) ext))
-;; 		(setq tl pl))
-;; 	    (setq no-err nil)))))
-;;     (if no-err
-;; 	;; found
-;; 	(list path is-today)
-;;       ;; error (not found)
-;;       nil)))
-
-;; (defun nippo-get-todays-file-name (time)
-;;   (let* ((ext ".txt"))
-;;     (concat (format-time-string "%y%m%d" time) ext)))
-
-;; (defun nippo-get-work-end-time (ct)
-;;   (let* ((l (decode-time ct))
-;; 	 (cm (nth 1 l))
-;; 	 (ch (nth 2 l))
-;; 	 (sec (+ (* ch 3600) (* cm 60)))
-;; 	 (wh (car work-end-time))
-;; 	 (wm (cdr work-end-time)))
-;;     (if (< sec (+ (* wh 3600) (* wm 60)))
-;; 	(cons wh wm)
-;;       (if (< cm (- 60 work-end-time-margin))
-;; 	  (cons ch (* (/ (+ cm work-end-time-margin) 10) 10))
-;; 	(cons (1+ ch) 0)))))
-
-;; (defun nippo-open-post-process-exists (ct)
-;;   ;; time
-;;   (goto-char (point-min))
-;;   (re-search-forward "- [0-9][0-9]:[0-9][0-9]$")
-;;   (let ((we (nippo-get-work-end-time ct)))
-;;     (replace-match (format "- %02d:%02d" (car we) (cdr we))))
-
-;;   (set-window-start (selected-window) 1))
-
-;; (defun nippo-open-post-process-new (ct)
-;;   (goto-char (point-min))
-;;   ;; date
-;;   (re-search-forward "[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9] \\(.?\\)$")
-;;   (replace-match (format-time-string "%Y/%m/%d (%a)" ct))
-
-;;   ;; time
-;;   (re-search-forward "- [0-9][0-9]:[0-9][0-9]$")
-;;   (let ((we (nippo-get-work-end-time ct)))
-;;     (replace-match (format "- %02d:%02d" (car we) (cdr we))))
-
-;;   ;; next day or next week
-;;   (goto-char (point-max))
-;;   (re-search-backward "^【.*の予定】$")
-;;   (let* ((fri 5)
-;; 	 (s (if (< (string-to-number (format-time-string "%w" ct)) fri)
-;; 		"【明日の予定】"
-;; 	      "【来週の予定】")))
-;;     (replace-match s))
-
-;;   (set-window-start (selected-window) 1))
-
-
-;; (defun nippo ()
-;;   (interactive)
-;;   (let* ((ct (current-time))
-;; 	 (f (nippo-get-proper-file-name ct -1 nil))) ;include today's
-;;     (if f
-;; 	(let ((file-name (nth 0 f)))
-;; 	  (find-file file-name)
-;; 	  (if (nth 1 f) ;; today's file exist?
-;; 	      (nippo-open-post-process-exists ct)
-;; 	    (setq path (concat (directory-file-name (expand-file-name nippo-dir)) "/"
-;; 			       (nippo-get-todays-file-name ct)))
-;; 	    (write-file path)
-;; 	    (nippo-open-post-process-new ct)
-;; 	    (write-file path)
-;; 	    (message "today's nippo is new created."))
-;; 	  (set-buffer-modified-p nil))
-;;       (message "can not open nippo."))))
-
-;; (defun nippo-get-the-days-nippo-file-name-relative (dir-list curr-file x)
-;;   ""
-;;   (if curr-file
-;;       (let ((n 0)
-;; 	    (found nil))
-;; 	(while (and (not found) (< n (length dir-list)))
-;; 	  (if (string= (nth n dir-list) curr-file)
-;; 	      (setq found t)
-;; 	    (setq n (1+ n))))
-;; 	(if found
-;; 	    (if (< n (length dir-list))
-;; 		(progn
-;; 		  (setq n (+ n x))
-;; 		  (if (>= n 0)
-;; 		      (nth (+ n x) dir-list)
-;; 		    nil))
-;; 	      nil)
-;; 	  nil))
-;;     (nth (1- (length dir-list)) dir-list)))
-
-;; (defun nippo-open-the-days-nippo-or-memo (arg)
-;;   (let* ((cf (expand-file-name (buffer-file-name)))
-;; 	 (curr (if (file-exists-p cf) cf nil))
-;; 	 (dir (file-name-directory cf))
-;; 	 (l (directory-files dir t "[.]txt$"))
-;; 	 (f (nippo-get-the-days-nippo-file-name-relative l curr arg)))
-;;     (when (and f (not (string= cf f)))
-;;       (kill-buffer (current-buffer))
-;;       (find-file-read-only f))
-;;     f))
-
-;; (defun nippo-open-previous ()
-;;   (interactive)
-;;   (unless (nippo-open-the-days-nippo-or-memo -1)
-;;     (message "can not found previous.")))
-
-;; (defun nippo-open-next ()
-;;   (interactive)
-;;   (unless (nippo-open-the-days-nippo-or-memo 1)
-;;     (message "can not found next.")))
-
-;; (defun nippo-get-the-days-nippo-file-name-absolute (dir-list date)
-;;   (let ((ext ".txt")
-;; 	(n 0)
-;; 	(found nil)
-;; 	(nyet t)
-;; 	path)
-;;     (while (and nyet (< n (length dir-list)))
-;;       (setq path (nth n dir-list))
-;;       (cond
-;;        ((string= path (concat (directory-file-name (expand-file-name nippo-dir))
-;; 			      "/"
-;; 			      date
-;; 			      ext))
-;; 	(setq found t)
-;; 	(setq nyet nil))
-;;        ((< (string-to-number date) (string-to-number
-;; 				    (file-name-sans-extension
-;; 				     (file-name-nondirectory path))))
-;; 	(setq nyet nil))
-;;        (t (setq n (1+ n)))))
-;;     (if nyet
-;; 	(cons "" nil)
-;;       (cons path found))))
-
-;; (defun nippo-open-go (arg)
-;;   (interactive "sdate:")
-;;   (let ((l (directory-files (expand-file-name nippo-dir) t "[.]txt$"))
-;; 	(f nil))
-;;   (cond
-;;    ((or (string= arg "b") (string= arg "beg") (string= arg "s") (string= arg "start"))
-;;     (setq f (cons (car l) t)))		  ; (filename . t)
-;;    ((or (string= arg "") (string= arg "e") (string= arg "end"))
-;;     (setq f (cons (nth (1- (length l)) l) t))) ; (filename . t)
-;;    (t
-;;     (cond
-;;      ((string-match "^[0-9][0-9][0-9][0-9][0-9][0-9]$" arg) ;yymmdd
-;;       (setq f (nippo-get-the-days-nippo-file-name-absolute l arg)))
-;;      ((string-match "^[0-9][0-9][0-9][0-9]$" arg)		  ;mmdd
-;;       (let ((yy (format-time-string "%y" (current-time))))
-;; 	(setq f (nippo-get-the-days-nippo-file-name-absolute l
-;; 							     (concat yy arg)))))
-;;      ((string-match "^[0-9][0-9]$" arg)			  ;dd
-;;       (let ((yymm (format-time-string "%y%m" (current-time))))
-;; 	(setq f (nippo-get-the-days-nippo-file-name-absolute l
-;; 							     (concat yymm arg)))))
-;;      ((string-match "^[0-9]$" arg)			  ;d
-;;       (let ((yymm (format-time-string "%y%m" (current-time))))
-;; 	(setq f (nippo-get-the-days-nippo-file-name-absolute l
-;; 							     (concat yymm "0" arg)))))
-;;      (t (message "invalid format: s(start), b(begin) | e(end) |d | dd | mmdd | yymmdd")))))
-;;   (when f
-;;     (cond
-;;      ((string= (car f) "")
-;;       (message "not found spesified nippo."))
-;;      (t
-;;       (unless (string= (buffer-file-name (current-buffer)) (car f))
-;; 	(kill-buffer (current-buffer))
-;; 	(find-file-read-only (car f))
-;; 	(unless (cdr f)
-;; 	  (message "not found. opened nearest date's."))))))))
-
-
-;; (define-key text-mode-map "\C-x\C-p" 'nippo-open-previous)
-;; (define-key text-mode-map "\C-x\C-n" 'nippo-open-next)
-;; (define-key text-mode-map "\C-x\C-g" 'nippo-open-go)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-previous-line and my-next-line
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-'(progn    ; comment-beg
-(defvar next-prev-line-highlight nil)
-(make-variable-buffer-local 'next-prev-line-highlight)
-
-(defun previous-line (arg)
-  "My customized previous-line"
-  (interactive "p")
-  (if (interactive-p)
-      (progn
-	(condition-case nil
-	    (unless (= (narrowed-current-line) 1)
-	      (line-move (- arg)))
-	  (goto-char (point-min)))
-	(when next-prev-line-highlight
-	  (highlight-current-line)))
-    (line-move (- arg)))
-  nil)
-
-(defun narrowed-current-line ()
-  "Print the current buffer line number and narrowed line number of point."
-  (let ((opoint (point)) start)
-    (save-excursion
-      (save-restriction
-	(goto-char (point-min))
-	(widen)
-	(forward-line 0)
-	(setq start (point))
-	(goto-char opoint)
-	(forward-line 0)
-	(1+ (count-lines start (point)))))))
-
-(defun next-line (arg)
-  "My customized next-line"
-  (interactive "p")
-;;   (if (interactive-p)
-;;       (progn
-	;(call-interactively 'next-line)
-;; 	(line-move arg)
-;; 	(when next-prev-line-highlight
-;; 	  (highlight-current-line)))
-;; 	)
-  (let ((noerr (if (active-minibuffer-window) t nil)))
-    (line-move arg noerr)))
-;;   nil)
-
-) ; comment-end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ insert-tab-character
@@ -784,108 +564,6 @@ double quotation characters \(\"\) from given string."
 	      (when (< start end)
 		(overlay-put (make-overlay start end) 'invisible t)))
 	  (forward-line))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ commentize-and-next-line
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun text-syntax-table-not-all (start end class)
-  "start - end 間で、syntax-tableを調べて、指定されたclass以外のものが
-出現する位置を返す。すべての文字がclassならnilを返す。"
-  (let ((pt nil)
-	(ret nil))
-    (save-excursion
-      (goto-char start)
-      (while (and (< (point) end) (not pt))
-	(setq ret (char-syntax (char-after)))
-	(unless (= class ret)
-	  (setq pt (point)))
-	(forward-char 1)))
-    pt))
-
-(defun text-face-not-all (start end name)
-  "start - end 間で、指定されたnameを含んでいないfaceが出現する位置を返す。
-すべての文字のfaceがnameを含んでいればnilを返す。"
-  (let ((pt nil)
-	(faces ()))
-    (save-excursion
-      (goto-char start)
-      (while (and (< (point) end) (not pt))
-	(setq faces (get-text-property (point) 'face))
-	(unless (listp faces)
-	  (setq faces (list faces)))
-	(unless (or (memq name faces) (memq 'font-lock-comment-delimiter-face faces))
-	  (setq pt (point)))
-	(forward-char 1)))
-    pt))
-
-(defun whole-comment-line-p ()
-  "カレント行がすべてコメントならt, そうでなければnilを返す。
-一部コメントが含まれている場合もnilを返す。空行の場合もnilを返す。"
-  (let (start end nc)
-    (save-excursion
-      (end-of-line)
-      (setq end (point))
-      (beginning-of-line)
-      (setq start (point)))
-    (if (< start end)
-      (progn
-	;; 白文字クラス以外が最初に出現する位置を探す。
-	(setq start (text-syntax-table-not-all start end 32)) ;; 32は白文字クラス
-	(if start
-	    (setq nc (text-face-not-all start end 'font-lock-comment-face))
-	  (setq nc nil))
-	(when (integerp nc)
-	  (setq nc (text-face-not-all start end 'font-lock-comment-delimiter-face)))
-	(if (integerp nc)
-	    nil
-	  t))
-      nil)))
-
-(defun commentize-and-next-line (&optional ARG)
-  "カレント行をコメント化／アンコメント化し、次の行へ移動する。
-C-uにより前置引数を使うと次の行に移動しない。
-ユーザ変数 commentize-and-next-line-set-mark が nil以外のときは
-コメント化する最初の行をマークする。（デフォルト）"
-  (interactive "P")
-  (let (beg end)
-    (save-excursion
-      (beginning-of-line)
-      (setq beg (point))
-      (end-of-line)
-      (setq end (point)))
-    (when (< beg end)
-      (if (whole-comment-line-p)
-	  (uncomment-region beg end)
-	(comment-region beg end))))
-  (unless ARG
-    (when (and commentize-and-next-line-set-mark
-	       (not (eq last-command 'commentize-and-next-line)))
-      (push-mark))
-    (forward-line 1)
-    (beginning-of-line)))
-
-;; (global-set-key "\M-;" 'commentize-and-next-line)
-
-;; (defvar commentize-and-next-line-set-mark t
-;;   "*nil以外のときは、コメント化する最初の位置をマークする。
-;; C-x C-x (exchange-point-and-mark) 等で便利。")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ indent-for-comment (from xyzzy)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun indent-for-comment-gnrr (&optional ARG)
-  (interactive "P")
-  (if ARG
-      ;; set-comment-column
-      (let ((col (current-column)))
-        (setq comment-column col)
-        (message "set comment-column to %d." col))
-    (indent-for-comment)
-    (when (eq evil-state 'normal)
-      (evil-insert 1))))
-
-;; (global-set-key [?\C-\;] 'indent-for-comment-gnrr)
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ my-copy-word
@@ -1153,19 +831,18 @@ C-uにより前置引数を使うと次の行に移動しない。
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;@@ my-just-one-space
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (defvar my-just-one-space-state nil)
-;; (defun my-just-one-space ()
-;;   (interactive)
-;;   (if (and (eq last-command 'my-just-one-space) (null my-just-one-space-state))
-;;       (progn
-;; 	(backward-delete-char 1)
-;; 	(setq my-just-one-space-state t))
-;;     (progn
-;;       (just-one-space)
-;;       (setq my-just-one-space-state nil))))
+(defvar my-just-one-space-state nil)
+(defun my-just-one-space ()
+  (interactive)
+  (if (and (eq last-command 'my-just-one-space) (null my-just-one-space-state))
+      (progn
+	(backward-delete-char 1)
+	(setq my-just-one-space-state t))
+    (progn
+      (just-one-space)
+      (setq my-just-one-space-state nil))))
 
-;; (global-set-key "\M- " 'my-just-one-space)
-;; (global-set-key "\C- " 'my-just-one-space)
+(global-set-key "\M- " 'my-just-one-space)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;@@ toggle-narrowing-region
@@ -1195,98 +872,60 @@ C-uにより前置引数を使うと次の行に移動しない。
 	(setq toggle-narrowing-region-previous-rend rend)
 	(message ">> Narrowed <<")))))
 
-(global-set-key "\C-xnn" 'toggle-narrowing-region)
-(global-unset-key "\C-xnw")
+;; (global-set-key "\C-xnn" 'toggle-narrowing-region)
+;; (global-unset-key "\C-xnw")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;@@ insert-paren-*    [], {}, <>, "", ''
+;;@@ my-insert-pair-*    (), {}, [], <>, "", '' 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar insert-paren-kaku-state nil)
-;; (defun insert-paren-kaku ()
-;;   "Insert paired [] or {} working like insert-parenthesis."
-;;   (interactive)
-;;   (if (eq last-command 'insert-paren-kaku)
-;;       (progn
-;; 	(forward-char -1)
-;; 	(delete-char 2)
-;; 	(if (null insert-paren-kaku-state)
-;; 	    (progn
-;; 	      (insert ?\{)
-;; 	      (save-excursion
-;; 		(insert ?\}))
-;; 	      (setq insert-paren-kaku-state t))
-;; 	  (progn
-;; 	    (insert ?\[)
-;; 	    (save-excursion
-;; 	      (insert ?\]))
-;; 	    (setq insert-paren-kaku-state nil))))
-;;     (progn
-;;       (insert ?\[)
-;;       (save-excursion
-;; 	(insert ?\]))
-;;       (setq insert-paren-kaku-state nil))))
+(defun my-insert-pair (lst)
+  "args lst is formatted as '(state-var beginning-char end-char)"
+  (if (car lst)
+      (progn 
+        (setf (car lst) nil)
+        (insert-char (third lst))  ; beginning-char
+        (forward-char -1))
+    (setf (car lst) t)
+    (if (eq last-command this-command)
+        (delete-char 1)
+      (insert (second lst)))))     ; end-char
 
-(defun insert-paren-kaku ()
-  "Insert paired [] or {} working like insert-parenthesis."
+;; ()
+(defvar my-insert-paren-arg '(nil ?\( ?\)))
+(defun my-insert-paren ()
   (interactive)
-  (if (eq last-command 'insert-paren-kaku)
-      (progn
-	(forward-char -1)
-	(delete-char 2)
-	(if (null insert-paren-kaku-state)
-	    (progn
-	      (insert ?\[)
-	      (save-excursion
-		(insert ?\]))
-	      (setq insert-paren-kaku-state t))
-	  (progn
-	    (insert ?\{)
-	    (save-excursion
-	      (insert ?\}))
-	    (setq insert-paren-kaku-state nil))))
-    (progn
-      (insert ?\{)
-      (save-excursion
-	(insert ?\}))
-      (setq insert-paren-kaku-state nil))))
+  (my-insert-pair my-insert-paren-arg))
 
-;; (global-set-key "\M-[" 'insert-paren-kaku)
-
-(defvar insert-paren-quote-state nil)
-(defun insert-paren-quote ()
-  "Insert paired single-quote or double-quote working like insert-parenthesis."
+;; {}
+(defvar my-insert-brace-arg '(nil ?\{ ?\}))
+(defun my-insert-brace ()
   (interactive)
-  (if (eq last-command 'insert-paren-quote)
-      (progn
-	(forward-char -1)
-	(delete-char 2)
-	(if (null insert-paren-quote-state)
-	    (progn
-	      (insert ?\")
-	      (save-excursion
-		(insert ?\"))
-	      (setq insert-paren-quote-state t))
-	  (progn
-	    (insert ?\')
-	    (save-excursion
-	      (insert ?\'))
-	    (setq insert-paren-quote-state nil))))
-    (progn
-      (insert ?\')
-      (save-excursion
-	(insert ?\'))
-      (setq insert-paren-quote-state nil))))
-;; (global-set-key "\M-'" 'insert-paren-quote)
+  (my-insert-pair my-insert-brace-arg))
 
-(defun insert-paren-gtlt()
-  "Insert paired <> working like insert-parenthesis."
+;; []
+(defvar my-insert-bracket-arg '(nil ?\[ ?\]))
+(defun my-insert-bracket ()
   (interactive)
-  (insert ?\<)
-  (save-excursion
-    (insert ?\>)))
-;; (global-set-key "\M-<" 'insert-paren-gtlt)
-;; (global-unset-key "\M->")
+  (my-insert-pair my-insert-bracket-arg))
+
+;; <>
+(defvar my-insert-angle-arg '(nil ?\< ?\>))
+(defun my-insert-angle ()
+  (interactive)
+  (my-insert-pair my-insert-angle-arg))
+
+;; ""
+(defvar my-insert-dquote-arg '(nil ?\" ?\"))
+(defun my-insert-dquote ()
+  (interactive)
+  (my-insert-pair my-insert-dquote-arg))
+
+;; ''
+(defvar my-insert-squote-arg '(nil ?\' ?\'))
+(defun my-insert-squote ()
+  (interactive)
+  (my-insert-pair my-insert-squote-arg))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;@@ beginning-of-buffer-without-marking

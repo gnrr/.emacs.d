@@ -125,6 +125,17 @@
                  (buffer-name)))))
 
 ;; ----------------------------------------------------------------------
+;; utility
+(defun my-font-existsp ($font-name)
+  (if (null (x-list-fonts $font-name))
+      nil t))
+
+(defun my-get-cursor-color ()
+  (car (cl-loop for ($k . $v) in (frame-parameters)
+                if (eq $k 'cursor-color)
+                collect $v)))
+
+;; ----------------------------------------------------------------------
 ;; key unbinding / binding
 (keyboard-translate ?\C-h ?\C-?)        ; c-h
 
@@ -136,6 +147,13 @@
 (global-unset-key (kbd "M-t"))                          ; transpose-word
 (global-unset-key (kbd "M-'"))                          ; abbrev-prefix-mark
 (global-unset-key [f11])                                ; toggle-frame-fullscreen
+
+;; (global-set-key "(" 'my-insert-paren)                   ; ()
+;; (global-set-key "{" 'my-insert-brace)                   ; {} 
+;; (global-set-key "[" 'my-insert-bracket)                 ; []
+;; (global-set-key "<" 'my-insert-angle)                   ; <>
+;; (global-set-key "\"" 'my-insert-dquote)                 ; ""
+;; (global-set-key "'" 'my-insert-squote)                  ; ''
 
 (global-set-key (kbd "C-0") 'delete-window)
 (global-set-key (kbd "C-1") 'delete-other-windows)
@@ -154,15 +172,13 @@
 (global-set-key (kbd "M-9") 'insert-parentheses)
 (global-set-key (kbd "M-P") 'beginning-of-buffer)
 (global-set-key (kbd "M-N") 'end-of-buffer)
-(global-set-key (kbd "M-;") 'comment-line)
 
 (define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
 
 (defun my-func ()
-  (interactive)
   (message "called \'my-func\'"))
 
-(global-set-key [f2] 'my-func)
+(global-set-key [f2] '(lambda () (interactive) (funcall 'my-func)))
 
 ;; ----------------------------------------------------------------------
 (use-package cl)
@@ -351,7 +367,8 @@ Return nil for blank/empty strings."
 
   (evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
 
-  (define-key evil-normal-state-map (kbd "TAB") 'indent-or-insert-tab)
+  (define-key evil-insert-state-map (kbd "TAB") '(lambda () (interactive) (insert-tab)))
+  (define-key evil-normal-state-map (kbd "TAB") 'evil-indent-line)
   (define-key evil-normal-state-map (kbd "U") 'undo-tree-redo)
   (define-key evil-normal-state-map (kbd "SPC SPC") 'evil-scroll-down)
   (define-key evil-normal-state-map (kbd "S-SPC S-SPC") 'evil-scroll-up)
