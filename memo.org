@@ -1,11 +1,19 @@
 * evil
-** 
+** 削除系コマンド
    dt(	次の(まで削除	
    da)	()で囲まれた部分を()も含めて消す
    di)	()で囲まれた中身を消す
 
    https://blog.aaronbieber.com/2016/01/23/living-in-evil.html
 
+** evil-surround
+  S)	ビジュアルモードで選択した領域を()で囲む
+  gS)	
+  ds)	()を外す
+  dst	<TAG></TAG>で囲まれた部分を外す
+  cs)]	()で囲まれた部分を[]で囲み直す
+  ysw)	word を()で囲む
+  
 * syntax table
 
   Whitespace characters: 		‘ ’ or ‘-’
@@ -20,14 +28,6 @@
 
   http://emacs.rubikitch.com/syntax-table-beginner/
 
-** evil-surround
-  S)	ビジュアルモードで選択した領域を()で囲む
-  gS)	
-  ds)	()を外す
-  dst	<TAG></TAG>で囲まれた部分を外す
-  cs)]	()で囲まれた部分を[]で囲み直す
-  ysw)	word を()で囲む
-  
 * ivy
 ** manual
 

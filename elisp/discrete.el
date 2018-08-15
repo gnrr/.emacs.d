@@ -279,7 +279,7 @@ double quotation characters \(\"\) from given string."
         (t (comment-line 1)
            (beginning-of-line))))
 
-(defvar my-comment-set-column-threshold 45
+(defvar my-comment-set-column-threshold 30
   "`my-comment-set-column' recognized as previous comment-column greater than or equal to this value.")
 (defun my-comment-set-column-get-prev ()
   (let ((thr (1- my-comment-set-column-threshold))

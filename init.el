@@ -147,6 +147,7 @@
 (global-unset-key (kbd "M-t"))                          ; transpose-word
 (global-unset-key (kbd "M-'"))                          ; abbrev-prefix-mark
 (global-unset-key [f11])                                ; toggle-frame-fullscreen
+(global-unset-key [f12])                                ; "M-c"
 
 ;; (global-set-key "(" 'my-insert-paren)                   ; ()
 ;; (global-set-key "{" 'my-insert-brace)                   ; {} 
@@ -250,10 +251,10 @@
   (define-key evil-motion-state-map (kbd "gg") 'my-gg)
 
   
-(evil-add-hjkl-bindings package-menu-mode-map 'emacs
-  (kbd "/")       'evil-search-forward
-  (kbd "n")       'evil-search-next
-  (kbd "N")       'evil-search-previous)
+  (evil-add-hjkl-bindings package-menu-mode-map 'emacs
+    (kbd "/")       'evil-search-forward
+    (kbd "n")       'evil-search-next
+    (kbd "N")       'evil-search-previous)
   
   )
 
@@ -935,7 +936,15 @@ That is, a string used to represent it on the tab bar."
   )
 
 ;; ----------------------------------------------------------------------
-(use-package gist)
+(use-package gist
+  :after evil
+  :config
+  (evil-add-hjkl-bindings gist-list-menu-mode-map 'emacs
+    (kbd "/")       'evil-search-forward
+    (kbd "n")       'evil-search-next
+    (kbd "N")       'evil-search-previous)
+
+  )
 
 ;; ----------------------------------------------------------------------
 (use-package git-gutter-fringe
