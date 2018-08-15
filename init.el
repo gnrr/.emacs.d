@@ -184,8 +184,156 @@
 (use-package cl)
 
 ;; ----------------------------------------------------------------------
+(use-package evil
+  :config
+  (evil-mode 1)
+  (evil-set-initial 'help-mode 'emacs)
+  ;; (add-to-list 'evil-emacs-state-modes 'edebug-mode)
+  ;; (add-to-list 'evil-emacs-state-modes 'emacs-lisp-mode)
+
+  ;; (evil-set-initial-state 'edebug-mode 'emacs)
+  ;; (evil-make-intercept-map edebug-mode-map nil)
+  (defalias #'forward-evil-word #'forward-evil-symbol)
+
+  ;; インサートモードではEmacsキーバインド
+  (setcdr evil-insert-state-map nil)                        ; 
+  (define-key evil-insert-state-map [escape] 'evil-normal-state)
+
+  (define-key evil-normal-state-map (kbd "M-.") nil)        ; evil-repeat-pop-next
+  (define-key evil-motion-state-map (kbd "C-f") nil)
+  (define-key evil-motion-state-map (kbd "C-b") nil)
+  (define-key evil-motion-state-map (kbd "C-o") nil)		; evil-jump-backward
+  (define-key evil-motion-state-map (kbd "C-e") nil)		; evil-scroll-down
+
+  ;; (define-key evil-motion-state-map (kbd "C-n") nil)
+  ;; (define-key evil-motion-state-map (kbd "C-p") nil)
+  (define-key evil-motion-state-map (kbd "C-h") nil)
+  (define-key evil-motion-state-map (kbd "M-h") nil)
+
+  (define-key evil-motion-state-map (kbd "j") 'evil-next-visual-line)
+  (define-key evil-motion-state-map (kbd "k") 'evil-previous-visual-line)
+  (define-key evil-motion-state-map (kbd "4") 'evil-end-of-line)
+  (define-key evil-motion-state-map (kbd "]") 'evil-jump-item)
+
+  (define-key evil-insert-state-map (kbd "C-h") 'delete-backward-char)
+  (define-key evil-insert-state-map (kbd "M-h") 'my-backward-kill-word)
+
+  (evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
+
+  (define-key evil-insert-state-map (kbd "TAB") '(lambda () (interactive) (insert-tab)))
+  (define-key evil-normal-state-map (kbd "TAB") 'evil-indent-line)
+  (define-key evil-normal-state-map (kbd "U") 'undo-tree-redo)
+  (define-key evil-normal-state-map (kbd "SPC SPC") 'evil-scroll-down)
+  (define-key evil-normal-state-map (kbd "S-SPC S-SPC") 'evil-scroll-up)
+
+  (defun evil-return-insert-mode-after-save ()
+    (when evil-insert-state-minor-mode
+      (funcall (evil-escape--escape-normal-state))))
+
+  (add-hook 'after-save-hook 'evil-return-insert-mode-after-save)
+
+  (defun my-evil-paste (&optional arg)
+    (interactive  "P")
+    (if (memq last-command '(evil-paste-before evil-paste-after))
+        (call-interactively 'evil-paste-pop)
+      (call-interactively (if arg 'evil-paste-before 'evil-paste-after))))
+  (define-key evil-normal-state-map (kbd "p") 'my-evil-paste)
+
+
+  (defun my-gg ()
+    (interactive)
+    (if (eq last-command this-command)
+        (exchange-point-and-mark t)
+      (push-mark (point) t)
+      (goto-char (point-min))))
+
+  (define-key evil-motion-state-map (kbd "gg") 'my-gg)
+
+  
+(evil-add-hjkl-bindings package-menu-mode-map 'emacs
+  (kbd "/")       'evil-search-forward
+  (kbd "n")       'evil-search-next
+  (kbd "N")       'evil-search-previous)
+  
+  )
+
+;; ----------------------------------------------------------------------
+(use-package evil-collection
+  :after evil
+  :config
+  (evil-collection-init)
+  )
+;; ----------------------------------------------------------------------
+(use-package evil-escape
+  :after evil
+  :diminish evil-escape-mode
+  :config
+  (evil-escape-mode 1)
+  (setq-default evil-escape-delay 0.2)
+  (setq-default evil-escape-key-sequence "jj")
+  (setq-default evil-escape-excluded-states '(normal visual multiedit emacs motion))
+  )
+
+;; ----------------------------------------------------------------------
+(use-package evil-surround
+  :after evil
+  ;; :diminish evil-surround-mode
+  :config
+  (global-evil-surround-mode 1)
+)
+
+;; ----------------------------------------------------------------------
+(use-package evil-org
+  :after evil
+  ;; :diminish evil-org-mode
+  :config
+)
+
+;; ----------------------------------------------------------------------
+(use-package atom-one-dark-theme
+  :disabled
+  :config
+  (load-theme 'atom-one-dark t)
+  )
+
+;; ----------------------------------------------------------------------
+(use-package zerodark-theme
+  ;; :disabled
+  :load-path "~/git-clone/zerodark-theme"
+  :config
+  (setq zerodark-use-paddings-in-mode-line nil)
+
+  (load-theme 'zerodark t)
+  (set-face-attribute 'cursor nil
+                      :background (face-attribute 'mode-line :foreground)
+                      :foreground "#000000"
+                      :weight 'bold)
+  (set-face-attribute 'font-lock-builtin-face nil :weight 'light)
+  (set-face-attribute 'font-lock-comment-face nil :weight 'light)
+  (set-face-attribute 'font-lock-constant-face nil :weight 'light)
+  (set-face-attribute 'font-lock-function-name-face nil :weight 'light)
+  (set-face-attribute 'font-lock-keyword-face nil :weight 'light)
+  (set-face-attribute 'font-lock-string-face nil :weight 'light)
+  (set-face-attribute 'font-lock-doc-face nil :weight 'light)
+  (set-face-attribute 'font-lock-type-face nil :weight 'light)
+  ;; (set-face-attribute 'fant-lock-variable-name-face nil :weight 'light)
+  (set-face-attribute 'font-lock-warning-face nil :weight 'light)
+
+  (set-face-attribute 'mode-line          nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
+  (set-face-attribute 'mode-line-inactive nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
+  (set-face-attribute 'minibuffer-prompt  nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1 :foreground "#cc8800")
+
+  (set-face-attribute 'line-number              nil :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :background "#272B33" :foreground "#454C59")
+  (set-face-attribute 'line-number-current-line nil :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :background "#272B33")
+
+  (set-face-background 'default "#21252B")
+  (set-face-attribute 'fringe nil :foreground (face-attribute 'line-number :foreground)
+                      	          :background (face-attribute 'line-number :background))
+  )
+
+;; ----------------------------------------------------------------------
 (use-package telephone-line
-  :after zerodark-theme
+  :after evil zerodark-theme
   :config
   (set-face-background 'telephone-line-evil-visual "#009161")
   (set-face-background 'telephone-line-evil-insert "#cc4444")
@@ -279,48 +427,6 @@ Return nil for blank/empty strings."
   )
 
 ;; ----------------------------------------------------------------------
-(use-package atom-one-dark-theme
-  :disabled
-  :config
-  (load-theme 'atom-one-dark t)
-  )
-
-;; ----------------------------------------------------------------------
-(use-package zerodark-theme
-  ;; :disabled
-  :load-path "~/git-clone/zerodark-theme"
-  :config
-  (setq zerodark-use-paddings-in-mode-line nil)
-
-  (load-theme 'zerodark t)
-  (set-face-attribute 'cursor nil
-                      :background (face-attribute 'mode-line :foreground)
-                      :foreground "#000000"
-                      :weight 'bold)
-  (set-face-attribute 'font-lock-builtin-face nil :weight 'light)
-  (set-face-attribute 'font-lock-comment-face nil :weight 'light)
-  (set-face-attribute 'font-lock-constant-face nil :weight 'light)
-  (set-face-attribute 'font-lock-function-name-face nil :weight 'light)
-  (set-face-attribute 'font-lock-keyword-face nil :weight 'light)
-  (set-face-attribute 'font-lock-string-face nil :weight 'light)
-  (set-face-attribute 'font-lock-doc-face nil :weight 'light)
-  (set-face-attribute 'font-lock-type-face nil :weight 'light)
-  ;; (set-face-attribute 'fant-lock-variable-name-face nil :weight 'light)
-  (set-face-attribute 'font-lock-warning-face nil :weight 'light)
-
-  (set-face-attribute 'mode-line          nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
-  (set-face-attribute 'mode-line-inactive nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
-  (set-face-attribute 'minibuffer-prompt  nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1 :foreground "#cc8800")
-
-  (set-face-attribute 'line-number nil              :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :background "#2F343D" :foreground "#7A8496")
-  (set-face-attribute 'line-number-current-line nil :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :background "#2F343D")
-
-  (set-face-background 'default "#21252B")
-  (set-face-attribute 'fringe nil :foreground (face-attribute 'line-number :foreground)
-                      	          :background (face-attribute 'line-number :background))
-  )
-
-;; ----------------------------------------------------------------------
 (use-package dashboard
   :disabled
 ;; :defer t
@@ -334,99 +440,8 @@ Return nil for blank/empty strings."
   )
 
 ;; ----------------------------------------------------------------------
-(use-package evil
-  :config
-  (evil-mode 1)
-  (evil-set-initial-state 'help-mode 'emacs)
-  (evil-set-initial-state 'edebug-mode 'emacs)
-  ;; (evil-make-intercept-map edebug-mode-map nil)
-  (defalias #'forward-evil-word #'forward-evil-symbol)
-
-  ;; インサートモードではEmacsキーバインド
-  (setcdr evil-insert-state-map nil)
-  (define-key evil-insert-state-map [escape] 'evil-normal-state)
-
-  (define-key evil-normal-state-map (kbd "M-.") nil)        ; evil-repeat-pop-next
-  (define-key evil-motion-state-map (kbd "C-f") nil)
-  (define-key evil-motion-state-map (kbd "C-b") nil)
-  (define-key evil-motion-state-map (kbd "C-o") nil)		; evil-jump-backward
-  (define-key evil-motion-state-map (kbd "C-e") nil)		; evil-scroll-down
-
-  ;; (define-key evil-motion-state-map (kbd "C-n") nil)
-  ;; (define-key evil-motion-state-map (kbd "C-p") nil)
-  (define-key evil-motion-state-map (kbd "C-h") nil)
-  (define-key evil-motion-state-map (kbd "M-h") nil)
-
-  (define-key evil-motion-state-map (kbd "j") 'evil-next-visual-line)
-  (define-key evil-motion-state-map (kbd "k") 'evil-previous-visual-line)
-  (define-key evil-motion-state-map (kbd "4") 'evil-end-of-line)
-  (define-key evil-motion-state-map (kbd "]") 'evil-jump-item)
-
-  (define-key evil-insert-state-map (kbd "C-h") 'delete-backward-char)
-  (define-key evil-insert-state-map (kbd "M-h") 'my-backward-kill-word)
-
-  (evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
-
-  (define-key evil-insert-state-map (kbd "TAB") '(lambda () (interactive) (insert-tab)))
-  (define-key evil-normal-state-map (kbd "TAB") 'evil-indent-line)
-  (define-key evil-normal-state-map (kbd "U") 'undo-tree-redo)
-  (define-key evil-normal-state-map (kbd "SPC SPC") 'evil-scroll-down)
-  (define-key evil-normal-state-map (kbd "S-SPC S-SPC") 'evil-scroll-up)
-
-  (defun evil-return-insert-mode-after-save ()
-    (when evil-insert-state-minor-mode
-      (funcall (evil-escape--escape-normal-state))))
-
-  (add-hook 'after-save-hook 'evil-return-insert-mode-after-save)
-
-  (defun my-evil-paste (&optional arg)
-    (interactive  "P")
-    (if (memq last-command '(evil-paste-before evil-paste-after))
-        (call-interactively 'evil-paste-pop)
-      (call-interactively (if arg 'evil-paste-before 'evil-paste-after))))
-  (define-key evil-normal-state-map (kbd "p") 'my-evil-paste)
-
-
-  (defun my-gg ()
-    (interactive)
-    (if (eq last-command this-command)
-        (exchange-point-and-mark t)
-      (push-mark (point) t)
-      (goto-char (point-min))))
-
-  (define-key evil-motion-state-map (kbd "gg") 'my-gg)
-
-  )
-
-;; ----------------------------------------------------------------------
-(use-package evil-escape
-  :after evil
-  :diminish evil-escape-mode
-  :config
-  (evil-escape-mode 1)
-  (setq-default evil-escape-delay 0.2)
-  (setq-default evil-escape-key-sequence "jj")
-  (setq-default evil-escape-excluded-states '(normal visual multiedit emacs motion))
-  )
-
-;; ----------------------------------------------------------------------
-(use-package evil-surround
-  :after evil
-  ;; :diminish evil-surround-mode
-  :config
-  (global-evil-surround-mode 1)
-)
-
-;; ----------------------------------------------------------------------
-(use-package evil-org
-  :after evil
-  ;; :diminish evil-org-mode
-  :config
-)
-
-;; ----------------------------------------------------------------------
 (use-package neotree
-  :after all-the-icons
+  :after evil all-the-icons
   :config
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
   (setq neo-show-hidden-files t)
@@ -533,8 +548,8 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package counsel-gtags
+  :after counsel evil
   :diminish counsel-gtags-mode 
-  :after counsel
   :init
   (add-hook 'c-mode-hook 'counsel-gtags-mode)
 
@@ -640,7 +655,7 @@ Return nil for blank/empty strings."
 (use-package helm-gtags
   :disabled
   :diminish helm-gtags-mode
-  :after helm
+  :after helm evil
   :config
   (helm-gtags-mode t)
   (setq helm-gtags-auto-update t)
@@ -808,6 +823,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package expand-region
+  :after evil
   ;; :load-path "~/git-clone/expand-region.el"
   :config
   (push 'er/mark-outside-pairs er/try-expand-list)
@@ -863,7 +879,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package sublimity
-  :disabled
+  ;; :disabled
   :config
   (sublimity-mode 1)
 
@@ -1082,7 +1098,8 @@ That is, a string used to represent it on the tab bar."
 ;;; command aliases
 ;;;
 
-;; edebug-defun
+;; for elisp
+(defalias 'ev 'eval-defun)
 (eval-after-load "edebug"
   '(defalias 'ede 'edebug-defun))
 
