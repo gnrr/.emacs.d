@@ -8,9 +8,8 @@
 ;;;;	based: $Id: discrete.el,v 1.51 2006/02/16 05:13:34 gnrr Exp gnrr $
 ;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ common functions
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ common functions
 (defun minibuffer-p (&optional window)
   (unless window (setq window (selected-window)))
   (eq window (minibuffer-window (window-frame window))))
@@ -242,9 +241,8 @@ double quotation characters \(\"\) from given string."
     (end-of-line)
     (point)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-comment-*
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ my-comment-*
 (defun my-comment-or-uncomment-region (beg end)
   (interactive)
   (comment-normalize-vars)
@@ -332,9 +330,8 @@ double quotation characters \(\"\) from given string."
 (global-set-key (kbd "M-;") 'my-comment-dwim)
 (global-set-key (kbd "M-'") 'my-comment-set-column)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-font-lighter
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ my-font-lighter
 (defun my-font-lighter ()
   (interactive)
   (mapc
@@ -344,9 +341,8 @@ double quotation characters \(\"\) from given string."
            ((eq (face-attribute face :weight) 'bold)        (set-face-attribute face nil :weight 'normal))))
    (face-list)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-current-path
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ my-current-path
 (defun my-current-path ()
   (interactive)
   (when buffer-file-name
@@ -355,18 +351,16 @@ double quotation characters \(\"\) from given string."
       (message "copied \"%s\"" path))))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-kill-buffer
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ my-kill-buffer
 (defun my-kill-buffer ()
   (interactive)
   (kill-buffer (current-buffer)))
 
 (global-set-key (kbd "C-x k") 'my-kill-buffer)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-switch-to-buffer
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ my-switch-to-buffer
 (defun my-switch-to-buffer ()
   (interactive)
   (switch-to-buffer (other-buffer)))
@@ -378,9 +372,8 @@ double quotation characters \(\"\) from given string."
 ;;   '(lambda ()
 ;; 	 (view-mode-enter)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-copy-buffer-file-name
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ my-copy-buffer-file-name
 (defun my-copy-buffer-file-name ()
   "copy buffer-file-name to kill-ring."
   (interactive)
@@ -395,27 +388,24 @@ double quotation characters \(\"\) from given string."
 
 (global-set-key "\C-xf" 'my-copy-buffer-file-name)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ message-buffer
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ message-buffer
 (defun message-buffer ()
   "Open `*Messages*' buffer."
   (interactive)
   (let ((buf "*Messages*"))
     (switch-to-buffer-other-window buf t)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-eval-depth-increase
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ my-eval-depth-increase
 (defun my-eval-depth-increase ()
   "increase `max-lisp-eval-depth' for large recursive calling."
   (interactive)
   (setq max-lisp-eval-depth (round (* max-lisp-eval-depth 1.5)))
   (message "max-lisp-eval-depth => %d" max-lisp-eval-depth))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-customized backward-word, forward-word, backward-kill-word
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ my-customized backward-word, forward-word, backward-kill-word
 (defun my-backward-word ()
   (interactive)
   (if (bolp)
@@ -441,9 +431,8 @@ double quotation characters \(\"\) from given string."
 (global-set-key "\M-f" 'my-forward-word)
 (global-set-key "\M-h" 'my-backward-kill-word)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ insert-tab-character
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ insert-tab-character
 (defun insert-tab-character ()
   (interactive)
   (insert "\t"))
@@ -452,9 +441,8 @@ double quotation characters \(\"\) from given string."
 ;; (global-set-key (quote [C-tab]) 'insert-tab-character)
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ insert-key-string etc...
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ insert-key-string etc...
 (defun get-key-string (key)
   (let* ((str (describe-key-briefly key))
 	 (end (string-match " runs " str)))
@@ -495,9 +483,8 @@ double quotation characters \(\"\) from given string."
 ;; key-bind
 ;; (global-set-key "\C-x\C-y" 'insert-key-string)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ enum-buffer-names
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ enum-buffer-names
 (defun enum-buffer-names ()
   "存在するバッファ名をすべて列挙し、scratchバッファに表示する。"
   (interactive)
@@ -514,9 +501,8 @@ double quotation characters \(\"\) from given string."
   (insert "---- enum-buffer-names end ----------------------------\n")
 )
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ visible-whole-buffer
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ visible-whole-buffer
 (defun visible-whole-buffer ()
   "カレントバッファ上でオーバレイが invisible な文字をすべて表示する。"
   (interactive)
@@ -550,9 +536,8 @@ double quotation characters \(\"\) from given string."
 		(overlay-put (make-overlay start end) 'invisible t)))
 	  (forward-line))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-copy-word
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ my-copy-word
 (defvar my-copy-word-thing-n 0)
 (make-variable-buffer-local 'my-copy-word-thing-n)
 (defvar my-copy-word-prev-str "")
@@ -601,9 +586,8 @@ double quotation characters \(\"\) from given string."
 ;; (global-set-key [?\C-=] 'my-copy-word)
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-save-buffer
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ my-save-buffer
 ;; create parent directories when saving a new file
 (defvar my-save-buffer-default-path nil
   "default directory where to save")
@@ -684,9 +668,8 @@ double quotation characters \(\"\) from given string."
 (global-set-key "\C-x\C-s" 'my-save-buffer)
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-write-file
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ my-write-file
 ;; create parent directories when writing a new file
 (defvar my-write-file-interactive-arg-active-p nil)
 
@@ -732,9 +715,8 @@ double quotation characters \(\"\) from given string."
 (global-set-key "\C-x\C-w" 'my-write-file)
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-find-file
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ my-find-file
 ;; thank somebody at 2ch.
 (defvar my-find-file-interactive-arg-active-p nil)
 (defun my-find-file-interactive-arg (str &optional initial)
@@ -776,9 +758,8 @@ double quotation characters \(\"\) from given string."
 ;; (global-unset-key "\C-x\C-v")		; find-alternate-file
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-insert-filename
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ my-insert-filename
 (defvar my-insert-filename-start "Filename:"
   "*The filename string is inserted following this string.")
 (defvar my-insert-filename-lines 10
@@ -813,9 +794,8 @@ double quotation characters \(\"\) from given string."
 ;; (add-hook 'write-file-hooks 'my-insert-filename)
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 ;;@@ my-just-one-space
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar my-just-one-space-state nil)
 (defun my-just-one-space ()
   (interactive)
@@ -829,9 +809,8 @@ double quotation characters \(\"\) from given string."
 
 (global-set-key "\M- " 'my-just-one-space)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 ;;@@ toggle-narrowing-region
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar toggle-narrowing-region-window-start nil)
 (defvar toggle-narrowing-region-previous-rend nil)
 (defun toggle-narrowing-region (beg end)
@@ -861,9 +840,8 @@ double quotation characters \(\"\) from given string."
 (global-unset-key "\C-xnw")
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 ;;@@ my-insert-pair-*    (), {}, [], <>, "", '' 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun my-insert-pair (lst)
   "args lst is formatted as '(state-var beginning-char end-char)"
   (if (car lst)
@@ -912,25 +890,22 @@ double quotation characters \(\"\) from given string."
   (interactive)
   (my-insert-pair my-insert-squote-arg))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 ;;@@ beginning-of-buffer-without-marking
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun beginning-of-buffer-without-marking ()
   "more simple beginning-of-buffer without marking."
   (interactive)
   (goto-char (point-min)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 ;;@@ end-of-buffer-without-marking
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun end-of-buffer-without-marking ()
   "more simple end-of-buffer without marking."
   (interactive)
   (goto-char (point-max)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 ;;@@ my-forward-word
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (defun my-forward-word ()
 ;;   "For people who dislike working of default forward-word."
 ;;   (interactive)
@@ -942,9 +917,8 @@ double quotation characters \(\"\) from given string."
 
 ;; (global-set-key "\M-f" 'my-forward-word)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 ;;@@ my-kill-word
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun my-kill-word ()
   "For people who dislike working of default kill-word."
   (interactive)
@@ -954,9 +928,8 @@ double quotation characters \(\"\) from given string."
 
 (global-set-key "\M-d" 'my-kill-word)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 ;;@@ my-backward-kill-word
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (defun my-backward-kill-word ()
 ;;   "For people who dislike working of default backward-kill-word."
 ;;   (interactive)
@@ -968,10 +941,9 @@ double quotation characters \(\"\) from given string."
 
 ;; (global-set-key "\M-h" 'my-backward-kill-word)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 ;;@@ my-backward-kill-word-minibuffer
 ;;  and some fix for me
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun my-backward-kill-word-minibuffer-sub (delimiter)
   "for path delimiter"
   (let (buf)
@@ -1037,9 +1009,8 @@ double quotation characters \(\"\) from given string."
 ;; 		)))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 ;;@@ my-undo
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (require 'redo)
 ;; (defun my-undo-redo (&optional ARG)
 ;;   "This function invocates either undo or redo according to ARG.
@@ -1054,9 +1025,8 @@ double quotation characters \(\"\) from given string."
 ;; ;
                                         ; (global-set-key "\M-z" 'my-undo-redo)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 ;;@@ find the next tags
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (defun find-tag-next ()
 ;;   "Search for another tag that matches the last tagname or regexp used."
 ;;   (interactive)
@@ -1064,9 +1034,8 @@ double quotation characters \(\"\) from given string."
 
 ;; (global-set-key "\M-," 'find-tag-next)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;@@ multiply current line.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;;@@ duplicate-line.
 (defun duplicate-line (&optional ARG)
   "Multiply current line."
   (interactive"*p")
@@ -1089,9 +1058,8 @@ double quotation characters \(\"\) from given string."
 
 ;; (global-set-key [?\M-=] 'duplicate-line)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 ;;@@ set-mark w/ fringe-indicator
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar fringe-indicator-ol nil)
 (defun fringe-indicator (pt bitmap)
   (let ((s (make-string 1 ?x)))
@@ -1105,13 +1073,12 @@ double quotation characters \(\"\) from given string."
   (fringe-indicator (point) 'right-triangle))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 ;;;		    SOMEBODY WROTE. THANKS A LOT.		   
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-calc
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
+;; @@ my-calc
 ;; http://d.hatena.ne.jp/uhiaha888/20110117/1295273922
 (defun my-calc (beg end)
   (interactive (list (point) (mark t)))
@@ -1121,9 +1088,8 @@ double quotation characters \(\"\) from given string."
 (global-set-key "\C-c\C-c" 'my-calc)
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 ;;@@ create tag-file automatically
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; http://www.bookshelf.jp/cgi-bin/goto.cgi?file=meadow&node=tagsfile%20maker
 ;; (defadvice find-tag (before c-tag-file activate)
 ;;   "Automatically create tags file."
@@ -1132,9 +1098,8 @@ double quotation characters \(\"\) from given string."
 ;;       (shell-command "etags *.[ch] *.el .*.el -o TAGS 2>/dev/null"))
 ;;     (visit-tags-table tag-file)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 ;;@@ my-keyboard-quit
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; http://www-tsujii.is.s.u-tokyo.ac.jp/~yoshinag/tips/elisp_tips.html#yankundo
 ;; keyboard-quit で連続実行する種類のコマンドの結果を元に戻す
 
@@ -1176,9 +1141,8 @@ double quotation characters \(\"\) from given string."
 ;;   (keyboard-quit))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ----------------------------------------------------------------------
 ;;@@ beginning-of-minibuffer
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;http://www-tsujii.is.s.u-tokyo.ac.jp/~yoshinag/tips/elisp_tips.html#minibuf
 ;;ミニバッファにて C-a でプロンプトの後に移動するようにする
 
