@@ -9,10 +9,6 @@
 ;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;		    I WROTE
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ common functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun minibuffer-p (&optional window)
@@ -252,30 +248,19 @@ double quotation characters \(\"\) from given string."
 (defun my-comment-or-uncomment-region (beg end)
   (interactive)
   (comment-normalize-vars)
-  (let ((rbeg (progn (goto-char beg) (beginning-of-line) (point)))
-        (rend (progn (goto-char end) (beginning-of-line) (point))))
-    (save-excursion
-      (narrow-to-region rbeg rend)
-      (goto-char (point-min)))
-    (let ((dmy "≈∫≈"))
-      (if (comment-only-p rbeg rend)
-          ;; uncomment
-          (save-excursion
-            (uncomment-region (point-min) (point-max)))
-        ;; comment
-        (save-excursion
-          ;; *WORK AROUND* for `comment-region' 
-          ;;     insert dummy strings to the beginning of each lines
-          ;;     in order to insert string `comment-start' at beginning
-          ;;     of the all lines. 
-          (replace-regexp "^" dmy)
-          (comment-region (point-min) (point-max))
-          (goto-char (point-min))
-          ;; delete dummy strings
-          (replace-regexp (format "^\\(\\(%s\\)+%s\\)%s" comment-start comment-padding dmy) "\\1")))))
-  (goto-char (point-max))
-  (widen))
-
+  (let ((rbeg (progn (goto-char beg) (beginning-of-line)
+                     (point)))
+        (rend (progn (goto-char end) (when (bolp) (forward-line -1)) (end-of-line)
+                     (point))))
+    (narrow-to-region rbeg rend)
+    (goto-char (point-min))
+    (if (comment-only-p (point-min) (point-max))
+        ;; uncomment
+        (uncomment-region (point-min) (point-max))
+      ;; comment
+      (replace-regexp "^" (concat comment-start comment-padding) nil (point-min) (point-max)))
+    (goto-char (point-max))
+    (widen)))
 
 (defun my-comment-dwim (&optional arg)
   "My *customized* comment-dwim (Do What I Mean) as follows.
@@ -872,8 +857,8 @@ double quotation characters \(\"\) from given string."
 	(setq toggle-narrowing-region-previous-rend rend)
 	(message ">> Narrowed <<")))))
 
-;; (global-set-key "\C-xnn" 'toggle-narrowing-region)
-;; (global-unset-key "\C-xnw")
+(global-set-key "\C-xnn" 'toggle-narrowing-region)
+(global-unset-key "\C-xnw")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

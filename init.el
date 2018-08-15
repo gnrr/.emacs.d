@@ -187,7 +187,7 @@
 (use-package evil
   :config
   (evil-mode 1)
-  (evil-set-initial 'help-mode 'emacs)
+  (evil-set-initial-state 'help-mode 'emacs)
   ;; (add-to-list 'evil-emacs-state-modes 'edebug-mode)
   ;; (add-to-list 'evil-emacs-state-modes 'emacs-lisp-mode)
 
@@ -528,7 +528,7 @@ Return nil for blank/empty strings."
 
   :bind (("M-r"     . counsel-recentf)
          ("M-o"     . counsel-rg-at-point)
-         ("C-x C-f" . my-counsel-find-file)
+         ;; ("C-x C-f" . my-counsel-find-file)
          ;; ("C-s"     . swiper)
 
          :map ivy-minibuffer-map

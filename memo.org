@@ -1,12 +1,42 @@
 * evil
-** (まで削除
-dt(
+** 
+   dt(	次の(まで削除	
+   da)	()で囲まれた部分を()も含めて消す
+   di)	()で囲まれた中身を消す
 
-https://blog.aaronbieber.com/2016/01/23/living-in-evil.html
-
+   https://blog.aaronbieber.com/2016/01/23/living-in-evil.html
 
 * syntax table
-http://emacs.rubikitch.com/syntax-table-beginner/
 
-* ivy manual
-http://oremacs.com/swiper/#key-bindings-for-single-selection-action-then-exit-minibuffer
+  Whitespace characters: 		‘ ’ or ‘-’
+  Word constituents:			‘w’
+  Symbol constituents:			‘_’
+  Punctuation characters:		‘.’
+  Open parenthesis characters:	‘(’
+  Close parenthesis characters:	‘)’
+  String quotes:				‘"’
+  Escape-syntax characters:		‘\’
+  Character quotes:				‘/’
+
+  http://emacs.rubikitch.com/syntax-table-beginner/
+
+** evil-surround
+  S)	ビジュアルモードで選択した領域を()で囲む
+  gS)	
+  ds)	()を外す
+  dst	<TAG></TAG>で囲まれた部分を外す
+  cs)]	()で囲まれた部分を[]で囲み直す
+  ysw)	word を()で囲む
+  
+* ivy
+** manual
+
+  http://oremacs.com/swiper/#key-bindings-for-single-selection-action-then-exit-minibuffer
+
+** custom counsel functions
+
+  https://emacs.stackexchange.com/questions/32858/whats-the-equivalent-of-helm-find-in-ivy-counsel-i-want-to-find-files-recu
+
+* example snippet
+
+(skip-chars-forward "^\n\r" (line-end-position))
