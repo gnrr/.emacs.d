@@ -1,12 +1,13 @@
-;;;; -*- mode: lisp-interaction; syntax: elisp; coding: iso-2022-7bit -*-
-;;;;
-;;;;    discrete elisp
-;;;;
-;;;;	Filename: discrete.el
-;;;;	Last modified: Mon Mar 04 2013 15:45:58 JST
-;;;;
-;;;;	based: $Id: discrete.el,v 1.51 2006/02/16 05:13:34 gnrr Exp gnrr $
-;;;;
+;;; -*- coding:utf-8; mode:emacs-lisp -*-
+;;;
+;;; discrete elisp
+;;;
+;;;	Filename: discrete.el
+;;;	Last modified: Mon Mar 04 2013 15:45:58 JST
+;;;
+;;;	based: $Id: discrete.el,v 1.51 2006/02/16 05:13:34 gnrr Exp gnrr $
+;;;
+(message "--> loading \"discrete.el\"...")
 
 ;; ----------------------------------------------------------------------
 ;; @@ common functions
@@ -486,7 +487,7 @@ double quotation characters \(\"\) from given string."
 ;; ----------------------------------------------------------------------
 ;; @@ enum-buffer-names
 (defun enum-buffer-names ()
-  "$BB8:_$9$k%P%C%U%!L>$r$9$Y$FNs5s$7!"(Bscratch$B%P%C%U%!$KI=<($9$k!#(B"
+  "存在するバッファ名をすべて列挙し、scratchバッファに表示する。"
   (interactive)
   (setq buff-list (buffer-list))
   (set-buffer "*scratch*")
@@ -504,7 +505,7 @@ double quotation characters \(\"\) from given string."
 ;; ----------------------------------------------------------------------
 ;; @@ visible-whole-buffer
 (defun visible-whole-buffer ()
-  "$B%+%l%s%H%P%C%U%!>e$G%*!<%P%l%$$,(B invisible $B$JJ8;z$r$9$Y$FI=<($9$k!#(B"
+  "カレントバッファ上でオーバレイが invisible な文字をすべて表示する。"
   (interactive)
   (save-excursion
     (goto-char (point-min))
@@ -517,7 +518,7 @@ double quotation characters \(\"\) from given string."
       (forward-char 1))))
 
 (defun hide-all-comment-lines ()
-  "$B%+%l%s%H%P%C%U%!>e$N%3%a%s%H9T$r$9$Y$F1#$9!#(B"
+  "カレントバッファ上のコメント行をすべて隠す。"
   (interactive)
   (save-excursion
     (goto-char (point-min))
@@ -675,12 +676,12 @@ double quotation characters \(\"\) from given string."
 
 ;; (defun my-write-file-write-proc (path)
 ;;   (if (file-exists-p path)
-;;       ;$BF1$8%U%!%$%kL>$,4{$KB8:_$7$F$$$k>l9g(B
+;;       ;同じファイル名が既に存在している場合
 ;;       (progn
 ;;         (message "already exists")
 ;;         (sit-for 5)
 ;;         (my-write-file-interactive-arg path))
-;;     ;$BF1$8%U%!%$%kL>$,B8:_$7$J$$>l9g(B
+;;     ;同じファイル名が存在しない場合
 ;;     (write-file path)))
 
 (defun my-write-file-interactive-arg (&optional initial)
@@ -693,13 +694,13 @@ double quotation characters \(\"\) from given string."
 						   nil nil nil path)))
 	   (directory (file-name-directory name)))
       (if (file-exists-p directory)
-	  ;$B%G%#%l%/%H%j$,$9$G$KB8:_$7$F$$$k>l9g(B
+	  ;ディレクトリがすでに存在している場合
 	  (write-file name t)
-	;$B%G%#%l%/%H%j$,B8:_$7$J$$>l9g(B
+	;ディレクトリが存在しない場合
 	(if (create-directory directory)
-	    ;$B%G%#%l%/%H%j$r:n$l$?>l9g(B
+	    ;ディレクトリを作れた場合
 	    (my-write-file-interactive-arg name)
-	  ;$B%G%#%l%/%H%j$r:n$l$J$+$C$?>l9g(B
+	  ;ディレクトリを作れなかった場合
 	  (my-save-buffer-interactive-arg name))))))
 
 (defun my-write-file-minibuffer-setup-hook ()
@@ -1101,17 +1102,17 @@ double quotation characters \(\"\) from given string."
 ;; ----------------------------------------------------------------------
 ;;@@ my-keyboard-quit
 ;; http://www-tsujii.is.s.u-tokyo.ac.jp/~yoshinag/tips/elisp_tips.html#yankundo
-;; keyboard-quit $B$GO"B3<B9T$9$k<oN`$N%3%^%s%I$N7k2L$r85$KLa$9(B
+;; keyboard-quit で連続実行する種類のコマンドの結果を元に戻す
 
-;; ;; dabbrev-expand $BMQ(B marker
+;; ;; dabbrev-expand 用 marker
 ;; (defvar my-dabbrev-marker nil)
 ;; (defadvice dabbrev-expand-by-category (before my-mark activate)
 ;;   (unless (eq last-command 'dabbrev-expand)
 ;;     (setq my-dabbrev-marker (point))))
 
-;; ;; kill-ring-yank-pointer $B$N(B backup $BMQ$NJQ?t(B
+;; ;; kill-ring-yank-pointer の backup 用の変数
 ;; (defvar my-kill-ring-yank-pointer-backup nil)
-;; ;; yank $B$9$k$H$-$K$O(B kill-ring-pointer $B$N0LCV$r3P$($F$*$/(B
+;; ;; yank するときには kill-ring-pointer の位置を覚えておく
 ;; (defadvice yank (before my-kill-ring-yank-pointer-backup activate)
 ;;   (setq my-kill-ring-yank-pointer-backup kill-ring-yank-pointer))
 
@@ -1124,19 +1125,19 @@ double quotation characters \(\"\) from given string."
 ;;   (cond ((eq last-command 'yank)
 ;;	 (let ((inhibit-read-only t))
 ;;	   (delete-region (point) (mark t)))
-;;	 ;; yank/yank-pop $B$7$?%F%-%9%H$r>C$9(B
+;;	 ;; yank/yank-pop したテキストを消す
 ;;	 (setq kill-ring-yank-pointer my-kill-ring-yank-pointer-backup)
-;;	 ;; kill-ring-yank-pointer $B$N0LCV$r(B yank $BA0$KLa$9(B
+;;	 ;; kill-ring-yank-pointer の位置を yank 前に戻す
 ;;	 )
 ;;	((eq last-command 'dabbrev-expand)
-;;	 ;; dabbrev-expand $B$7$?%F%-%9%H$r>C$9(B
+;;	 ;; dabbrev-expand したテキストを消す
 ;;	   (delete-region (point) my-dabbrev-marker)))
 ;;	((and (featurep 'redo) (eq last-command 'undo))
-;;	 ;; undo $B$7$F$$$k:GCf$J$i(B redo $B$G$-$k$@$1$9$k(B
+;;	 ;; undo している最中なら redo できるだけする
 ;;	   (while 1 (redo 1)))
 ;;	((or (eq last-command 'my-bury-buffer)
 ;;	     (eq last-command 'my-grub-buffer))
-;;	 ;; $B%P%C%U%!$r=[4DCf$J$i:G=i$N%P%C%U%!$KLa$k(B
+;;	 ;; バッファを循環中なら最初のバッファに戻る
 ;;	 (switch-to-buffer (car my-visible-blst))))
 ;;   (keyboard-quit))
 
@@ -1144,7 +1145,7 @@ double quotation characters \(\"\) from given string."
 ;; ----------------------------------------------------------------------
 ;;@@ beginning-of-minibuffer
 ;;http://www-tsujii.is.s.u-tokyo.ac.jp/~yoshinag/tips/elisp_tips.html#minibuf
-;;$B%_%K%P%C%U%!$K$F(B C-a $B$G%W%m%s%W%H$N8e$K0\F0$9$k$h$&$K$9$k(B
+;;ミニバッファにて C-a でプロンプトの後に移動するようにする
 
 ;; (defun beginning-of-minibuffer ()
 ;;   (interactive)
@@ -1162,4 +1163,8 @@ double quotation characters \(\"\) from given string."
 ;;;
 (provide 'discrete)
 
-;;; discrete.el ends here
+(message "<-- loaded \"discrete.el\"")
+
+;;
+;; discrete.el ends here
+;;

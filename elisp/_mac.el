@@ -105,3 +105,7 @@
 (defalias 'c 'open-terminal)
 
 (message "<-- loaded \"_mac.el\"")
+
+;;
+;; _mac.el ends here
+;;
