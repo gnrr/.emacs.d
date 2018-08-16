@@ -23,6 +23,7 @@
  uniquify-buffer-name-style 'forward              ; Uniquify buffer names
  window-combination-resize t                      ; Resize windows proportionally
 
+ bidi-display-reordering nil                      ; 右から左に読む言語に対応させないことで描画を高速化 
  vc-follow-symlinks t
  ring-bell-function 'ignore
  parens-require-spaces nil
@@ -177,9 +178,9 @@
 (define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
 
 (defun my-func ()
-  (message "called \'my-func\'"))
+  "called \'my-func\'")
 
-(global-set-key [f2] '(lambda () (interactive) (funcall 'my-func)))
+(global-set-key [f2] '(lambda () (interactive) (message "%S" (funcall 'my-func))))
 
 ;; ----------------------------------------------------------------------
 (use-package cl)
@@ -201,16 +202,22 @@
   (define-key evil-insert-state-map [escape] 'evil-normal-state)
 
   (define-key evil-normal-state-map (kbd "M-.") nil)        ; evil-repeat-pop-next
+  (define-key evil-normal-state-map (kbd "C-p") nil)        ; evil-paste-pop
+
   (define-key evil-motion-state-map (kbd "C-f") nil)
   (define-key evil-motion-state-map (kbd "C-b") nil)
   (define-key evil-motion-state-map (kbd "C-o") nil)		; evil-jump-backward
-  (define-key evil-motion-state-map (kbd "C-e") nil)		; evil-scroll-down
-
+  (define-key evil-motion-state-map (kbd "C-e") nil)
+  (define-key evil-motion-state-map (kbd "C-d") nil)        ; evil-scroll-down
   ;; (define-key evil-motion-state-map (kbd "C-n") nil)
   ;; (define-key evil-motion-state-map (kbd "C-p") nil)
+
   (define-key evil-motion-state-map (kbd "C-h") nil)
   (define-key evil-motion-state-map (kbd "M-h") nil)
 
+  (define-key evil-normal-state-map (kbd "m") nil)
+  (define-key evil-motion-state-map (kbd "m") 'evil-scroll-page-down)
+  (define-key evil-motion-state-map (kbd "M") 'evil-scroll-page-up)
   (define-key evil-motion-state-map (kbd "j") 'evil-next-visual-line)
   (define-key evil-motion-state-map (kbd "k") 'evil-previous-visual-line)
   (define-key evil-motion-state-map (kbd "4") 'evil-end-of-line)
@@ -224,8 +231,7 @@
   (define-key evil-insert-state-map (kbd "TAB") '(lambda () (interactive) (insert-tab)))
   (define-key evil-normal-state-map (kbd "TAB") 'evil-indent-line)
   (define-key evil-normal-state-map (kbd "U") 'undo-tree-redo)
-  (define-key evil-normal-state-map (kbd "SPC SPC") 'evil-scroll-down)
-  (define-key evil-normal-state-map (kbd "S-SPC S-SPC") 'evil-scroll-up)
+  (define-key evil-normal-state-map (kbd "M-p") 'evil-paste-pop-next)
 
   (defun evil-return-insert-mode-after-save ()
     (when evil-insert-state-minor-mode
@@ -238,7 +244,7 @@
     (if (memq last-command '(evil-paste-before evil-paste-after))
         (call-interactively 'evil-paste-pop)
       (call-interactively (if arg 'evil-paste-before 'evil-paste-after))))
-  (define-key evil-normal-state-map (kbd "p") 'my-evil-paste)
+;;  (define-key evil-normal-state-map (kbd "p") 'my-evil-paste)
 
 
   (defun my-gg ()
@@ -825,7 +831,6 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package expand-region
   :after evil
-  ;; :load-path "~/git-clone/expand-region.el"
   :config
   (push 'er/mark-outside-pairs er/try-expand-list)
   (setq expand-region-smart-cursor nil)
@@ -897,7 +902,6 @@ That is, a string used to represent it on the tab bar."
   :config
   (setq guide-key-tip/enabled t)
   (set-face-attribute 'guide-key-tip/pos-tip-face nil
-                      ;; :family "x14y24pxHeadUpDaisy" :height 1.5 :bold nil
                       :foreground "#333333" :weight 'light :inherit nil)
 )
 
@@ -906,8 +910,8 @@ That is, a string used to represent it on the tab bar."
   :config
   ;; (setq sl-scratch-log-file "~/.emacs.d/.scratch-log")  ;; default
   ;; (setq sl-prev-scratch-string-file "~/.emacs.d/.scratch-log-prev")
-  (setq sl-restore-scratch-p t)           ;復元
-  (setq sl-prohibit-kill-scratch-buffer-p t) ;削除不能
+  (setq sl-restore-scratch-p t)                   ; 復元
+  (setq sl-prohibit-kill-scratch-buffer-p t)      ; 削除不能
   ;; *scratch*とscratch-logのメジャーモードをorg-modeにする
   ;; (setq initial-major-mode 'org-mode)
   ;; (add-to-list 'auto-mode-alist '("scratch-log" . org-mode))
@@ -1009,8 +1013,8 @@ That is, a string used to represent it on the tab bar."
 
   :bind (("M-t" . google-translate-enja-or-jaen))
 
-
   )
+
 ;; ----------------------------------------------------------------------
 (use-package flycheck
   :config
@@ -1063,6 +1067,17 @@ That is, a string used to represent it on the tab bar."
                   (tab-stop . t)              ; タブ位置でそろえる
                   (modes     . '(c-mode c++-mode))))
 
+  )
+
+;; ----------------------------------------------------------------------
+(use-package align
+  ;; :disabled
+  :config
+  (add-to-list 'align-rules-list
+               '(tab-stop-assignment
+                 (regexp   . "\\(\\s-+\\)")
+                 (tab-stop . t)              ; タブ位置でそろえる
+                 (modes     . '(c-mode c++-mode))))
   )
 
 ;; ----------------------------------------------------------------------
