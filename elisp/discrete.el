@@ -90,8 +90,14 @@ otherwise return nil,if whole line is consisted of comment characters."
 	      (eq props 'font-lock-comment-delimiter-face))
 	  t nil))))
 
+(defun curr-point ()
+  ;;   "represent point value at point."
+  (interactive)
+  (message "curr:%d, beg:%d, end:%d, length:%d"
+           (point) (line-beginning-position) (line-end-position)
+           (- (line-end-position) (line-beginning-position))))
+
 ;; (defun pt ()
-;;   "represent point value at point."
 ;;   (interactive)
 ;;   (message "point :%d" (point)))
 
@@ -260,29 +266,71 @@ double quotation characters \(\"\) from given string."
       (replace-regexp "^" (concat comment-start comment-padding) nil (point-min) (point-max)))
     (goto-char (point-max))
     (widen)))
+ 
+(defun my-comment-inline-comment-start-pos ()
+  "Return comment-start position in current line, otherwise return -1."
+  (save-excursion
+	(beginning-of-line)
+	(let ((pos (save-excursion
+                 (skip-syntax-forward "^<" (line-end-position))
+                 (point))))
+	  (if (= (following-char) (string-to-char (substring comment-start 0 1)))
+		  -1
+		(if (and (< (line-beginning-position) pos (1- (line-end-position))))	
+			pos
+		  -1)))))
 
-(defun my-comment-dwim (&optional arg)
+(defun my-comment-align-inline-comment (pos)
+  (let ((col 0)
+        (x 0))
+    (save-excursion
+      (goto-char pos)
+      (setq col (current-column))
+      (skip-syntax-backward " ")
+      (setq x (- comment-column col))
+      (if (minusp x)
+          (progn
+            (when indent-tabs-mode
+              (untabify (line-beginning-position) (line-end-position)))
+            (delete-char (abs x)))
+        (insert (make-string x ?\ ))
+        (when indent-tabs-mode
+	      (tabify (line-beginning-position) (line-end-position)))))))
+
+(defun my-comment-dwim (&optional arg)                                          
   "My *customized* comment-dwim (Do What I Mean) as follows.
-   arg is non-nil:                       call `comment-kill'
-   region is active:                     call `my-comment-or-uncomment-region'
-   point is away from beginning of line: call `indent-for-comment'
-   else:                                 call `comment-line'"
+     arg is non-nil:                     call `comment-kill'
+     region is active:                   call `my-comment-or-uncomment-region'
+     current line has no inline comment: call `indent-for-comment'
+     point is on inline comment:         call `my-comment-align-inline-comment'
+     else:                               call `comment-line'"
   (interactive "P")
   (comment-normalize-vars)
-  (cond (arg (comment-kill nil))
-        ((use-region-p) (my-comment-or-uncomment-region (region-beginning) (region-end)))
-        ((null (bolp))
-         ;; insert comment
-         (comment-indent)
-          (unless (= (char-before) (string-to-char (substring comment-padding -1)))
-            (insert comment-padding)))
-        (t (comment-line 1)
-           (beginning-of-line))))
+  (let ((ws (window-start))
+        (icom-start-pos (my-comment-inline-comment-start-pos)))
+    (cond (arg
+           (comment-kill nil))
+          ((use-region-p)
+           (my-comment-or-uncomment-region (region-beginning) (region-end)))
+          ((comment-only-p (line-beginning-position) (line-end-position))
+           (comment-line 1))
+          ((and (= (point) (line-beginning-position)) (= icom-start-pos -1))
+           (comment-line 1))
+          ((= icom-start-pos -1)
+           (indent-for-comment)                                 ;; insert inline comment
+           (unless (= (char-before) (string-to-char (substring comment-padding -1)))
+             (insert comment-padding)))
+          ((<= icom-start-pos (point))
+           (my-comment-align-inline-comment icom-start-pos))    ;; align inline comment that is already existed
+          (t (comment-line 1)))
+    (set-window-start (selected-window) ws)))
 
 (defvar my-comment-set-column-threshold 30
   "`my-comment-set-column' recognized as previous comment-column greater than or equal to this value.")
+
 (defun my-comment-set-column-get-prev ()
   (let ((thr (1- my-comment-set-column-threshold))
+        ;; (ws (window-start))
         (c 0)
         (pos nil))
     (save-excursion
@@ -292,34 +340,41 @@ double quotation characters \(\"\) from given string."
         (skip-syntax-forward "^<" (line-end-position))
         (setq pos (point))
         (setq c (current-column))))
-    (if (< thr c) (cons c pos) nil)))
+    ;; (set-window-start (selected-window) ws)
+    (if (< thr c) (values c pos) nil)))
 
 (defun my-comment-set-column (&optional arg)
-  "Insert comment and set `comment-column' accordance with current position as follows. 
-   arg is non-nil :             use `current-column'
-   any comment at current line: use beginning position of the comment at current line
-   else:                        use previous beginning position of the comment"
+  "Set `comment-column' accordance with current position as follows. 
+     arg is non-nil :              use `point' value
+     current line is comment only: use previous beginning position of the comment
+     point is on inline comment:   use beginning position of the comment at this line
+     else:                         use previous beginning position of the comment"
   (interactive "P")
   (comment-normalize-vars)
-  (let ((comment-current-line (save-excursion (beginning-of-line)
-                                  (comment-search-forward (line-end-position) t)))
-        (comment-prev (my-comment-set-column-get-prev))
+  (let ((comment-prev (my-comment-set-column-get-prev))
+        (icom-start-pos (my-comment-inline-comment-start-pos))
         (res-pos nil)
         (col nil))
-    (setq col (cond (arg (current-column))
-                    (comment-current-line (save-excursion
-                                             (beginning-of-line)
-                                             (skip-syntax-forward "^<" (line-end-position))
-                                             (setq res-pos (point))
-                                             (current-column)))
-                    (t (setq res-pos (cdr comment-prev))
-                       (car comment-prev))))
+    (setq col (cond (arg
+                     (current-column))
+                    ((comment-only-p (line-beginning-position) (line-end-position))
+                     (save-excursion (beginning-of-line)
+                                     (multiple-value-setq (col res-pos)
+                                       (my-comment-set-column-get-prev))
+                                       col))
+                    ((<= icom-start-pos (point))
+                     (save-excursion (beginning-of-line)
+                                     (skip-syntax-forward "^<" (line-end-position))
+                                     (setq res-pos (point))
+                                     (current-column)))
+                    (t (setq res-pos (second comment-prev))
+                       (first comment-prev))))
     (if col
         (progn
           (setq comment-column col)
-          (comment-indent)
-          (unless (= (char-before) (string-to-char (substring comment-padding -1)))
-            (insert comment-padding))
+          ;; (comment-indent)
+          ;; (unless (= (char-before) (string-to-char (substring comment-padding -1)))
+          ;;   (insert comment-padding))
           (message "Comment column set to %d" comment-column)
           (when res-pos
             (let ((pos (point)))
@@ -329,7 +384,7 @@ double quotation characters \(\"\) from given string."
       (message "No comment"))))
 
 (global-set-key (kbd "M-;") 'my-comment-dwim)
-(global-set-key (kbd "M-'") 'my-comment-set-column)
+(global-set-key (kbd "C-;") 'my-comment-set-column)
 
 ;; ----------------------------------------------------------------------
 ;; @@ my-font-lighter
