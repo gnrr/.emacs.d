@@ -272,7 +272,7 @@
   ;; :disabled
   :after evil
   :config
-  (evil-collection-init)
+  (evil-collection-init 'edebug)
   )
 
 ;; ----------------------------------------------------------------------
