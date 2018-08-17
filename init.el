@@ -187,6 +187,9 @@
 
 ;; ----------------------------------------------------------------------
 (use-package evil
+  :init
+  (setq evil-want-integration nil)
+
   :config
   (evil-mode 1)
   (evil-set-initial-state 'help-mode 'emacs)
@@ -256,20 +259,22 @@
 
   (define-key evil-motion-state-map (kbd "gg") 'my-gg)
 
-  
+  ;; package-mode
   (evil-add-hjkl-bindings package-menu-mode-map 'emacs
     (kbd "/")       'evil-search-forward
     (kbd "n")       'evil-search-next
     (kbd "N")       'evil-search-previous)
-  
+
   )
 
 ;; ----------------------------------------------------------------------
 (use-package evil-collection
+  ;; :disabled
   :after evil
   :config
   (evil-collection-init)
   )
+
 ;; ----------------------------------------------------------------------
 (use-package evil-escape
   :after evil
@@ -448,6 +453,7 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package neotree
+  :disabled
   :after evil all-the-icons
   :config
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
@@ -1163,7 +1169,7 @@ That is, a string used to represent it on the tab bar."
   '(defalias 'ede 'edebug-defun))
 
 ;; apropos
-(defalias 'a 'apropos)
+;; (defalias 'a 'apropos)
 (defalias 'l 'display-line-numbers-mode)
 
 

@@ -13,9 +13,8 @@
 ;; package setting
 ;;
 (require 'package)
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (setq package-user-dir "~/.emacs.d/packages")
 (package-initialize)
 (unless (require 'use-package nil t)
