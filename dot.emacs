@@ -5,6 +5,22 @@
 ;;; $ ln -s ~/.emacs.d/dot.emacs ~/.emacs
 ;;;
 
+;; startup message in mini-buffer
+(defun display-startup-echo-area-message ()
+  (message "%s" (replace-regexp-in-string "(.+)\\|of\\|[\n]" "" (emacs-version))))
+
+;;
+;; package setting
+;;
+(require 'package)
+(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
+(setq package-user-dir "~/.emacs.d/packages")
+(package-initialize)
+(unless (require 'use-package nil t)
+  (defmacro use-package (&rest args)))
+
 ;;
 ;; functionalities to backup/restore init files
 ;;
@@ -46,18 +62,6 @@
 (defvar backup-init-files-ext-bak ".last-load")
 (defvar backup-init-files-ext-old ".err")
 (defvar backup-init-files-file-list '("~/.emacs.d/init.el"))
-
-;;
-;; package setting
-;;
-(require 'package)
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
-(setq package-user-dir "~/.emacs.d/packages")
-(package-initialize)
-(unless (require 'use-package nil t)
-  (defmacro use-package (&rest args)))
 
 (add-hook 'after-init-hook #'(lambda () (message ">>>>done")))
 
