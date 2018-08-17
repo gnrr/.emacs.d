@@ -32,7 +32,7 @@
  indent-tabs-mode nil
  tab-width 4
  tab-stop-list  '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60)
- comment-column 80
+ comment-column 60
 
  ;; display-line-numbers-grow-only t
  ;; display-line-numbers-width-start 10
@@ -85,22 +85,22 @@
 
 ;; margin
 (setq-default left-margin-width 0 right-margin-width 0) ; Define new widths.
-(set-window-buffer nil (current-buffer)) ; Use them now.
+(set-window-buffer nil (current-buffer))                ; Use them now.
 
 ;; save-place
 (setq save-place-file "~/.emacs.d/.emacs-places")
-(save-place-mode 1)                               ; Enable save-place
+(save-place-mode 1)                                     ; Enable save-place
 
 ;; ミニバッファの履歴を保存する
 (savehist-mode 1)
 (setq history-length 1000)
 
 (setq indent-line-function 'indent-relative-maybe)
-(global-set-key "\C-m" 'newline-and-indent)  ; Returnキーで改行＋オートインデント
+(global-set-key "\C-m" 'newline-and-indent)             ; Returnキーで改行＋オートインデント
 
 ;; mode-line
 (column-number-mode t)
-(set-face-attribute 'mode-line          nil :box nil) ; モードラインを非3D化
+(set-face-attribute 'mode-line          nil :box nil)   ; モードラインを非3D化
 (set-face-attribute 'mode-line-inactive nil :box nil)
 
 ;; モードラインの割合表示を総行数表示に
@@ -138,7 +138,7 @@
 
 ;; ----------------------------------------------------------------------
 ;; key unbinding / binding
-(keyboard-translate ?\C-h ?\C-?)        ; c-h
+(keyboard-translate ?\C-h ?\C-?)                        ; c-h
 
 (global-unset-key (kbd "M-,"))                          ; xref
 (global-unset-key (kbd "M-."))                          ; xref
@@ -165,8 +165,6 @@
 
 (global-set-key (kbd "M-g") 'goto-line)
 (global-set-key (kbd "M-v") 'new-empty-buffer-other-frame)
-(global-set-key (kbd "C-x ;") 'comment-set-column)         ; c-x ;
-(global-set-key [24 67108923] 'comment-indent)             ; c-x c-;
 (global-set-key (kbd "C-x t") 'revert-buffer)
 (global-set-key (kbd "C-x C-t") 'toggle-truncate-lines)
 (global-set-key (kbd "C-x n f") 'narrow-to-defun)
@@ -193,11 +191,7 @@
   :config
   (evil-mode 1)
   (evil-set-initial-state 'help-mode 'emacs)
-  ;; (add-to-list 'evil-emacs-state-modes 'edebug-mode)
-  ;; (add-to-list 'evil-emacs-state-modes 'emacs-lisp-mode)
 
-  ;; (evil-set-initial-state 'edebug-mode 'emacs)
-  ;; (evil-make-intercept-map edebug-mode-map nil)
   (defalias #'forward-evil-word #'forward-evil-symbol)
 
   ;; インサートモードではEmacsキーバインド
@@ -206,6 +200,8 @@
 
   (define-key evil-normal-state-map (kbd "M-.") nil)        ; evil-repeat-pop-next
   (define-key evil-normal-state-map (kbd "C-p") nil)        ; evil-paste-pop
+  (define-key evil-normal-state-map (kbd "M-j") nil)        ; outline-move-sutree-*
+  (define-key evil-normal-state-map (kbd "M-k") nil)        ; outline-move-sutree-*
 
   (define-key evil-motion-state-map (kbd "C-f") nil)
   (define-key evil-motion-state-map (kbd "C-b") nil)
@@ -1180,9 +1176,10 @@ That is, a string used to represent it on the tab bar."
 ;; (defalias 'a 'apropos)
 (defalias 'l 'display-line-numbers-mode)
 
-
 (defalias 'com 'comment-or-uncomment-region)
 (defalias 'ind 'indent-region)
+
+(defalias 'qcalc 'quick-calc)
 
 
 ;; ----------------------------------------------------------------------

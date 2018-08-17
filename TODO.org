@@ -1,6 +1,6 @@
 #+TITLE: Emacs TODO
 
-* TODO hl-line-mode を特定のモード(list-faces-displayなど)で無効化
+* TODO my-comment-inline-comment-start-pos を ;のある行でも意図通りに返すようにする
 * TODO isearch中は auto-highlight-symbol を無効化
 * TODO モードラインの read-only を all-the-icons 化
 * TODO モードラインの modified を all-the-icons 化
