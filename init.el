@@ -957,6 +957,12 @@ That is, a string used to represent it on the tab bar."
   )
 
 ;; ----------------------------------------------------------------------
+(use-package git-gutter
+  :disabled
+  :load-path "~/git-clone/emacs-git-gutter"
+  )
+
+;; ----------------------------------------------------------------------
 (use-package git-gutter-fringe
   ;; :disabled
   :diminish git-gutter-mode
@@ -980,6 +986,8 @@ That is, a string used to represent it on the tab bar."
   (set-face-attribute 'git-gutter:added     nil :background (face-attribute 'fringe :background))
   (set-face-attribute 'git-gutter:deleted   nil :background (face-attribute 'fringe :background))
   (set-face-attribute 'git-gutter:unchanged nil :background (face-attribute 'fringe :background))
+
+  (add-hook 'focus-in-hook 'git-gutter)      ; refresh automatically when modifyed current buffer by external program
 
   :bind (([M-down] . git-gutter:next-hunk)
          ([M-up]   . git-gutter:previous-hunk))
