@@ -104,7 +104,7 @@
 (set-face-attribute 'mode-line-inactive nil :box nil)
 
 ;; モードラインの割合表示を総行数表示に
-(defvar my-mode-line-position-format "%%3C:%%4l/%d")
+(defvar my-mode-line-position-format "%%3c:%%4l/%d")
 (setq mode-line-position '(:eval (format my-mode-line-position-format
                                          (count-lines (point-max) (point-min)))))
 
@@ -127,7 +127,7 @@
 
 ;; ----------------------------------------------------------------------
 ;; utility
-(defun my-font-existsp ($font-name)
+(defun my-font-exists-p ($font-name)
   (if (null (x-list-fonts $font-name))
       nil t))
 
@@ -327,6 +327,12 @@
   ;; (set-face-attribute 'fant-lock-variable-name-face nil :weight 'light)
   (set-face-attribute 'font-lock-warning-face nil :weight 'light)
 
+  (set-face-background 'default "#21252B")
+  (set-face-attribute 'fringe nil :foreground (face-attribute 'line-number :foreground)
+                      	          :background (face-attribute 'line-number :background))
+
+  :if (my-font-exists-p "x14y24pxHeadUpDaisy")
+  :config
   (set-face-attribute 'mode-line          nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
   (set-face-attribute 'mode-line-inactive nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
   (set-face-attribute 'minibuffer-prompt  nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1 :foreground "#cc8800")
@@ -334,9 +340,6 @@
   (set-face-attribute 'line-number              nil :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :background "#272B33" :foreground "#454C59")
   (set-face-attribute 'line-number-current-line nil :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :background "#272B33")
 
-  (set-face-background 'default "#21252B")
-  (set-face-attribute 'fringe nil :foreground (face-attribute 'line-number :foreground)
-                      	          :background (face-attribute 'line-number :background))
   )
 
 ;; ----------------------------------------------------------------------
@@ -715,8 +718,6 @@ Return nil for blank/empty strings."
   (tabbar-mode)
 
   (set-face-attribute 'tabbar-default nil
-                      ;; :family (face-attribute 'fixed-pitch-serif :family)
-                      :family "x14y24pxHeadUpDaisy"
                       :height 0.85
                       :background (face-attribute 'tool-bar :background)
                       ;; :background (face-attribute 'tabbar-default :background)
@@ -811,6 +812,11 @@ That is, a string used to represent it on the tab bar."
          label (max 1 (/ (window-width)
                          (length (tabbar-riew
                                   (tabbar-current-tabset)))))))))
+
+  :if (my-font-exists-p "x14y24pxHeadUpDaisy")
+  :config
+  (set-face-attribute 'tabbar-default nil :family "x14y24pxHeadUpDaisy")
+
   )
 
 ;; ----------------------------------------------------------------------

@@ -19,7 +19,8 @@
 ;;;
 ;;; font
 ;;;
-(set-default-font "Source Han Code JP N")
+(when (my-font-exists-p "Source Han Code JP N")
+    (set-default-font "Source Han Code JP N"))
 
 ;; ;; アイコンやdockから起動したemacsのpathやexec-pathが正しく設定されてないのをなんとかする
 ;; ;; http://yukihr.github.com/blog/2012/03/02/emacs-path-settings/
