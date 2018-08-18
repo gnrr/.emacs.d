@@ -48,21 +48,26 @@
  next-line-add-newlines nil                  ; バッファ末尾に余計な改行コードを防ぐための設定
  idle-update-delay 0.3
 
+ electric-pair-mode nil
+
  ;;
  ;; backup files
+ ;; https://masutaka.net/chalow/2014-05-11-1.html
  ;; http://yohshiy.blog.fc2.com/blog-entry-319.html
  ;;
  ;; backup to `hoge.txt~'
- backup-directory-alist '((".*" . "~/bak"))
+ backup-directory-alist '((".*" . "~/.Trash"))
  version-control     t  ;; 番号付けによる複数保存 存実行の有無
  kept-new-versions   5  ;;                   最新の保持数
  kept-old-versions   1  ;;                   最古の保持数
  delete-old-versions t  ;;                   範囲外を削除
 
  ;; backup to `#hoge.txt#'
- make-backup-files nil                       ; #のバックアップファイルを作成しない
- auto-save-file-name-transforms   '((".*" "~/bak" t))
- ;; auto-save-default nil
+auto-save-file-name-transforms
+           '(("~/\\([^/]*/\\)*\\([^/]*\\)$" "~/.Trash/\\2" t))
+;             '((".*" "~/.Trash" t))
+
+;; auto-save-default nil
  auto-save-timeout 10     ;; 保存の間隔 秒   (デフォルト : 30)
  auto-save-interval 100   ;;         打鍵  (デフォルト : 300)
 
@@ -269,6 +274,7 @@
   :after evil
   :config
   (evil-collection-init 'edebug)
+  (evil-collection-init 'dired)
   )
 
 ;; ----------------------------------------------------------------------
@@ -300,6 +306,7 @@
 ;; ----------------------------------------------------------------------
 (use-package atom-one-dark-theme
   :disabled
+  :if window-system
   :config
   (load-theme 'atom-one-dark t)
   )
@@ -308,6 +315,7 @@
 (use-package zerodark-theme
   ;; :disabled
   :load-path "~/git-clone/zerodark-theme"
+  :if window-system
   :config
   (setq zerodark-use-paddings-in-mode-line nil)
 
@@ -331,7 +339,7 @@
   (set-face-attribute 'fringe nil :foreground (face-attribute 'line-number :foreground)
                       	          :background (face-attribute 'line-number :background))
 
-  :if (my-font-exists-p "x14y24pxHeadUpDaisy")
+  :if (and window-system (my-font-exists-p "x14y24pxHeadUpDaisy"))
   :config
   (set-face-attribute 'mode-line          nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
   (set-face-attribute 'mode-line-inactive nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
@@ -345,6 +353,7 @@
 ;; ----------------------------------------------------------------------
 (use-package telephone-line
   :after evil zerodark-theme
+  :if window-system
   :config
   (set-face-background 'telephone-line-evil-visual "#009161")
   (set-face-background 'telephone-line-evil-insert "#cc4444")
@@ -548,7 +557,10 @@ Return nil for blank/empty strings."
          ;; ("TAB" . ivy-partial)
 
          :map ivy-mode-map
-         ("C-'" . ivy-avy))
+         ("C-'" . ivy-avy)
+
+         :map evil-normal-state-map
+         ("R" . ivy-resume))
   )
 
 ;; ----------------------------------------------------------------------
@@ -813,7 +825,7 @@ That is, a string used to represent it on the tab bar."
                          (length (tabbar-riew
                                   (tabbar-current-tabset)))))))))
 
-  :if (my-font-exists-p "x14y24pxHeadUpDaisy")
+  :if (and window-system (my-font-exists-p "x14y24pxHeadUpDaisy"))
   :config
   (set-face-attribute 'tabbar-default nil :family "x14y24pxHeadUpDaisy")
 
@@ -825,6 +837,7 @@ That is, a string used to represent it on the tab bar."
   :config
   (smartparens-global-mode)
   (show-smartparens-global-mode t)
+  (setq sp-autoinsert-pair nil)
   (set-face-background 'sp-show-pair-match-face "#4C6DA6")
 
   (ad-disable-advice 'delete-backward-char 'before 'sp-delete-pair-advice) ; disable C-h
@@ -894,6 +907,7 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package sublimity
   ;; :disabled
+  :if window-system
   :config
   (sublimity-mode 1)
 
