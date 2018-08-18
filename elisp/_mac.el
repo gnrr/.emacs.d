@@ -19,7 +19,7 @@
 ;;;
 ;;; font
 ;;;
-(when (my-font-exists-p "Source Han Code JP N")
+(when (and window-system (my-font-exists-p "Source Han Code JP N"))
     (set-default-font "Source Han Code JP N"))
 
 ;; ;; アイコンやdockから起動したemacsのpathやexec-pathが正しく設定されてないのをなんとかする
@@ -48,7 +48,7 @@
        (require 'ucs-normalize)
        (setq file-name-coding-system 'utf-8-hfs)
        (setq locale-coding-system 'utf-8-hfs))
-      (or (eq system-type 'cygwin) (eq system-type 'windows-nt)
+      ((or (eq system-type 'cygwin) (eq system-type 'windows-nt)
           (setq file-name-coding-system 'utf-8)
           (setq locale-coding-system 'utf-8)
           ;; もしコマンドプロンプトを利用するなら sjis にする
@@ -57,7 +57,7 @@
           ;; 古い cygwin だと euc-jp にする
           ;; (setq file-name-coding-system 'euc-jp)
           ;; (setq locale-coding-system 'euc-jp)
-          )
+          ))
       (t
        (setq file-name-coding-system 'utf-8)
        (setq locale-coding-system 'utf-8)))
@@ -97,11 +97,8 @@
 ;;
 (defun open-terminal ()
   (interactive)
-  (let ((cmd "ttab %s .")
-        (opt "-w -a iterm2")
-        ;; (opt "-w")
-        )
-    (shell-command (format cmd opt))))
+  (let ((cmd "ttab -a iterm2 -d ."))
+    (shell-command cmd)))
 
 (defalias 'c 'open-terminal)
 
