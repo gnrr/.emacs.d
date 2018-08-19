@@ -587,7 +587,7 @@ Return nil for blank/empty strings."
 ;; ----------------------------------------------------------------------
 (use-package counsel-gtags
   :after counsel evil
-  :diminish counsel-gtags-mode 
+  :diminish '(counsel-gtags-mode . "Gtags")
   :init
   (add-hook 'c-mode-hook 'counsel-gtags-mode)
 
@@ -1179,14 +1179,26 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 ;; diminish
-(defmacro safe-diminish (file mode &optional new-name)
+(defmacro diminish-minor-mode (file mode &optional new-name)
   "https://github.com/larstvei/dot-emacs/blob/master/init.org"
   `(with-eval-after-load ,file
      (diminish ,mode ,new-name)))
 
-(safe-diminish "undo-tree" 'undo-tree-mode)
-(safe-diminish "eldoc" 'eldoc-mode)
-(safe-diminish "abbrev" 'abbrev-mode)
+(defmacro diminish-major-mode (hook new-name)
+  `(add-hook ,hook #'(lambda ()
+                    (setq mode-name ,new-name))))
+
+;; minor mode
+(diminish-minor-mode "undo-tree" 'undo-tree-mode)
+(diminish-minor-mode "eldoc" 'eldoc-mode)
+(diminish-minor-mode "abbrev" 'abbrev-mode)
+(diminish-minor-mode "cwarn" 'cwarn-mode)
+
+
+;; major mode
+(diminish-major-mode 'emacs-lisp-mode-hook "Elisp")
+(diminish-major-mode 'lisp-interaction-mode-hook "LispInt")
+(diminish-major-mode 'c-mode-hook "C")
 
 ;; ----------------------------------------------------------------------
 ;; discrete setting
