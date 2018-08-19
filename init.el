@@ -1031,8 +1031,12 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package anzu
   :config
-  (global-set-key (kbd "M-%") 'anzu-query-replace)
-  (global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp) 
+  (defun my-query-replace (&optional arg)
+    (interactive "P")
+    (call-interactively (if arg
+                            'anzu-query-replace-regexp
+                          'anzu-query-replace)))
+  :bind (("M-%" . my-query-replace))
 
   )
 
