@@ -866,6 +866,10 @@ double quotation characters \(\"\) from given string."
 (global-set-key "\M- " 'my-just-one-space)
 
 ;; ----------------------------------------------------------------------
+;;@@ ascii-table
+(defalias 'ascii-table '(lambda () (interactive) (list-charset-chars 'ascii)))
+
+;; ----------------------------------------------------------------------
 ;;@@ toggle-narrowing-region
 (defvar toggle-narrowing-region-window-start nil)
 (defvar toggle-narrowing-region-previous-rend nil)
@@ -899,16 +903,19 @@ double quotation characters \(\"\) from given string."
 ;; ----------------------------------------------------------------------
 ;;@@ my-insert-pair-*    (), {}, [], <>, "", '' 
 (defun my-insert-pair (lst)
-  "args lst is formatted as '(state-var beginning-char end-char)"
-  (if (car lst)
-      (progn 
-        (setf (car lst) nil)
-        (insert-char (third lst))  ; beginning-char
-        (forward-char -1))
-    (setf (car lst) t)
-    (if (eq last-command this-command)
-        (delete-char 1)
-      (insert (second lst)))))     ; end-char
+  "args lst is formatted as '(flag open-char close-char)"
+  (when (or (not (featurep 'evil))
+            (and (featurep 'evil) (memq evil-state '(insert emacs))))
+    (cond ((not (eq last-command this-command))
+           (setf (car lst) t)
+           (insert-char (second lst))) ; insert open character
+          ((and (eq last-command this-command) (not (car lst)))
+           (setf (car lst) t)
+           (delete-char 1))            ; delete close character
+          ((and (eq last-command this-command) (car lst))
+           (setf (car lst) nil)
+           (insert-char (third lst))   ; insert close character
+           (forward-char -1)))))
 
 ;; ()
 (defvar my-insert-paren-arg '(nil ?\( ?\)))

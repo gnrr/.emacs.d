@@ -155,12 +155,12 @@ auto-save-file-name-transforms
 (global-unset-key [f11])                                ; toggle-frame-fullscreen
 (global-unset-key [f12])                                ; "M-c"
 
-;; (global-set-key "(" 'my-insert-paren)                   ; ()
-;; (global-set-key "{" 'my-insert-brace)                   ; {} 
-;; (global-set-key "[" 'my-insert-bracket)                 ; []
-;; (global-set-key "<" 'my-insert-angle)                   ; <>
-;; (global-set-key "\"" 'my-insert-dquote)                 ; ""
-;; (global-set-key "'" 'my-insert-squote)                  ; ''
+(global-set-key "(" 'my-insert-paren)                   ; ()
+(global-set-key "{" 'my-insert-brace)                   ; {} 
+(global-set-key "[" 'my-insert-bracket)                 ; []
+(global-set-key "<" 'my-insert-angle)                   ; <>
+(global-set-key "\"" 'my-insert-dquote)                 ; ""
+(global-set-key "'" 'my-insert-squote)                  ; ''
 
 (global-set-key (kbd "C-0") 'delete-window)
 (global-set-key (kbd "C-1") 'delete-other-windows)
@@ -213,7 +213,8 @@ auto-save-file-name-transforms
   (define-key evil-motion-state-map (kbd "C-o") nil)		; evil-jump-backward
   (define-key evil-motion-state-map (kbd "C-e") nil)
   (define-key evil-motion-state-map (kbd "C-d") nil)        ; evil-scroll-down
-  ;; (define-key evil-motion-state-map (kbd "C-n") nil)
+  (define-key evil-motion-state-map (kbd "'") nil)          ; evil-goto-mark-line
+  (define-key evil-motion-state-map (kbd "\"") nil)         ; evil-use-register
   ;; (define-key evil-motion-state-map (kbd "C-p") nil)
 
   (define-key evil-motion-state-map (kbd "C-h") nil)
@@ -273,8 +274,7 @@ auto-save-file-name-transforms
   ;; :disabled
   :after evil
   :config
-  (evil-collection-init 'edebug)
-  (evil-collection-init 'dired)
+  (evil-collection-init '(edebug dired))
   )
 
 ;; ----------------------------------------------------------------------
@@ -345,8 +345,8 @@ auto-save-file-name-transforms
   (set-face-attribute 'mode-line-inactive nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
   (set-face-attribute 'minibuffer-prompt  nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1 :foreground "#cc8800")
 
-  (set-face-attribute 'line-number              nil :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :background "#272B33" :foreground "#454C59")
-  (set-face-attribute 'line-number-current-line nil :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :background "#272B33")
+  (set-face-attribute 'line-number              nil :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :background "#2B2F38" :foreground "#5B6475")
+  (set-face-attribute 'line-number-current-line nil :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :background "#2B2F38")
 
   )
 
@@ -1118,8 +1118,23 @@ That is, a string used to represent it on the tab bar."
         dired-recursive-copies 'always        ; ディレクトリを再帰的にコピーする
         dired-isearch-filenames t)            ; diredバッファでC-sした時にファイル名だけにマッチするように
 
+  ;; ファイルなら別バッファで、ディレクトリなら同じバッファで開く
+  ;; http://nishikawasasaki.hatenablog.com/entry/20120222/1329932699
+  (defun dired-open-in-accordance-with-situation ()
+    (interactive)
+    (let ((file (dired-get-filename)))
+      (if (file-directory-p file)
+          (dired-find-alternate-file)
+        (dired-find-file))))
+
+  (put 'dired-find-alternate-file 'disabled nil) ;; dired-find-alternate-file の有効化
+
   :bind (:map dired-mode-map
-              ("r" . revert-buffer))                                    ; reload
+             ("a"     . dired-find-file)
+             ("RET"   . dired-open-in-accordance-with-situation)
+             ([right] . dired-open-in-accordance-with-situation)
+             ([left]  . dired-up-directory)
+             ("r"     . revert-buffer))                                    ; reload
   
   )
 
