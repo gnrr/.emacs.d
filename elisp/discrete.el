@@ -314,7 +314,7 @@ double quotation characters \(\"\) from given string."
            (my-comment-or-uncomment-region (region-beginning) (region-end)))
           ((comment-only-p (line-beginning-position) (line-end-position))
            (comment-line 1))
-          ((and (= icom-start-pos -1) (< (point) (- (line-end-position) 2)))
+          ((and (= icom-start-pos -1) (< (point) (- (line-end-position) 1)))
            (comment-line 1))
           ((= icom-start-pos -1)
            (indent-for-comment)                                 ;; insert inline comment
