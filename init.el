@@ -335,18 +335,25 @@ auto-save-file-name-transforms
   ;; (set-face-attribute 'fant-lock-variable-name-face nil :weight 'light)
   (set-face-attribute 'font-lock-warning-face nil :weight 'light)
 
+  (set-face-attribute 'mode-line          nil :slant 'italic :height 1.1)
+  (set-face-attribute 'mode-line-inactive nil :slant 'italic :height 1.1)
+  (set-face-attribute 'minibuffer-prompt  nil :slant 'italic :height 1.1 :foreground "#cc8800")
+
+  (set-face-attribute 'line-number              nil :height 1.1 :slant 'italic :background "#2B2F38" :foreground "#5B6475")
+  (set-face-attribute 'line-number-current-line nil :height 1.1 :slant 'italic :background "#2B2F38")
+
   (set-face-background 'default "#21252B")
   (set-face-attribute 'fringe nil :foreground (face-attribute 'line-number :foreground)
                       	          :background (face-attribute 'line-number :background))
 
   :if (and window-system (my-font-exists-p "x14y24pxHeadUpDaisy"))
   :config
-  (set-face-attribute 'mode-line          nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
-  (set-face-attribute 'mode-line-inactive nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1)
-  (set-face-attribute 'minibuffer-prompt  nil :family "x14y24pxHeadUpDaisy" :slant 'italic :height 1.1 :foreground "#cc8800")
+  (set-face-attribute 'mode-line          nil :family "x14y24pxHeadUpDaisy")
+  (set-face-attribute 'mode-line-inactive nil :family "x14y24pxHeadUpDaisy")
+  (set-face-attribute 'minibuffer-prompt  nil :family "x14y24pxHeadUpDaisy")
 
-  (set-face-attribute 'line-number              nil :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :background "#2B2F38" :foreground "#5B6475")
-  (set-face-attribute 'line-number-current-line nil :family "x14y24pxHeadUpDaisy" :height 1.1 :slant 'italic :background "#2B2F38")
+  (set-face-attribute 'line-number              nil :family "x14y24pxHeadUpDaisy")
+  (set-face-attribute 'line-number-current-line nil :family "x14y24pxHeadUpDaisy")
 
   )
 
