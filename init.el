@@ -274,7 +274,7 @@ auto-save-file-name-transforms
   ;; :disabled
   :after evil
   :config
-  (evil-collection-init '(edebug dired))
+  (evil-collection-init '(edebug dired neotree))
   )
 
 ;; ----------------------------------------------------------------------
@@ -318,8 +318,9 @@ auto-save-file-name-transforms
   :if window-system
   :config
   (setq zerodark-use-paddings-in-mode-line nil)
-
   (load-theme 'zerodark t)
+  ;; (zerodark-setup-modeline-format)
+
   (set-face-attribute 'cursor nil
                       :background (face-attribute 'mode-line :foreground)
                       :foreground "#000000"
@@ -467,8 +468,11 @@ Return nil for blank/empty strings."
   )
 
 ;; ----------------------------------------------------------------------
+(use-package all-the-icons)
+
+;; ----------------------------------------------------------------------
 (use-package neotree
-  :disabled
+  ;; :disabled
   :after evil all-the-icons
   :config
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
@@ -477,11 +481,14 @@ Return nil for blank/empty strings."
   (setq neo-smart-open nil)
   (setq neo-persist-show t)
   (setq neo-keymap-style 'concise)
-  (global-set-key (kbd "C-q") 'neotree-toggle)
+
+  (global-set-key (kbd "M-q") 'neotree-toggle)
+  (evil-define-key 'normal neotree-mode-map (kbd "M-q") 'neotree-hide)
+  (evil-define-key 'normal neotree-mode-map (kbd "q")   'neotree-hide)
   (evil-define-key 'normal neotree-mode-map (kbd "RET") 'neotree-enter)
   (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
+  (evil-define-key 'normal neotree-mode-map (kbd "l")   'neotree-enter)
   (evil-define-key 'normal neotree-mode-map (kbd "SPC") 'neotree-quick-look)
-  (evil-define-key 'normal neotree-mode-map (kbd "q") 'neotree-hide)
 
   (defun text-scale-twice ()
     (interactive)
