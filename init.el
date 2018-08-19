@@ -1035,6 +1035,14 @@ That is, a string used to represent it on the tab bar."
   (global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp) 
 
   )
+
+;; ----------------------------------------------------------------------
+(use-package beacon
+  :diminish beacon-mode
+  :config
+  ;; (beacon-mode 1)
+  )
+
 ;; ----------------------------------------------------------------------
 (use-package google-translate
   :config
