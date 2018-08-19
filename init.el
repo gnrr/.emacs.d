@@ -41,8 +41,8 @@
  
  ;; 1行スクロール
  ;; (setq scroll-conservatively most-positive-fixnum)
- scroll-margin 5
- next-screen-context-lines 5
+ scroll-margin 3
+ next-screen-context-lines 3
  scroll-preserve-screen-position t
 
  next-line-add-newlines nil                  ; バッファ末尾に余計な改行コードを防ぐための設定
