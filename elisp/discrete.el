@@ -904,8 +904,8 @@ double quotation characters \(\"\) from given string."
 ;;@@ my-insert-pair-*    (), {}, [], <>, "", '' 
 (defun my-insert-pair (lst)
   "args lst is formatted as '(flag open-char close-char)"
-  (when (or (not (featurep 'evil))
-            (and (featurep 'evil) (memq evil-state '(insert emacs))))
+  (if (or (not (featurep 'evil))
+          (and (featurep 'evil) (memq evil-state '(insert emacs))))
     (cond ((not (eq last-command this-command))
            (setf (car lst) t)
            (insert-char (second lst))) ; insert open character
@@ -915,7 +915,8 @@ double quotation characters \(\"\) from given string."
           ((and (eq last-command this-command) (car lst))
            (setf (car lst) nil)
            (insert-char (third lst))   ; insert close character
-           (forward-char -1)))))
+           (forward-char -1)))
+    (self-insert-command 1)))
 
 ;; ()
 (defvar my-insert-paren-arg '(nil ?\( ?\)))
