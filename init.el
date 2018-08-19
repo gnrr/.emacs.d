@@ -100,6 +100,7 @@ auto-save-file-name-transforms
 (savehist-mode 1)
 (setq history-length 1000)
 
+(global-auto-revert-mode -1)                            ; disable auto-revert-mode
 (setq indent-line-function 'indent-relative-maybe)
 (global-set-key "\C-m" 'newline-and-indent)             ; Returnキーで改行＋オートインデント
 
@@ -298,6 +299,7 @@ auto-save-file-name-transforms
 
 ;; ----------------------------------------------------------------------
 (use-package evil-org
+  :disabled
   :after evil
   ;; :diminish evil-org-mode
   :config
@@ -579,6 +581,7 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package counsel-etags
+  :disabled
   ;; :diminish 
   :after counsel
 
@@ -605,14 +608,15 @@ Return nil for blank/empty strings."
   (defalias 'gtags-update 'counsel-gtags-update-tags)
   (defalias 'gtags-create 'counsel-gtags-create-tags)
 
-  :bind (:map evil-motion-state-map
-              ("f" . avy-goto-word-1)
+  :bind (("C-x C-g" . counsel-gtags-find-file)
+         :map evil-motion-state-map
+         ("f" . avy-goto-word-1)
          :map evil-normal-state-map
-              ("g t" . counsel-gtags-dwim)
-              ;; ("g t" . counsel-gtags-find-definition)
-              ("g r" . counsel-gtags-find-reference)
-              ("g s" . counsel-gtags-find-symbol)
-              ("g h" . counsel-gtags-go-backward))
+         ("g t" . counsel-gtags-dwim)
+         ;; ("g t" . counsel-gtags-find-definition)
+         ("g r" . counsel-gtags-find-reference)
+         ("g s" . counsel-gtags-find-symbol)
+         ("g h" . counsel-gtags-go-backward))
 
 )
 
@@ -898,7 +902,7 @@ That is, a string used to represent it on the tab bar."
 
   (rainbow-delimiters-mode 1)
   (setq rainbow-delimiters-outermost-only-face-count 1)
-  (set-face-bold 'rainbow-delimiters-depth-1-face nil)
+  (set-face-bold 'rainbow-delimiters-depth-1-face t)
 
   (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
   (add-hook 'c-mode-hook 'rainbow-delimiters-mode)
