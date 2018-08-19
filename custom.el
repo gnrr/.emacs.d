@@ -6,6 +6,8 @@
  '(custom-safe-themes
    (quote
     ("78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" default)))
+ '(org-startup-folded nil)
+ '(org-startup-indented t)
  '(package-selected-packages
    (quote
     (anzu evil-tutor-ja evil-collection evil google-translate guide-key-tip evil-org rainbow-delimiters sublimity fringe-helper git-gutter-fringe counsel-etags counsel-gtags helm-descbinds neotree gist hiwin helm-swoop rainbow-mode smartparens telephone-line helm-gtags scratch-log markdown-mode expand-region helm-ag dashboard use-package tabbar ag ido-yes-or-no helm atom-one-dark-theme))))
