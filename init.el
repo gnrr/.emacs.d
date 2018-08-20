@@ -1004,7 +1004,7 @@ That is, a string used to represent it on the tab bar."
   )
 
 ;; ----------------------------------------------------------------------
-(use-package c-mode
+(use-package cc-mode
   :mode (("\\.c$" . c-mode)
          ("\\.h$" . c-mode))
   :init
@@ -1018,13 +1018,25 @@ That is, a string used to represent it on the tab bar."
               (setq comment-end "")
               ;; (setq compilation-read-command nil)         ; make のオプションの確認は不要
               (setq compilation-ask-about-save nil)       ; make するとき save する
-              (setq compile-command "make")               ; make時のデフォルトコマンド
+              ;; (setq compile-command "make")               ; make時のデフォルトコマンド
               (cwarn-mode)
               (which-func-mode 1)
               (display-line-numbers-mode)
+              (setq compilation-scroll-output t)
+              (setq compile-command "cd ~/git-clone/qmk_firmware; make dichotemy:default")
+              (setq compilation-auto-jump-to-first-error t)
               ))
   :config
-  (setq compilation-scroll-output t)
+  ;; enable ANSI color in *compilation* buffer
+  ;; (require 'ansi-color)
+  (defun endless/colorize-compilation ()
+    "Colorize from `compilation-filter-start' to `point'."
+    (let ((inhibit-read-only t))
+      (ansi-color-apply-on-region
+       compilation-filter-start (point))))
+
+  (add-hook 'compilation-filter-hook #'endless/colorize-compilation)
+
 
   )
 
