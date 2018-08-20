@@ -1,4 +1,7 @@
 .DS_Store
+GPATH
+GRTAGS
+GTAGS
 *~
 \#*
 *.swp
@@ -16,3 +19,6 @@ smex-items
 init.el.last-load
 init.el.err
 var/*
+.tutor-ja/*
+
+

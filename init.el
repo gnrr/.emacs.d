@@ -575,6 +575,9 @@ Return nil for blank/empty strings."
          :map ivy-mode-map
          ("C-'" . ivy-avy)
 
+         :map evil-motion-state-map
+         ("f" . avy-goto-word-1)
+
          :map evil-normal-state-map
          ("R" . ivy-resume))
   )
@@ -609,123 +612,14 @@ Return nil for blank/empty strings."
   (defalias 'gtags-create 'counsel-gtags-create-tags)
 
   :bind (("C-x C-g" . counsel-gtags-find-file)
-         :map evil-motion-state-map
-         ("f" . avy-goto-word-1)
          :map evil-normal-state-map
          ("g t" . counsel-gtags-dwim)
          ;; ("g t" . counsel-gtags-find-definition)
-         ("g r" . counsel-gtags-find-reference)
-         ("g s" . counsel-gtags-find-symbol)
+         ;; ("g r" . gtags-find-reference)
+         ;; ("g s" . gtags-find-symbol)
          ("g h" . counsel-gtags-go-backward))
 
 )
-
-;; ----------------------------------------------------------------------
-(use-package helm
-  :disabled
-  :diminish helm-mode
-  :functions my-font-lighter
-  :init
-  (setq helm-display-source-at-screen-top nil
-        helm-buffers-fuzzy-matching t
-        helm-recentf-fuzzy-match t
-        helm-ff-auto-update-initial-value nil
-        helm-display-header-line nil
-        helm-find-files-doc-header nil
-        ;; helm-split-window-in-side-p t
-        ;; helm-move-to-line-cycle-in-source t
-        ;; helm-candidate-number-limit 200
-        )
-
-  :config
-  (helm-mode 1)
-  (helm-autoresize-mode t)
-
-  (setq-default helm-ff-skip-boring-files t)
-  (add-to-list 'helm-boring-file-regexp-list "scratch-log-.*$")
-
-  (defun helm-font-families ()
-    "helm version of the `anything-font-families' at http://d.hatena.ne.jp/mooz/20110320/p1"
-    (require 'cl)
-    (interactive)
-    (let ((helm-candidate-number-limit 1000))
-      (helm :sources (helm-build-sync-source "font-families"
-                       :candidates (mapcar '(lambda (f)
-                                              (propertize f 'font-lock-face
-                                                          (list :family f :height 1.4)))
-                                           (sort (delete-duplicates (font-family-list)) 'string<))
-                       :fuzzy-match t
-                       :action (helm-make-actions
-                                "Yank font family name" 'kill-new
-                                "Test as 'default" '(lambda (x)
-                                                      (set-face-attribute 'default nil
-                                                                          :family (format "%s" x)))
-                                "Test as 'mode-line" '(lambda (x)
-                                                        (set-face-attribute 'mode-line nil
-                                                                            :family (format "%s" x)))
-                                ))
-            :buffer "*helm font families*")))
-
-  (my-font-lighter)
-
-  :bind (("M-x" . helm-M-x)
-	     ("M-y" . helm-show-kill-ring)
-	     ("C-x b" . helm-mini)
-	     ("C-x C-f" . helm-find-files)
-	     ("C-x C-b" . helm-buffers-list)
-
-         :map helm-map
-         ;; TAB, SHIFT-TABで候補選択を移動
-         ([tab]     . helm-next-line)
-         ([backtab] . helm-previous-line)
-         ([?`]      . helm-select-action))
-)
-
-;; ----------------------------------------------------------------------
-(use-package helm-ag
-  :disabled
-  :after helm
-  :config
-  ;; (setq helm-ag-base-command "ag --nocolor --nogroup")
-  (setq helm-ag-base-command "rg --vimgrep --no-heading")		; ripgrep
-  (setq helm-ag-insert-at-point 'symbol)
-
-  :bind (("M-o" . helm-do-ag))
-)
-
-;; ----------------------------------------------------------------------
-(use-package helm-gtags
-  :disabled
-  :diminish helm-gtags-mode
-  :after helm evil
-  :config
-  (helm-gtags-mode t)
-  (setq helm-gtags-auto-update t)
-
-  (defun gtags-update ()
-    (interactive)
-    (let ((s (shell-command-to-string "global -uv")))
-      (if (string-match "not found" s)
-          (call-interactively 'helm-gtags-create-tags)
-        (message "Updated GTAGS files."))))
-
-  :bind (:map evil-normal-state-map
-              ("g t" . helm-gtags-dwim)
-              ("g d" . helm-gtags-find-tag)
-              ("g r" . helm-gtags-find-rtag)
-              ("g s" . helm-gtags-find-symbol)
-              ("g h" . helm-gtags-previous-history)
-              ("g l" . helm-gtags-next-history))
-)
-
-;; ----------------------------------------------------------------------
-(use-package helm-descbinds
-  :disabled
-  :diminish helm-descbinds
-  :after helm
-  :config
-  (helm-descbinds-mode)
-  )
 
 ;; ----------------------------------------------------------------------
 (use-package recentf
