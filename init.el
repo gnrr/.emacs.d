@@ -978,7 +978,15 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package flycheck
-  :config
+  :init
+  (defun flycheck-c-mode-hook-func ()
+    ;; (flycheck-select-checker 'my-c) 
+    (flycheck-mode t)
+    )
+
+  (add-hook 'c-mode-hook 'flycheck-c-mode-hook-func)
+
+  ;; :config
   ;; (flycheck-define-checker my-c
   ;;   "My C checker using gcc"
   ;;   :command ("gcc" "-Wall" "-Wextra" source)
@@ -991,12 +999,6 @@ That is, a string used to represent it on the tab bar."
   ;;                              line-end))
   ;;   :modes (c-mode c++-mode))
 
-  (defun flycheck-c-mode-hook-func ()
-    ;; (flycheck-select-checker 'my-c) 
-    (flycheck-mode t)
-    )
-  (add-hook 'c-mode-common-hook 'flycheck-c-mode-hook-func)
-
   :bind (([S-down] . flycheck-next-error)
          ([S-up]   . flycheck-previous-error))
   )
@@ -1008,25 +1010,21 @@ That is, a string used to represent it on the tab bar."
   :init
   (add-hook 'c-mode-hook
             (lambda ()
-              (c-set-style "stroustrup")
+              (setq case-fold-search nil)                 ; case sensitive
               (define-key c-mode-map "\C-i" 'indent-or-insert-tab)
+              (c-set-style "stroustrup")
               (modify-syntax-entry ?_ "w")                ; アンダーバーをワード区切りとしない
-              (setq comment-start "// ")                  ; コメントを // にする
+              (setq comment-start "//")                   ; コメントを // にする
               (setq comment-end "")
-              (setq compilation-read-command nil)         ; make のオプションの確認は不要
+              ;; (setq compilation-read-command nil)         ; make のオプションの確認は不要
               (setq compilation-ask-about-save nil)       ; make するとき save する
               (setq compile-command "make")               ; make時のデフォルトコマンド
-              (setq case-fold-search nil)            ; case sensitive
               (cwarn-mode)
               (which-func-mode 1)
               (display-line-numbers-mode)
               ))
   :config
-  (add-to-list 'align-rules-list
-                '(tab-stop-assignment
-                  (regexp   . "\\(\\s-+\\)")
-                  (tab-stop . t)              ; タブ位置でそろえる
-                  (modes     . '(c-mode c++-mode))))
+  (setq compilation-scroll-output t)
 
   )
 
@@ -1104,11 +1102,9 @@ That is, a string used to represent it on the tab bar."
 (diminish-minor-mode "abbrev" 'abbrev-mode)
 (diminish-minor-mode "cwarn" 'cwarn-mode)
 
-
 ;; major mode
 (diminish-major-mode 'emacs-lisp-mode-hook "Elisp")
 (diminish-major-mode 'lisp-interaction-mode-hook "LispInt")
-(diminish-major-mode 'c-mode-hook "C")
 
 ;; ----------------------------------------------------------------------
 ;; discrete setting
@@ -1123,6 +1119,9 @@ That is, a string used to represent it on the tab bar."
 (plist-put minibuffer-prompt-properties
            'point-entered 'minibuffer-avoid-prompt)
 
+;; enable completion in `eval-expression' (M-:)
+(define-key read-expression-map (kbd "TAB") 'lisp-complete-symbol)
+
 (defun indent-or-insert-tab ()
   (interactive)
   (let ((pos (point)))
@@ -1132,18 +1131,13 @@ That is, a string used to represent it on the tab bar."
 
 (global-set-key "\C-i" 'indent-or-insert-tab)
 
-;; カーソル行をハイライト
-;; (global-hl-line-mode t)
-(defalias 'hl 'hl-line-mode)
-
 (custom-set-faces
  ;; custom-set-faces was added by Custom. If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance. If there is more than one, they won't work right.
  '(hl-line ((t (:background "#141619")))))
 
-;;;
-;;; command aliases
-;;;
+;; ----------------------------------------------------------------------
+;; command aliases
 
 ;; for elisp
 (defalias 'ev 'eval-defun)
@@ -1151,13 +1145,18 @@ That is, a string used to represent it on the tab bar."
   '(defalias 'ede 'edebug-defun))
 
 ;; apropos
-;; (defalias 'a 'apropos)
+(when (featurep 'counsel)
+  (defalias 'a 'counsel-apropos))
+
 (defalias 'l 'display-line-numbers-mode)
 
 (defalias 'com 'comment-or-uncomment-region)
 (defalias 'ind 'indent-region)
 
-(defalias 'qcalc 'quick-calc)
+(defalias 'calc 'quick-calc)
+
+;; カーソル行をハイライト
+(defalias 'hl 'hl-line-mode)
 
 
 ;; ----------------------------------------------------------------------
