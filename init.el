@@ -219,6 +219,7 @@ auto-save-file-name-transforms
   ;; (define-key evil-motion-state-map (kbd "C-p") nil)
 
   (define-key evil-motion-state-map (kbd "C-h") nil)
+  (define-key evil-motion-state-map (kbd "C-y") nil)        ; evil-scrollline-up
   (define-key evil-motion-state-map (kbd "M-h") nil)
 
   (define-key evil-normal-state-map (kbd "m") nil)
@@ -942,9 +943,14 @@ That is, a string used to represent it on the tab bar."
   )
 
 ;; ----------------------------------------------------------------------
+(use-package org-bullets
+  :config
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
+;; ----------------------------------------------------------------------
 (use-package google-translate
   :config
-  (defvar google-translate-english-chars "[:ascii:]’“”–'\"`"
+  (defvar google-translate-english-chars "[:ascii:]`‘’“”–'\"`"
     "これらの文字が含まれているときは英語とみなす")
   (defun google-translate-enja-or-jaen (&optional string)
     "regionか、現在のセンテンスを言語自動判別でGoogle翻訳する。"
@@ -973,75 +979,6 @@ That is, a string used to represent it on the tab bar."
        string)))
 
   :bind (("M-t" . google-translate-enja-or-jaen))
-
-  )
-
-;; ----------------------------------------------------------------------
-(use-package flycheck
-  :init
-  (defun flycheck-c-mode-hook-func ()
-    ;; (flycheck-select-checker 'my-c) 
-    (flycheck-mode t)
-    )
-
-  (add-hook 'c-mode-hook 'flycheck-c-mode-hook-func)
-
-  ;; :config
-  ;; (flycheck-define-checker my-c
-  ;;   "My C checker using gcc"
-  ;;   :command ("gcc" "-Wall" "-Wextra" source)
-  ;;   :standard-input t
-  ;;   :error-patterns  ((error line-start
-  ;;                            (file-name) ":" line ":" column ":" " error: " (message)
-  ;;                            line-end)
-  ;;                     (warning line-start
-  ;;                              (file-name) ":" line ":" column ":" " warning: " (message)
-  ;;                              line-end))
-  ;;   :modes (c-mode c++-mode))
-
-  :bind (([S-down] . flycheck-next-error)
-         ([S-up]   . flycheck-previous-error))
-  )
-
-;; ----------------------------------------------------------------------
-(use-package cc-mode
-  :mode (("\\.c$" . c-mode)
-         ("\\.h$" . c-mode))
-  :init
-  (add-hook 'c-mode-hook
-            (lambda ()
-              (setq case-fold-search nil)                 ; case sensitive
-              (define-key c-mode-map "\C-i" 'indent-or-insert-tab)
-              (c-set-style "stroustrup")
-              (modify-syntax-entry ?_ "w")                ; アンダーバーをワード区切りとしない
-              (setq comment-start "//")                   ; コメントを // にする
-              (setq comment-end "")
-              ;; (setq compilation-read-command nil)         ; make のオプションの確認は不要
-              (setq compilation-ask-about-save nil)       ; make するとき save する
-              ;; (setq compile-command "make")               ; make時のデフォルトコマンド
-              (cwarn-mode)
-              (which-func-mode 1)
-              (display-line-numbers-mode)
-              (setq compilation-scroll-output t)
-              (setq compile-command "cd ~/git-clone/qmk_firmware; make dichotemy:default")
-              (setq compilation-auto-jump-to-first-error t)
-              ))
-  :config
-  ;; enable ANSI color in *compilation* buffer
-  ;; (require 'ansi-color)
-  (defun endless/colorize-compilation ()
-    "Colorize from `compilation-filter-start' to `point'."
-    (let ((inhibit-read-only t))
-      (ansi-color-apply-on-region
-       compilation-filter-start (point))))
-
-  (add-hook 'compilation-filter-hook #'endless/colorize-compilation)
-
-  :after telephone-line
-  :config
-  ;; workaround for *compilation* buffer
-  (dolist (f '(compilation-info compilation-warning compilation-error))
-    (set-face-background f (face-attribute 'telephone-line-accent-inactive :background)))
 
   )
 
@@ -1094,6 +1031,89 @@ That is, a string used to represent it on the tab bar."
   :load-path "elisp"
   :config
   (setq my-backup-directory "~/bak")
+  )
+
+;; ----------------------------------------------------------------------
+(use-package flycheck
+  :init
+  (defun flycheck-c-mode-hook-func ()
+    ;; (flycheck-select-checker 'my-c) 
+    (flycheck-mode t)
+    (setq flycheck-check-syntax-automatically '(mode-enabled save)) ;; new-line also possible
+    )
+
+  (add-hook 'c-mode-hook 'flycheck-c-mode-hook-func)
+
+  ;; :config
+  ;; (flycheck-define-checker my-c
+  ;;   "My C checker using gcc"
+  ;;   :command ("gcc" "-Wall" "-Wextra" source)
+  ;;   :standard-input t
+  ;;   :error-patterns  ((error line-start
+  ;;                            (file-name) ":" line ":" column ":" " error: " (message)
+  ;;                            line-end)
+  ;;                     (warning line-start
+  ;;                              (file-name) ":" line ":" column ":" " warning: " (message)
+  ;;                              line-end))
+  ;;   :modes (c-mode c++-mode))
+
+  :bind (([S-down] . flycheck-next-error)
+         ([S-up]   . flycheck-previous-error))
+  )
+
+;; ----------------------------------------------------------------------
+(use-package cc-mode
+  :mode (("\\.c$" . c-mode)
+         ("\\.h$" . c-mode))
+  :init
+  (add-hook 'c-mode-hook
+            (lambda ()
+              (local-set-key "\C-m" 'newline-and-indent)
+              (local-set-key "\C-i" 'indent-or-insert-tab)
+              (local-set-key "(" 'my-insert-paren)
+              (local-set-key "{" 'my-insert-brace)
+              ;; (setq case-fold-search nil)                 ; case sensitive
+              (c-set-style "stroustrup")
+              (c-set-offset 'case-label 4)
+              (modify-syntax-entry ?_ "w")                ; アンダーバーをワード区切りとしない
+              (setq comment-start "//")                   ; コメントを // にする
+              (setq comment-end "")
+              ;; (setq compilation-read-command nil)         ; make のオプションの確認は不要
+              (setq compilation-ask-about-save nil)       ; make するとき save する
+              ;; (setq compile-command "make")               ; make時のデフォルトコマンド
+              ;; (c-toggle-hungry-state 1)                   ; backspace時にカーソルの左の空白をすべて削除
+              (cwarn-mode)
+              (which-func-mode 1)
+              (display-line-numbers-mode)
+              (setq compilation-scroll-output t)
+              ;; (setq compile-command "cd ~/git-clone/qmk_firmware; make dichotemy:default")
+              (setq compilation-auto-jump-to-first-error t)
+              (setq compilation-window-height 10)
+              ))
+  :config
+  ;; enable ANSI color in *compilation* buffer
+  ;; (require 'ansi-color)
+  (defun endless/colorize-compilation ()
+    "Colorize from `compilation-filter-start' to `point'."
+    (let ((inhibit-read-only t))
+      (ansi-color-apply-on-region
+       compilation-filter-start (point))))
+
+  (add-hook 'compilation-filter-hook #'endless/colorize-compilation)
+
+  :after telephone-line
+  :config
+  ;; workaround for *compilation* buffer
+  (dolist (f '(compilation-info compilation-warning compilation-error))
+    (set-face-background f (face-attribute 'telephone-line-accent-inactive :background)))
+
+  )
+
+;; ----------------------------------------------------------------------
+;; arduino mode
+(use-package arduino-mode
+  :mode (("\\.pde$" . arduino-mode)
+         ("\\.ino$" . arduino-mode))
   )
 
 ;; ----------------------------------------------------------------------

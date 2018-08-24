@@ -97,7 +97,7 @@
 ;;
 (defun open-terminal ()
   (interactive)
-  (let ((cmd "ttab -a iterm2 -d ."))
+  (let ((cmd "ttab -w -a iterm2 -d ."))
     (shell-command cmd)))
 
 (defalias 'c 'open-terminal)

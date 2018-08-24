@@ -868,38 +868,70 @@ double quotation characters \(\"\) from given string."
 (global-set-key "\M- " 'my-just-one-space)
 
 ;; ----------------------------------------------------------------------
+;;@@ narrowing
+;; https://wolfecub.github.io/dotfiles/
+(defun narrow-or-widen-dwim (p)
+  "Widen if buffer is narrowed, narrow-dwim otherwise.
+Dwim means: region, org-src-block, org-subtree, or
+defun, whichever applies first. Narrowing to
+org-src-block actually calls `org-edit-src-code'.
+
+With prefix P, don't widen, just narrow even if buffer
+is already narrowed."
+  (interactive "P")
+  (declare (interactive-only))
+  (cond ((and (buffer-narrowed-p) (not p)) (widen))
+        ((region-active-p)
+         (narrow-to-region (region-beginning)
+                           (region-end)))
+        ((derived-mode-p 'org-mode)
+         ;; `org-edit-src-code' is not a real narrowing
+         ;; command. Remove this first conditional if
+         ;; you don't want it.
+         (cond ((ignore-errors (org-edit-src-code) t)
+                (delete-other-windows))
+               ((ignore-errors (org-narrow-to-block) t))
+               (t (org-narrow-to-subtree))))
+        ((derived-mode-p 'latex-mode)
+         (LaTeX-narrow-to-environment))
+        (t (narrow-to-defun))))
+
+(global-set-key "\C-xnn" 'narrow-or-widen-dwim)
+(global-unset-key "\C-xnw")
+
+;; ----------------------------------------------------------------------
 ;;@@ ascii-table
 (defalias 'ascii-table '(lambda () (interactive) (list-charset-chars 'ascii)))
 
-;; ----------------------------------------------------------------------
-;;@@ toggle-narrowing-region
-(defvar toggle-narrowing-region-window-start nil)
-(defvar toggle-narrowing-region-previous-rend nil)
-(defun toggle-narrowing-region (beg end)
-  "Toggle narrowing/widening region."
-  (interactive "r")
-  (if (narrowing-p)
-      ; now nallowed
-      (progn
-	(widen)
-;; 	(when (integerp toggle-narrowing-region-window-start)
-;; 	  (set-window-start nil toggle-narrowing-region-window-start))
-	(message "<< Widened >>"))
-    ; now widened
-    (let ((rend end))
-      (when (and (= beg end)
-		 (integerp toggle-narrowing-region-previous-rend))
-	(setq rend toggle-narrowing-region-previous-rend))
-      (if (= beg rend)
-	  (message "No region.")
-	(setq toggle-narrowing-region-window-start (window-start))
-	(narrow-to-region beg rend)
-	(goto-char (point-min))
-	(setq toggle-narrowing-region-previous-rend rend)
-	(message ">> Narrowed <<")))))
+;; ;; ----------------------------------------------------------------------
+;; ;;@@ toggle-narrowing-region
+;; (defvar toggle-narrowing-region-window-start nil)
+;; (defvar toggle-narrowing-region-previous-rend nil)
+;; (defun toggle-narrowing-region (beg end)
+;;   "Toggle narrowing/widening region."
+;;   (interactive "r")
+;;   (if (narrowing-p)
+;;       ; now nallowed
+;;       (progn
+;; 	(widen)
+;; ;; 	(when (integerp toggle-narrowing-region-window-start)
+;; ;; 	  (set-window-start nil toggle-narrowing-region-window-start))
+;; 	(message "<< Widened >>"))
+;;     ; now widened
+;;     (let ((rend end))
+;;       (when (and (= beg end)
+;; 		 (integerp toggle-narrowing-region-previous-rend))
+;; 	(setq rend toggle-narrowing-region-previous-rend))
+;;       (if (= beg rend)
+;; 	  (message "No region.")
+;; 	(setq toggle-narrowing-region-window-start (window-start))
+;; 	(narrow-to-region beg rend)
+;; 	(goto-char (point-min))
+;; 	(setq toggle-narrowing-region-previous-rend rend)
+;; 	(message ">> Narrowed <<")))))
 
-(global-set-key "\C-xnn" 'toggle-narrowing-region)
-(global-unset-key "\C-xnw")
+;; (global-set-key "\C-xnn" 'toggle-narrowing-region)
+;; (global-unset-key "\C-xnw")
 
 
 ;; ----------------------------------------------------------------------

@@ -13,7 +13,7 @@
  '(org-startup-indented t)
  '(package-selected-packages
    (quote
-    (beacon anzu evil-tutor-ja evil-collection evil google-translate guide-key-tip evil-org rainbow-delimiters sublimity fringe-helper git-gutter-fringe counsel-etags counsel-gtags neotree gist hiwin rainbow-mode smartparens telephone-line scratch-log markdown-mode expand-region dashboard use-package tabbar ag ido-yes-or-no atom-one-dark-theme))))
+    (org-bullets arduino-mode flycheck-pkg-config beacon anzu evil-tutor-ja evil-collection evil google-translate guide-key-tip evil-org rainbow-delimiters sublimity fringe-helper git-gutter-fringe counsel-etags counsel-gtags neotree gist hiwin rainbow-mode smartparens telephone-line scratch-log markdown-mode expand-region dashboard use-package tabbar ag ido-yes-or-no atom-one-dark-theme))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
