@@ -644,20 +644,8 @@ Return nil for blank/empty strings."
 
   (set-face-attribute 'tabbar-default nil
                       :height 0.85
-                      :background (face-attribute 'tool-bar :background)
-                      ;; :background (face-attribute 'tabbar-default :background)
-                      ;; :foreground (face-attribute 'tool-bar :foreground)
-                      ;; :weight 'light
-                      :slant 'italic
-                      :box nil
-                      )
-
-  (set-face-attribute 'tabbar-unselected nil
-                      ;; :inherit tabbar-default
-                      :background (face-attribute 'tool-bar :background)
-                      ;; :foreground (face-attribute 'mode-line-inactive :foreground)
-                      :foreground "#080808"
-                      ;; :weight 'light
+                      :background (face-attribute 'mode-line :background)
+                      :foreground (face-attribute 'telephone-line-accent-active :foreground)
                       :slant 'italic
                       :box nil
                       )
@@ -665,26 +653,31 @@ Return nil for blank/empty strings."
   (set-face-attribute 'tabbar-selected nil
                       :background (face-attribute 'default :background)
                       :foreground (face-attribute 'mode-line :foreground)
-                      ;; :foreground "#E8E8E8"
-                      ;; :weight 'normal
+                      :slant 'italic
+                      :box nil
+                      )
+
+  (set-face-attribute 'tabbar-unselected nil
+                      :background (face-attribute 'telephone-line-accent-active :background)
+                      :foreground (face-attribute 'tabbar-selected :background)
+                      :foreground "#000000"
                       :slant 'italic
                       :box nil
                       )
 
   (set-face-attribute 'tabbar-selected-modified nil
-                      :background (face-attribute 'default :background)
-                      :foreground (face-attribute 'mode-line :foreground)
-                      ;; :foreground "#E8E8E8"
-                      ;; :weight 'normal
+                      :background (face-attribute 'tabbar-selected :background)
+                      :foreground (face-attribute 'tabbar-selected :foreground)
                       :slant 'italic
+                      :overline "orange" 
                       :box nil
                       )
 
   (set-face-attribute 'tabbar-modified nil
-                      :background (face-attribute 'tool-bar :background)
-                      :foreground "#080808"
-                      ;; :weight 'normal
+                      :background (face-attribute 'tabbar-unselected :background)
+                      :foreground (face-attribute 'tabbar-unselected :foreground)
                       :slant 'italic
+                      :overline "orange"
                       :box nil
                       )
 
@@ -714,14 +707,16 @@ Return nil for blank/empty strings."
                        ;; Always include the current buffer.
                        ((eq (current-buffer) b) b)
                        ((buffer-file-name b) b)
-                      ((char-equal ?\  (aref (buffer-name b) 0)) nil)
-                       ((equal "*scratch*" (buffer-name b)) b) ; *scratch*バッファは表示する
-                       ((char-equal ?* (aref (buffer-name b) 0)) nil) ; それ以外の * で始まるバッファは表示しない
+                       ((char-equal ?\  (aref (buffer-name b) 0)) nil)
+                       ((equal "*scratch*" (buffer-name b)) b)              ; *scratch*バッファは表示する
+                       ((char-equal ?* (aref (buffer-name b) 0)) nil)       ; それ以外の * で始まるバッファは表示しない
+                       ((string-match "^magit" (buffer-name b)) nil)        ; magit が開くバッファは表示しない
                        ((buffer-live-p b) b)))
                   (buffer-list))))
 
   (setq tabbar-buffer-list-function 'my-tabbar-buffer-list)
 
+  ;; mod
   (defun tabbar-buffer-tab-label (tab)
     "Return a label for TAB.
 That is, a string used to represent it on the tab bar."
