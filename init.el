@@ -660,7 +660,6 @@ Return nil for blank/empty strings."
   (set-face-attribute 'tabbar-unselected nil
                       :background (face-attribute 'telephone-line-accent-active :background)
                       :foreground (face-attribute 'tabbar-selected :background)
-                      :foreground "#000000"
                       :slant 'italic
                       :box nil
                       )
