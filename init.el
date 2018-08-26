@@ -299,6 +299,14 @@ auto-save-file-name-transforms
 )
 
 ;; ----------------------------------------------------------------------
+(use-package evil-lion
+  :after evil
+  ;; :diminish evil-surround-mode
+  :config
+  (evil-lion-mode)
+)
+
+;; ----------------------------------------------------------------------
 (use-package evil-org
   :disabled
   :after evil
