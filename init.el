@@ -200,15 +200,13 @@ auto-save-file-name-transforms
 
   (defalias #'forward-evil-word #'forward-evil-symbol)
 
+  (evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
+
   ;; インサートモードではEmacsキーバインド
-  (setcdr evil-insert-state-map nil)                        ; 
+  (setcdr evil-insert-state-map nil)
   (define-key evil-insert-state-map [escape] 'evil-normal-state)
 
-  (define-key evil-normal-state-map (kbd "M-.") nil)        ; evil-repeat-pop-next
-  (define-key evil-normal-state-map (kbd "C-p") nil)        ; evil-paste-pop
-  (define-key evil-normal-state-map (kbd "M-j") nil)        ; outline-move-sutree-*
-  (define-key evil-normal-state-map (kbd "M-k") nil)        ; outline-move-sutree-*
-
+  ;; motion-state-map
   (define-key evil-motion-state-map (kbd "C-f") nil)
   (define-key evil-motion-state-map (kbd "C-b") nil)
   (define-key evil-motion-state-map (kbd "C-o") nil)		; evil-jump-backward
@@ -217,12 +215,10 @@ auto-save-file-name-transforms
   (define-key evil-motion-state-map (kbd "'") nil)          ; evil-goto-mark-line
   (define-key evil-motion-state-map (kbd "\"") nil)         ; evil-use-register
   ;; (define-key evil-motion-state-map (kbd "C-p") nil)
-
   (define-key evil-motion-state-map (kbd "C-h") nil)
   (define-key evil-motion-state-map (kbd "C-y") nil)        ; evil-scrollline-up
   (define-key evil-motion-state-map (kbd "M-h") nil)
 
-  (define-key evil-normal-state-map (kbd "m") nil)
   (define-key evil-motion-state-map (kbd "m") 'evil-scroll-page-down)
   (define-key evil-motion-state-map (kbd "M") 'evil-scroll-page-up)
   (define-key evil-motion-state-map (kbd "j") 'evil-next-visual-line)
@@ -230,15 +226,20 @@ auto-save-file-name-transforms
   (define-key evil-motion-state-map (kbd "4") 'evil-end-of-line)
   (define-key evil-motion-state-map (kbd "]") 'evil-jump-item)
 
-  (define-key evil-insert-state-map (kbd "C-h") 'delete-backward-char)
-  (define-key evil-insert-state-map (kbd "M-h") 'my-backward-kill-word)
-
-  (evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
-
-  (define-key evil-insert-state-map (kbd "TAB") '(lambda () (interactive) (insert-tab)))
+  ;; normal-state-map
+  (define-key evil-normal-state-map (kbd "m") nil)
+  (define-key evil-normal-state-map (kbd "M-.") nil)        ; evil-repeat-pop-next
+  (define-key evil-normal-state-map (kbd "C-p") nil)        ; evil-paste-pop
+  (define-key evil-normal-state-map (kbd "M-j") nil)        ; outline-move-sutree-*
+  (define-key evil-normal-state-map (kbd "M-k") nil)        ; outline-move-sutree-*
   (define-key evil-normal-state-map (kbd "TAB") 'evil-indent-line)
   (define-key evil-normal-state-map (kbd "U") 'undo-tree-redo)
   (define-key evil-normal-state-map (kbd "M-p") 'evil-paste-pop-next)
+
+  ;; insert-state-map
+  (define-key evil-insert-state-map (kbd "C-h") 'delete-backward-char)
+  (define-key evil-insert-state-map (kbd "M-h") 'my-backward-kill-word)
+  (define-key evil-insert-state-map (kbd "TAB") '(lambda () (interactive) (insert-tab)))
 
   (defun evil-return-insert-mode-after-save ()
     (when evil-insert-state-minor-mode
@@ -821,7 +822,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package sublimity
-  ;; :disabled
+  :disabled
   :if window-system
   :config
   (sublimity-mode 1)
@@ -1070,7 +1071,7 @@ That is, a string used to represent it on the tab bar."
   :init
   (add-hook 'c-mode-hook
             (lambda ()
-              (local-set-key "\C-m" 'newline-and-indent)
+              (local-set-key "\C-m" 'reindent-then-newline-and-indent)
               (local-set-key "\C-i" 'indent-or-insert-tab)
               (local-set-key "(" 'my-insert-paren)
               (local-set-key "{" 'my-insert-brace)
