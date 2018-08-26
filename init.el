@@ -788,7 +788,7 @@ That is, a string used to represent it on the tab bar."
   (require 'cl-lib)
   (require 'color)
 
-  (set-face-foreground 'rainbow-delimiters-depth-1-face "#ca7070")
+  (set-face-foreground 'rainbow-delimiters-depth-9-face "#9a4040")   ; swap 1 <--> 9
   (set-face-foreground 'rainbow-delimiters-depth-2-face "#ff5e5e")
   (set-face-foreground 'rainbow-delimiters-depth-3-face "#ffaa77")
   (set-face-foreground 'rainbow-delimiters-depth-4-face "#dddd77")
@@ -796,7 +796,7 @@ That is, a string used to represent it on the tab bar."
   (set-face-foreground 'rainbow-delimiters-depth-6-face "#66bbff")
   (set-face-foreground 'rainbow-delimiters-depth-7-face "#da6bda")
   (set-face-foreground 'rainbow-delimiters-depth-8-face "#afafaf")
-  (set-face-foreground 'rainbow-delimiters-depth-9-face "#f0f0f0")
+  (set-face-foreground 'rainbow-delimiters-depth-1-face "#f0f0f0")   ; swap 1 <--> 9
 
   (rainbow-delimiters-mode 1)
   (setq rainbow-delimiters-outermost-only-face-count 1)
@@ -1089,7 +1089,7 @@ That is, a string used to represent it on the tab bar."
               (which-func-mode 1)
               (display-line-numbers-mode)
               (setq compilation-scroll-output t)
-              ;; (setq compile-command "cd ~/git-clone/qmk_firmware; make dichotemy:default")
+              (setq compile-command "cd ~/git-clone/qmk_firmware; make dichotemy:default")
               (setq compilation-auto-jump-to-first-error t)
               (setq compilation-window-height 10)
               ))
