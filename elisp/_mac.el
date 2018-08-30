@@ -7,14 +7,14 @@
 ;;;
 ;;; window size and position
 ;;;
-(setq initial-frame-alist (append '(
-				    (top    . 0)
-				    (left   . 1009)
-				    ;; (left   . 71)
-				    (height . 64)
-				    (width  . 110))
-				  initial-frame-alist))
-(setq default-frame-alist initial-frame-alist)
+;; (setq initial-frame-alist (append '(
+;; 				    (top    . 0)
+;; 				    (left   . 1009)
+;; 				    ;; (left   . 71)
+;; 				    (height . 64)
+;; 				    (width  . 110))
+;; 				  initial-frame-alist))
+;; (setq default-frame-alist initial-frame-alist)
 
 ;;;
 ;;; font
