@@ -637,7 +637,7 @@ Return nil for blank/empty strings."
   :config
   (setq recentf-max-saved-items 5000) ;; 履歴保存の数
   ;; (setq recentf-auto-cleanup 'never)  ;; 存在しないファイルは消さない
-  (setq recentf-exclude '("/recentf" ".recentf"))
+  (setq recentf-exclude '("/recentf" ".recentf" ".my-save-frame"))
   ;; (setq recentf-auto-save-timer (run-with-idle-timer 30 t 'recentf-save-list))
 
   ;; (recentf-mode 1)
