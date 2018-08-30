@@ -408,27 +408,23 @@ double quotation characters \(\"\) from given string."
       (kill-new path)
       (message "copied \"%s\"" path))))
 
-
 ;; ----------------------------------------------------------------------
 ;; @@ my-kill-buffer
-(defun my-kill-buffer ()
-  (interactive)
-  (kill-buffer (current-buffer)))
+;; C-u C-x k     kill all buffer
+;;     C-x k     kill selected buffer
+(defvar my-kill-buffer-excludes '("*scratch*"))
+(defvar my-kill-buffer-window-close-list '("*Help*" "*recentf*"))
+
+(defun my-kill-buffer (&optional ARG)
+  (interactive "P")
+  (cond (ARG
+         (dolist (name (mapcar #'buffer-name (buffer-list)))
+           (unless (member name my-kill-buffer-excludes)
+             (kill-buffer name)))
+         (delete-other-windows))
+        (t (kill-buffer (current-buffer)))))
 
 (global-set-key (kbd "C-x k") 'my-kill-buffer)
-
-;; ----------------------------------------------------------------------
-;; @@ my-switch-to-buffer
-(defun my-switch-to-buffer ()
-  (interactive)
-  (switch-to-buffer (other-buffer)))
-
-(global-set-key "\C-xb" 'my-switch-to-buffer)
-;; (global-set-key "\C-xb" 'electric-buffer-list)
-
-;; (add-hook 'electric-buffer-menu-mode-hook
-;;   '(lambda ()
-;; 	 (view-mode-enter)))
 
 ;; ----------------------------------------------------------------------
 ;; @@ my-copy-buffer-file-name
