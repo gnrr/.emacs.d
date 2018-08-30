@@ -2,6 +2,15 @@
 #+STARTUP showall
 
 * todo
+** TODO smartscroll を入れる
+** TODO insert-state から抜けるときにIME OFFする
+** TODO electric-space を入れる
+** TODO fly-check に avr-libc を認識させる
+** TODO *compile* バッファの結果の背景色をなんとかする
+** TODO M-RET が capitalize-word に当たっているのをなんとかする
+** TODO counsel-ag のディレクトリ名補完をなんとかする
+** TODO counsel-ag を M-x付きをデフォルトにする
+** DONE my-kill-buffer を xyzzy と同じように M-x 付きで全バッファを kill する
 ** TODO my-comment-inline-comment-start-pos を ;のある行でも意図通りに返すようにする
 ** TODO isearch中は auto-highlight-symbol を無効化
 ** TODO モードラインの read-only を all-the-icons 化
@@ -12,6 +21,10 @@
 ** TODO auto-highlight-symbol の色をカーソル色に
 ** TODO dashboard の recentf リストのアンダーラインをなくす
 ** TODO helm-fild-files をリカーシブに
+** TODO gist-region をmini-bufferで題名入力
+** TODO magit c のコミットメッセージをmini-bufferで入力
+** TODO avy を近場は単一文字でジャンプ
+
 
 
 * evil
@@ -53,7 +66,7 @@
 
   https://emacs.stackexchange.com/questions/32858/whats-the-equivalent-of-helm-find-in-ivy-counsel-i-want-to-find-files-recu
 
-* example snippet
+* snippet
 
 (skip-chars-forward "^\n\r" (line-end-position))
 
@@ -62,6 +75,8 @@
 
 https://github.com/domtronn/all-the-icons.el
 http://syohex.hatenablog.com/entry/2016/02/10/194023
+http://pragmaticemacs.com/emacs/super-spotlight-search-with-counsel/
+
 
 'faicon
 ----------------------

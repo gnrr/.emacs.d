@@ -249,7 +249,7 @@ double quotation characters \(\"\) from given string."
     (point)))
 
 ;; ----------------------------------------------------------------------
-;; @@ my-comment-*
+;; @@ `my-comment-*'
 (defun my-comment-or-uncomment-region (beg end)
   (interactive)
   (comment-normalize-vars)
@@ -387,7 +387,7 @@ double quotation characters \(\"\) from given string."
 (global-set-key (kbd "C-;") 'my-comment-set-column)
 
 ;; ----------------------------------------------------------------------
-;; @@ my-font-lighter
+;; @@ `my-font-lighter'
 (defun my-font-lighter ()
   (interactive)
   (mapc
@@ -400,7 +400,7 @@ double quotation characters \(\"\) from given string."
    (face-list)))
 
 ;; ----------------------------------------------------------------------
-;; @@ my-current-path
+;; @@ `my-current-path'
 (defun my-current-path ()
   (interactive)
   (when buffer-file-name
@@ -409,7 +409,7 @@ double quotation characters \(\"\) from given string."
       (message "copied \"%s\"" path))))
 
 ;; ----------------------------------------------------------------------
-;; @@ my-kill-buffer
+;; @@ `my-kill-buffer'
 ;; C-u C-x k     kill all buffer
 ;;     C-x k     kill selected buffer
 (defvar my-kill-buffer-excludes '("*scratch*"))
@@ -427,7 +427,7 @@ double quotation characters \(\"\) from given string."
 (global-set-key (kbd "C-x k") 'my-kill-buffer)
 
 ;; ----------------------------------------------------------------------
-;; @@ my-copy-buffer-file-name
+;; @@ `my-copy-buffer-file-name'
 (defun my-copy-buffer-file-name ()
   "copy buffer-file-name to kill-ring."
   (interactive)
@@ -443,7 +443,7 @@ double quotation characters \(\"\) from given string."
 (global-set-key "\C-xf" 'my-copy-buffer-file-name)
 
 ;; ----------------------------------------------------------------------
-;; @@ message-buffer
+;; @@ `message-buffer'
 (defun message-buffer ()
   "Open `*Messages*' buffer."
   (interactive)
@@ -451,7 +451,7 @@ double quotation characters \(\"\) from given string."
     (switch-to-buffer-other-window buf t)))
 
 ;; ----------------------------------------------------------------------
-;; @@ my-eval-depth-increase
+;; @@ `my-eval-depth-increase'
 (defun my-eval-depth-increase ()
   "increase `max-lisp-eval-depth' for large recursive calling."
   (interactive)
@@ -459,7 +459,7 @@ double quotation characters \(\"\) from given string."
   (message "max-lisp-eval-depth => %d" max-lisp-eval-depth))
 
 ;; ----------------------------------------------------------------------
-;; @@ my-customized backward-word, forward-word, backward-kill-word
+;; @@ `my-*-word'
 (defun my-backward-word ()
   (interactive)
   (if (bolp)
@@ -486,7 +486,7 @@ double quotation characters \(\"\) from given string."
 (global-set-key "\M-h" 'my-backward-kill-word)
 
 ;; ----------------------------------------------------------------------
-;; @@ insert-tab-character
+;; @@ `insert-tab-character'
 (defun insert-tab-character ()
   (interactive)
   (insert "\t"))
@@ -496,7 +496,7 @@ double quotation characters \(\"\) from given string."
 
 
 ;; ----------------------------------------------------------------------
-;; @@ insert-key-string etc...
+;; @@ `insert-*-string'
 (defun get-key-string (key)
   (let* ((str (describe-key-briefly key))
 	 (end (string-match " runs " str)))
@@ -538,7 +538,7 @@ double quotation characters \(\"\) from given string."
 ;; (global-set-key "\C-x\C-y" 'insert-key-string)
 
 ;; ----------------------------------------------------------------------
-;; @@ enum-buffer-names
+;; @@ `enum-buffer-names'
 (defun enum-buffer-names ()
   "存在するバッファ名をすべて列挙し、scratchバッファに表示する。"
   (interactive)
@@ -556,7 +556,7 @@ double quotation characters \(\"\) from given string."
 )
 
 ;; ----------------------------------------------------------------------
-;; @@ visible-whole-buffer
+;; @@ `visible-whole-buffer'
 (defun visible-whole-buffer ()
   "カレントバッファ上でオーバレイが invisible な文字をすべて表示する。"
   (interactive)
@@ -591,7 +591,7 @@ double quotation characters \(\"\) from given string."
 	  (forward-line))))))
 
 ;; ----------------------------------------------------------------------
-;; @@ my-copy-word
+;; @@ `my-copy-word'
 (defvar my-copy-word-thing-n 0)
 (make-variable-buffer-local 'my-copy-word-thing-n)
 (defvar my-copy-word-prev-str "")
@@ -641,7 +641,7 @@ double quotation characters \(\"\) from given string."
 
 
 ;; ----------------------------------------------------------------------
-;; @@ my-save-buffer
+;; @@ `my-save-buffer'
 ;; create parent directories when saving a new file
 (defvar my-save-buffer-default-path nil
   "default directory where to save")
@@ -723,7 +723,7 @@ double quotation characters \(\"\) from given string."
 
 
 ;; ----------------------------------------------------------------------
-;; @@ my-write-file
+;; @@ `my-write-file'
 ;; create parent directories when writing a new file
 (defvar my-write-file-interactive-arg-active-p nil)
 
@@ -770,7 +770,7 @@ double quotation characters \(\"\) from given string."
 
 
 ;; ----------------------------------------------------------------------
-;; @@ my-find-file
+;; @@ `my-find-file'
 ;; thank somebody at 2ch.
 (defvar my-find-file-interactive-arg-active-p nil)
 (defun my-find-file-interactive-arg (str &optional initial)
@@ -813,7 +813,7 @@ double quotation characters \(\"\) from given string."
 
 
 ;; ----------------------------------------------------------------------
-;; @@ my-insert-filename
+;; @@ `my-insert-filename'
 (defvar my-insert-filename-start "Filename:"
   "*The filename string is inserted following this string.")
 (defvar my-insert-filename-lines 10
@@ -849,7 +849,7 @@ double quotation characters \(\"\) from given string."
 
 
 ;; ----------------------------------------------------------------------
-;;@@ my-just-one-space
+;;@@ `my-just-one-space'
 (defvar my-just-one-space-state nil)
 (defun my-just-one-space ()
   (interactive)
@@ -864,7 +864,7 @@ double quotation characters \(\"\) from given string."
 (global-set-key "\M- " 'my-just-one-space)
 
 ;; ----------------------------------------------------------------------
-;;@@ narrowing
+;;@@ `narrowing'
 ;; https://wolfecub.github.io/dotfiles/
 (defun narrow-or-widen-dwim (p)
   "Widen if buffer is narrowed, narrow-dwim otherwise.
@@ -896,11 +896,11 @@ is already narrowed."
 (global-unset-key "\C-xnw")
 
 ;; ----------------------------------------------------------------------
-;;@@ ascii-table
+;;@@ `ascii-table'
 (defalias 'ascii-table '(lambda () (interactive) (list-charset-chars 'ascii)))
 
 ;; ----------------------------------------------------------------------
-;;@@ my-save-frame
+;;@@ `my-save-frame'
 ;; http://d.hatena.ne.jp/Tan90909090/20121124/1353757368
 (defconst my-save-frame-file
   "~/.emacs.d/.my-save-frame"
@@ -945,7 +945,7 @@ is already narrowed."
 ;; (run-with-idle-timer 60 t 'my-save-frame)
 
 ;; ;; ----------------------------------------------------------------------
-;; ;;@@ toggle-narrowing-region
+;; ;;@@ `toggle-narrowing-region'
 ;; (defvar toggle-narrowing-region-window-start nil)
 ;; (defvar toggle-narrowing-region-previous-rend nil)
 ;; (defun toggle-narrowing-region (beg end)
@@ -976,7 +976,7 @@ is already narrowed."
 
 
 ;; ----------------------------------------------------------------------
-;;@@ my-insert-pair-*    (), {}, [], <>, "", '' 
+;;@@ `my-insert-pair-*'  ;  (), {}, [], <>, "", '' 
 (defun my-insert-pair (lst)
   "args lst is formatted as '(flag open-char close-char)"
   (if (or (not (featurep 'evil))
@@ -1030,21 +1030,21 @@ is already narrowed."
   (my-insert-pair my-insert-squote-arg))
 
 ;; ----------------------------------------------------------------------
-;;@@ beginning-of-buffer-without-marking
+;;@@ `beginning-of-buffer-without-marking'
 (defun beginning-of-buffer-without-marking ()
   "more simple beginning-of-buffer without marking."
   (interactive)
   (goto-char (point-min)))
 
 ;; ----------------------------------------------------------------------
-;;@@ end-of-buffer-without-marking
+;;@@ `end-of-buffer-without-marking'
 (defun end-of-buffer-without-marking ()
   "more simple end-of-buffer without marking."
   (interactive)
   (goto-char (point-max)))
 
 ;; ----------------------------------------------------------------------
-;;@@ my-forward-word
+;;@@ `my-forward-word'
 ;; (defun my-forward-word ()
 ;;   "For people who dislike working of default forward-word."
 ;;   (interactive)
@@ -1057,7 +1057,7 @@ is already narrowed."
 ;; (global-set-key "\M-f" 'my-forward-word)
 
 ;; ----------------------------------------------------------------------
-;;@@ my-kill-word
+;;@@ `my-kill-word'
 (defun my-kill-word ()
   "For people who dislike working of default kill-word."
   (interactive)
@@ -1068,7 +1068,7 @@ is already narrowed."
 (global-set-key "\M-d" 'my-kill-word)
 
 ;; ----------------------------------------------------------------------
-;;@@ my-backward-kill-word
+;;@@ `my-backward-kill-word'
 ;; (defun my-backward-kill-word ()
 ;;   "For people who dislike working of default backward-kill-word."
 ;;   (interactive)
@@ -1081,7 +1081,7 @@ is already narrowed."
 ;; (global-set-key "\M-h" 'my-backward-kill-word)
 
 ;; ----------------------------------------------------------------------
-;;@@ my-backward-kill-word-minibuffer
+;;@@ `my-backward-kill-word-minibuffer'
 ;;  and some fix for me
 (defun my-backward-kill-word-minibuffer-sub (delimiter)
   "for path delimiter"
@@ -1149,7 +1149,7 @@ is already narrowed."
 
 
 ;; ----------------------------------------------------------------------
-;;@@ my-undo
+;;@@ `my-undo'
 ;; (require 'redo)
 ;; (defun my-undo-redo (&optional ARG)
 ;;   "This function invocates either undo or redo according to ARG.
@@ -1165,7 +1165,7 @@ is already narrowed."
                                         ; (global-set-key "\M-z" 'my-undo-redo)
 
 ;; ----------------------------------------------------------------------
-;;@@ find the next tags
+;;@@ `find the next tags'
 ;; (defun find-tag-next ()
 ;;   "Search for another tag that matches the last tagname or regexp used."
 ;;   (interactive)
@@ -1174,7 +1174,7 @@ is already narrowed."
 ;; (global-set-key "\M-," 'find-tag-next)
 
 ;; ----------------------------------------------------------------------
-;;@@ duplicate-line.
+;;@@ `duplicate-line.'
 (defun duplicate-line (&optional ARG)
   "Multiply current line."
   (interactive"*p")
@@ -1198,7 +1198,7 @@ is already narrowed."
 ;; (global-set-key [?\M-=] 'duplicate-line)
 
 ;; ----------------------------------------------------------------------
-;;@@ set-mark w/ fringe-indicator
+;;@@ `fringe-indicator' at mark
 (defvar fringe-indicator-ol nil)
 (defun fringe-indicator (pt bitmap)
   (let ((s (make-string 1 ?x)))
@@ -1217,7 +1217,7 @@ is already narrowed."
 ;; ----------------------------------------------------------------------
 
 ;; ----------------------------------------------------------------------
-;; @@ my-calc
+;; @@ `my-calc'
 ;; http://d.hatena.ne.jp/uhiaha888/20110117/1295273922
 (defun my-calc (beg end)
   (interactive (list (point) (mark t)))
@@ -1228,7 +1228,7 @@ is already narrowed."
 
 
 ;; ----------------------------------------------------------------------
-;;@@ create tag-file automatically
+;;@@ `create tag-file automatically'
 ;; http://www.bookshelf.jp/cgi-bin/goto.cgi?file=meadow&node=tagsfile%20maker
 ;; (defadvice find-tag (before c-tag-file activate)
 ;;   "Automatically create tags file."
@@ -1238,7 +1238,7 @@ is already narrowed."
 ;;     (visit-tags-table tag-file)))
 
 ;; ----------------------------------------------------------------------
-;;@@ my-keyboard-quit
+;;@@ `my-keyboard-quit'
 ;; http://www-tsujii.is.s.u-tokyo.ac.jp/~yoshinag/tips/elisp_tips.html#yankundo
 ;; keyboard-quit で連続実行する種類のコマンドの結果を元に戻す
 
@@ -1281,7 +1281,7 @@ is already narrowed."
 
 
 ;; ----------------------------------------------------------------------
-;;@@ beginning-of-minibuffer
+;;@@ `beginning-of-minibuffer'
 ;;http://www-tsujii.is.s.u-tokyo.ac.jp/~yoshinag/tips/elisp_tips.html#minibuf
 ;;ミニバッファにて C-a でプロンプトの後に移動するようにする
 
