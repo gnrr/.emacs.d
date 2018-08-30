@@ -864,6 +864,45 @@ double quotation characters \(\"\) from given string."
 (global-set-key "\M- " 'my-just-one-space)
 
 ;; ----------------------------------------------------------------------
+;;@@ `my-open-*'
+;;
+;; open current folder
+;; using Finder.app or Explorer
+;;
+(defun open-current-folder ()
+  (interactive)
+  (let ((path (buffer-file-name))
+        opt cmd)
+    (cond ((eq system-type 'windows-nt)
+           (setq cmd "explorer.exe %s %s")
+           (setq opt (if path "/e /select," "/e"))
+           (setq path (or path "%HOME%")))
+          ((eq system-type 'gnu/linux)
+           (setq cmd "nautilus %s")
+           (setq opt "")
+           (setq path (or path "~")))
+          (t
+           (setq cmd "open %s %s")
+           (setq opt "-R")
+           (setq path "~")))
+    (shell-command (format cmd opt path))))
+
+(defalias 'e 'open-current-folder)
+
+;;
+;; open terminal at current folder
+;; using ttab (https://www.npmjs.com/package/ttab)
+;;
+(defun open-terminal ()
+  (interactive)
+  (let ((cmd (cond ((eq system-type 'windows-nt) (setq cmd "cmd.exe %s ."))
+                   ((eq system-type 'gnu/linux)  (setq cmd "gnome-terminal %s"))
+                   (t                            (setq cmd "ttab -w -a iterm2 -d .")))))
+    (shell-command cmd)))
+
+(defalias 'c 'open-terminal)
+
+;; ----------------------------------------------------------------------
 ;;@@ `narrowing'
 ;; https://wolfecub.github.io/dotfiles/
 (defun narrow-or-widen-dwim (p)

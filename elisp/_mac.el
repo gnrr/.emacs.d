@@ -75,33 +75,6 @@
 ;;
 (global-set-key (kbd "C-M-f") 'toggle-frame-fullscreen)
 
-;;
-;; open current folder
-;; using Finder.app
-;;
-(defun open-current-folder ()
-  (interactive)
-  (let ((cmd "open %s %s")
-        (opt "-R")
-        (path (buffer-file-name)))
-    (unless path
-      (setq opt "")
-      (setq path "."))
-    (shell-command (format cmd opt path))))
-
-(defalias 'e 'open-current-folder)
-
-;;
-;; open terminal at current folder
-;; using ttab (https://www.npmjs.com/package/ttab)
-;;
-(defun open-terminal ()
-  (interactive)
-  (let ((cmd "ttab -w -a iterm2 -d ."))
-    (shell-command cmd)))
-
-(defalias 'c 'open-terminal)
-
 (message "<-- loaded \"_mac.el\"")
 
 ;;
