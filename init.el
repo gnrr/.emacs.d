@@ -569,21 +569,44 @@ Return nil for blank/empty strings."
             'magit-find-file)
            (t 'counsel-find-file))))
 
+  ;; refrect .ignore to the root of the project
+  (setq counsel-git-cmd "rg --files")
+  (setq counsel-rg-base-command
+        "rg -i -M 120 --no-heading --line-number --color never %s .")
+  
+  (defun my-ivy-done ()
+    (interactive)
+    (cond ((eq last-command 'counsel-find-file)
+           (ivy-immediate-done))
+          (t (ivy-done))))
+
+  (define-key ivy-minibuffer-map [(return)] 'my-ivy-done)
+  ;; (define-key ivy-minibuffer-map [(return)] 'ivy-done)
+
+  
   (defun counsel-rg-at-point ()
     (interactive)
-    (counsel-rg (symbol-name (symbol-at-point))))
+    (counsel-rg (or (symbol-name (symbol-at-point)) "")))
 
   :bind (("M-r"     . counsel-recentf)
          ("M-o"     . counsel-rg-at-point)
+         ("C-x C-b" . counsel-ibuffer)
          ;; ("C-x C-f" . my-counsel-find-file)
          ;; ("C-s"     . swiper)
 
          :map ivy-minibuffer-map
-         ("M-h" . ivy-backward-delete-char)
-         ;; ("TAB" . ivy-partial)
+         ;; ([remap ivy-done] . ivy-immediate-done)
+         ([(return)] . my-ivy-done)
+         ("M-h" . ivy-backward-kill-word)
+         ("C-f" . ivy-avy)
 
-         :map ivy-mode-map
-         ("C-'" . ivy-avy)
+         :map counsel-find-file-map
+         ("M-RET" . ivy-immediate-done)
+         ;; ("M-c" . ivy-immediate-done)                      ; M-RET
+
+         :map counsel-mode-map
+         ("M-RET" . ivy-immediate-done)
+         ;; ("M-c" . ivy-immediate-done)                      ; M-RET
 
          :map evil-motion-state-map
          ("f" . avy-goto-word-1)
@@ -625,8 +648,8 @@ Return nil for blank/empty strings."
          :map evil-normal-state-map
          ("g t" . counsel-gtags-dwim)
          ;; ("g t" . counsel-gtags-find-definition)
-         ;; ("g r" . gtags-find-reference)
-         ;; ("g s" . gtags-find-symbol)
+         ("g r" . gtags-find-reference)
+         ("g s" . gtags-find-symbol)
          ("g h" . counsel-gtags-go-backward))
 
 )
