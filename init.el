@@ -394,12 +394,19 @@ auto-save-file-name-transforms
   (add-to-list 'telephone-line-faces
                '(accent2 . (telephone-line-accent2-active . telephone-line-accent2-inactive)))
 
+;   (setq telephone-line-lhs
+;         '((evil   . (telephone-line-evil-tag-segment))
+;           (accent . (telephone-line-vc-segment
+;                      telephone-line-process-segment))
+;           (accent2 . (telephone-line-buffer-info-segment))
+;           (nil    . (telephone-line-buffer-segment))))
   (setq telephone-line-lhs
         '((evil   . (telephone-line-evil-tag-segment))
-          (accent . (telephone-line-vc-segment
-                     telephone-line-process-segment))
+          (accent . (telephone-line-vc-segment))
           (accent2 . (telephone-line-buffer-info-segment))
-          (nil    . (telephone-line-buffer-segment))))
+          (nil    . (telephone-line-buffer-segment
+                     telephone-line-process-segment))))
+
   (setq telephone-line-rhs
         '((nil    . (telephone-line-misc-info-segment))
           (accent2 . (telephone-line-minor-mode-segment))
