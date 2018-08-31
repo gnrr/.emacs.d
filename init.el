@@ -223,6 +223,7 @@ auto-save-file-name-transforms
   (define-key evil-motion-state-map (kbd "M") 'evil-scroll-page-up)
   (define-key evil-motion-state-map (kbd "j") 'evil-next-visual-line)
   (define-key evil-motion-state-map (kbd "k") 'evil-previous-visual-line)
+  (define-key evil-motion-state-map (kbd "6") 'evil-first-non-blank)
   (define-key evil-motion-state-map (kbd "4") 'evil-end-of-line)
   (define-key evil-motion-state-map (kbd "]") 'evil-jump-item)
 
@@ -326,6 +327,7 @@ auto-save-file-name-transforms
 ;; ----------------------------------------------------------------------
 (use-package zerodark-theme
   ;; :disabled
+  ;; :after ivy
   :load-path "~/git-clone/zerodark-theme"
   :if window-system
   :config
@@ -790,9 +792,10 @@ That is, a string used to represent it on the tab bar."
   (ad-activate 'delete-backward-char)
 
   ;; use show-paren to hilight content in parenthesis
-  (show-paren-mode 1)
   (setq show-paren-style 'expression)
   (set-face-background 'show-paren-match "#263652")
+  (setq show-paren-delay 0.2)
+  (show-paren-mode 1)
   )
 
 ;; ----------------------------------------------------------------------

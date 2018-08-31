@@ -2,6 +2,10 @@
 #+STARTUP showall
 
 * todo
+** TODO M-x compile 時のコンパイル結果の背景色をなんとかする
+** TODO save-buffer で insert-state を抜ける
+** TODO save-buffer で tabbar を再描画
+** TODO stripe-buffer mode を入れる
 ** TODO smartscroll を入れる
 ** TODO insert-state から抜けるときにIME OFFする
 ** TODO electric-space を入れる
@@ -25,7 +29,8 @@
 ** TODO magit c のコミットメッセージをmini-bufferで入力
 ** TODO avy を近場は単一文字でジャンプ
 
-
+* org-mode			
++ code block: insert state で <s TAB
 
 * evil
 ** 削除系コマンド
