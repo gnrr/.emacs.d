@@ -773,6 +773,23 @@ That is, a string used to represent it on the tab bar."
                          (length (tabbar-riew
                                   (tabbar-current-tabset)))))))))
 
+  (defun tabbar-on-saving-buffer ()
+    (tabbar-set-template tabbar-current-tabset nil)
+    (tabbar-display-update))
+
+  (defun tabbar-on-modifying-buffer ()
+    (set-buffer-modified-p (buffer-modified-p))
+    (tabbar-set-template tabbar-current-tabset nil)
+    (tabbar-display-update))
+
+  (defun tabbar-after-modifying-buffer (begin end length)
+    (set-buffer-modified-p (buffer-modified-p))
+    (tabbar-set-template tabbar-current-tabset nil)
+    (tabbar-display-update))
+
+  (add-hook 'after-save-hook 'tabbar-on-saving-buffer)
+  (add-hook 'first-change-hook 'tabbar-on-modifying-buffer)
+
   :if (and window-system (my-font-exists-p "x14y24pxHeadUpDaisy"))
   :config
   (set-face-attribute 'tabbar-default nil :family "x14y24pxHeadUpDaisy")
