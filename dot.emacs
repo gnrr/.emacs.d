@@ -63,7 +63,7 @@
 (defvar backup-init-files-file-list '("~/.emacs.d/init.el"))
 
 (add-hook 'after-init-hook #'(lambda () (message ">>>>done")))
-
+(defalias 'revert-init-files 'backup-init-files-restore)
 ;;
 ;; load ~/.emacs.d/init.d
 ;;

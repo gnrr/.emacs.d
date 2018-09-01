@@ -6,185 +6,279 @@
 
 ;; ----------------------------------------------------------------------
 ;; defaults
-(setq-default
- auto-window-vscroll nil                          ; Lighten vertical scroll
- confirm-kill-emacs 'yes-or-no-p                  ; Confirm before exiting Emacs
- delete-by-moving-to-trash t                      ; Delete files to trash
- display-time-default-load-average nil            ; Don't display load average
- display-time-format "%H:%M"                      ; Format the time string
- fill-column 80                                   ; Set width for automatic line breaks
- indent-tabs-mode nil                             ; Stop using tabs to indent
- inhibit-startup-screen t                         ; Disable start-up screen
- initial-scratch-message ""                       ; Empty the initial *scratch* buffer
- left-margin-width 1 right-margin-width 1         ; Add left and right margins
- select-enable-clipboard t                        ; Merge system's and Emacs' clipboard
- sentence-end-double-space nil                    ; End a sentence after a dot and a space
- show-trailing-whitespace nil                     ; Display trailing whitespaces
- uniquify-buffer-name-style 'forward              ; Uniquify buffer names
- window-combination-resize t                      ; Resize windows proportionally
+(setq-default inhibit-startup-screen t)           ; Disable start-up screen
 
- bidi-display-reordering nil                      ; 右から左に読む言語に対応させないことで描画を高速化 
- vc-follow-symlinks t
- ring-bell-function 'ignore
- parens-require-spaces nil
- transient-mark-mode nil
- initial-scratch-message ""
- indent-tabs-mode nil
- tab-width 4
- tab-stop-list  '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60)
- comment-column 60
+(add-hook 'emacs-startup-hook (lambda ()
+ (setq-default
+  auto-window-vscroll nil                          ; Lighten vertical scroll
+  confirm-kill-emacs 'yes-or-no-p                  ; Confirm before exiting Emacs
+  delete-by-moving-to-trash t                      ; Delete files to trash
+  display-time-default-load-average nil            ; Don't display load average
+  display-time-format "%H:%M"                      ; Format the time string
+  fill-column 80                                   ; Set width for automatic line breaks
+  indent-tabs-mode nil                             ; Stop using tabs to indent
+  initial-scratch-message ""                       ; Empty the initial *scratch* buffer
+  left-margin-width 1 right-margin-width 1         ; Add left and right margins
+  select-enable-clipboard t                        ; Merge system's and Emacs' clipboard
+  sentence-end-double-space nil                    ; End a sentence after a dot and a space
+  show-trailing-whitespace nil                     ; Display trailing whitespaces
+  uniquify-buffer-name-style 'forward              ; Uniquify buffer names
+  window-combination-resize t                      ; Resize windows proportionally
 
- ;; display-line-numbers-grow-only t
- ;; display-line-numbers-width-start 10
- ;; line-number-display-width 10
- display-line-numbers-width 4
- 
- ;; 1行スクロール
- ;; (setq scroll-conservatively most-positive-fixnum)
- scroll-margin 3
- next-screen-context-lines 3
- scroll-preserve-screen-position t
+  bidi-display-reordering nil                      ; 右から左に読む言語に対応させないことで描画を高速化 
+  vc-follow-symlinks t
+  ring-bell-function 'ignore
+  parens-require-spaces nil
+  transient-mark-mode nil
+  initial-scratch-message ""
+  indent-tabs-mode nil
+  tab-width 4
+  tab-stop-list  '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60)
+  comment-column 60
 
- next-line-add-newlines nil                  ; バッファ末尾に余計な改行コードを防ぐための設定
- idle-update-delay 0.3
+  ;; display-line-numbers-grow-only t
+  ;; display-line-numbers-width-start 10
+  ;; line-number-display-width 10
+  display-line-numbers-width 4
+  
+  ;; 1行スクロール
+  ;; (setq scroll-conservatively most-positive-fixnum)
+  scroll-margin 3
+  next-screen-context-lines 3
+  scroll-preserve-screen-position t
 
- electric-pair-mode nil
+  next-line-add-newlines nil                  ; バッファ末尾に余計な改行コードを防ぐための設定
+  idle-update-delay 0.3
 
- ;;
- ;; backup files
- ;; https://masutaka.net/chalow/2014-05-11-1.html
- ;; http://yohshiy.blog.fc2.com/blog-entry-319.html
- ;;
- ;; backup to `hoge.txt~'
- backup-directory-alist '((".*" . "~/.Trash"))
- version-control     t  ;; 番号付けによる複数保存 存実行の有無
- kept-new-versions   5  ;;                   最新の保持数
- kept-old-versions   1  ;;                   最古の保持数
- delete-old-versions t  ;;                   範囲外を削除
+  electric-pair-mode nil
 
- ;; backup to `#hoge.txt#'
-auto-save-file-name-transforms
-           '(("~/\\([^/]*/\\)*\\([^/]*\\)$" "~/.Trash/\\2" t))
-;             '((".*" "~/.Trash" t))
+  ;;
+  ;; backup files
+  ;; https://masutaka.net/chalow/2014-05-11-1.html
+  ;; http://yohshiy.blog.fc2.com/blog-entry-319.html
+  ;;
+  ;; backup to `hoge.txt~'
+  backup-directory-alist '((".*" . "~/.Trash"))
+  version-control     t  ;; 番号付けによる複数保存 存実行の有無
+  kept-new-versions   5  ;;                   最新の保持数
+  kept-old-versions   1  ;;                   最古の保持数
+  delete-old-versions t  ;;                   範囲外を削除
 
-;; auto-save-default nil
- auto-save-timeout 10     ;; 保存の間隔 秒   (デフォルト : 30)
- auto-save-interval 100   ;;         打鍵  (デフォルト : 300)
+  ;; backup to `#hoge.txt#'
+  auto-save-file-name-transforms
+  '(("~/\\([^/]*/\\)*\\([^/]*\\)$" "~/.Trash/\\2" t))
+                                        ;             '((".*" "~/.Trash" t))
 
- ;; backup to `~/.emacs.d/auto-save-list/.saves-xxxx'
- auto-save-list-file-prefix nil         ; disabled
+  ;; auto-save-default nil
+  auto-save-timeout 10     ;; 保存の間隔 秒   (デフォルト : 30)
+  auto-save-interval 100   ;;         打鍵  (デフォルト : 300)
 
- ;; lock file to `.#hoge'
- create-lockfiles nil                   ; disabled
+  ;; backup to `~/.emacs.d/auto-save-list/.saves-xxxx'
+  auto-save-list-file-prefix nil         ; disabled
 
- )
+  ;; lock file to `.#hoge'
+  create-lockfiles nil                   ; disabled
 
-(fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
-(tool-bar-mode -1)
-(menu-bar-mode 0)                                 ; Disable the menu bar
-(add-hook 'focus-out-hook #'garbage-collect)
-(electric-indent-mode)
+  )
 
-(setq cursor-type 'box)
-(blink-cursor-mode 0)
+ (fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
+ (tool-bar-mode -1)
+ (menu-bar-mode 0)                                 ; Disable the menu bar
+ (add-hook 'focus-out-hook #'garbage-collect)
+ (electric-indent-mode)
 
-;; margin
-(setq-default left-margin-width 0 right-margin-width 0) ; Define new widths.
-(set-window-buffer nil (current-buffer))                ; Use them now.
+ (setq cursor-type 'box)
+ (blink-cursor-mode 0)
 
-;; save-place
-(setq save-place-file "~/.emacs.d/.emacs-places")
-(save-place-mode 1)                                     ; Enable save-place
+ ;; margin
+ (setq-default left-margin-width 0 right-margin-width 0) ; Define new widths.
+ (set-window-buffer nil (current-buffer))                ; Use them now.
 
-;; ミニバッファの履歴を保存する
-(savehist-mode 1)
-(setq history-length 1000)
+ ;; save-place
+ (setq save-place-file "~/.emacs.d/.emacs-places")
+ (save-place-mode 1)                                     ; Enable save-place
 
-(global-auto-revert-mode -1)                            ; disable auto-revert-mode
-(setq indent-line-function 'indent-relative-maybe)
-(global-set-key "\C-m" 'newline-and-indent)             ; Returnキーで改行＋オートインデント
+ ;; ミニバッファの履歴を保存する
+ (savehist-mode 1)
+ (setq history-length 1000)
 
-;; mode-line
-(column-number-mode t)
-(set-face-attribute 'mode-line          nil :box nil)   ; モードラインを非3D化
-(set-face-attribute 'mode-line-inactive nil :box nil)
+ (global-auto-revert-mode -1)                            ; disable auto-revert-mode
+ (setq indent-line-function 'indent-relative-maybe)
+ (global-set-key "\C-m" 'newline-and-indent)             ; Returnキーで改行＋オートインデント
 
-;; モードラインの割合表示を総行数表示に
-(defvar my-mode-line-position-format "%%3c:%%4l/%d")
-(setq mode-line-position '(:eval (format my-mode-line-position-format
-                                         (count-lines (point-max) (point-min)))))
+ ;; mode-line
+ (column-number-mode t)
+ (set-face-attribute 'mode-line          nil :box nil)   ; モードラインを非3D化
+ (set-face-attribute 'mode-line-inactive nil :box nil)
 
-;; タイトルバーにファイルのフルパス表示
-(defmacro replace-home-directory-string (file-name)
-  `(if ,file-name
-       (let ((regexp (cond ((eq system-type 'windows-nt) "^C:\\Users\\[^\\]+\\")
-                           ((eq system-type 'gnu/linux)  "^/home/[^/]+/")
-                           (t                            "^/Users/[^/]+/"))))
-         (replace-regexp-in-string regexp "~/" ,file-name))
-     nil))
+ ;; モードラインの割合表示を総行数表示に
+ (defvar my-mode-line-position-format "%%3c:%%4l/%d")
+ (setq mode-line-position '(:eval (format my-mode-line-position-format
+                                          (count-lines (point-max) (point-min)))))
 
-;; (defun emacs-version-briefly ()
-;;   (let ((lst (split-string (emacs-version))))
-;;     (concat (nth 1 lst) (nth 2 lst))))
+ ;; タイトルバーにファイルのフルパス表示
+ (defmacro replace-home-directory-string (file-name)
+   `(if ,file-name
+        (let ((regexp (cond ((eq system-type 'windows-nt) "^C:\\Users\\[^\\]+\\")
+                            ((eq system-type 'gnu/linux)  "^/home/[^/]+/")
+                            (t                            "^/Users/[^/]+/"))))
+          (replace-regexp-in-string regexp "~/" ,file-name))
+      nil))
 
-(setq frame-title-format '(format "%s"
-      (:eval (or (replace-home-directory-string (buffer-file-name))
-                 (buffer-name)))))
+ ;; (defun emacs-version-briefly ()
+ ;;   (let ((lst (split-string (emacs-version))))
+ ;;     (concat (nth 1 lst) (nth 2 lst))))
+
+ (setq frame-title-format '(format "%s"
+                                   (:eval (or (replace-home-directory-string (buffer-file-name))
+                                              (buffer-name)))))
+
+ ;; ----------------------------------------------------------------------
+ ;; key unbinding / binding
+ (keyboard-translate ?\C-h ?\C-?)                        ; c-h
+
+ (global-unset-key (kbd "M-,"))                          ; xref
+ (global-unset-key (kbd "M-."))                          ; xref
+ (global-unset-key (kbd "C-z"))                          ; suspend-frame
+ (global-unset-key (kbd "C-x C-z"))                      ; suspend-frame
+ (global-unset-key (kbd "C-x o"))                        ; other-window
+ (global-unset-key (kbd "M-t"))                          ; transpose-word
+ (global-unset-key (kbd "M-'"))                          ; abbrev-prefix-mark
+ (global-unset-key [f11])                                ; toggle-frame-fullscreen
+ (global-unset-key [f12])                                ; "M-c"
+
+ (global-set-key "(" 'my-insert-paren)                   ; ()
+ (global-set-key "{" 'my-insert-brace)                   ; {} 
+ (global-set-key "[" 'my-insert-bracket)                 ; []
+ (global-set-key "<" 'my-insert-angle)                   ; <>
+ (global-set-key "\"" 'my-insert-dquote)                 ; ""
+ (global-set-key "'" 'my-insert-squote)                  ; ''
+
+ (global-set-key (kbd "C-0") 'delete-window)
+ (global-set-key (kbd "C-1") 'delete-other-windows)
+ (global-set-key (kbd "C-2") 'split-window-below)
+ (global-set-key (kbd "C-3") 'split-window-right)
+ (global-set-key (kbd "C-o") 'other-window)
+
+ (global-set-key (kbd "M-g") 'goto-line)
+ (global-set-key (kbd "M-v") 'new-empty-buffer-other-frame)
+ (global-set-key (kbd "C-x t") 'revert-buffer)
+ (global-set-key (kbd "C-x C-t") 'toggle-truncate-lines)
+ (global-set-key (kbd "C-x n f") 'narrow-to-defun)
+
+ (global-set-key (kbd "M-9") 'insert-parentheses)
+ (global-set-key (kbd "M-P") 'beginning-of-buffer)
+ (global-set-key (kbd "M-N") 'end-of-buffer)
+
+ (define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
 
 ;; ----------------------------------------------------------------------
-;; utility
+ (defun my-func ()
+   "called \'my-func\'")
+
+ (global-set-key [f2] '(lambda () (interactive) (message "%S" (funcall 'my-func))))
+
+;; ----------------------------------------------------------------------
+;; which-func-mode
+ (setq which-func-unknown "-"
+       which-func-modes '(c-mode python-mode ruby-mode)
+       which-func-format '(:propertize which-func-current face which-func)
+ )
+
+;; ----------------------------------------------------------------------
+;; diminish
+ (defmacro diminish-minor-mode (file mode &optional new-name)
+   "https://github.com/larstvei/dot-emacs/blob/master/init.org"
+   `(with-eval-after-load ,file
+      (diminish ,mode ,new-name)))
+
+ (defmacro diminish-major-mode (hook new-name)
+   `(add-hook ,hook #'(lambda ()
+                        (setq mode-name ,new-name))))
+
+ ;; minor mode
+ (diminish-minor-mode "undo-tree" 'undo-tree-mode)
+ (diminish-minor-mode "eldoc" 'eldoc-mode)
+ (diminish-minor-mode "abbrev" 'abbrev-mode)
+ (diminish-minor-mode "cwarn" 'cwarn-mode)
+
+ ;; major mode
+ (diminish-major-mode 'emacs-lisp-mode-hook "Elisp")
+ (diminish-major-mode 'lisp-interaction-mode-hook "LispInt")
+
+ ;; ----------------------------------------------------------------------
+ (setq truncate-partial-width-windows nil)
+ (setq-default truncate-lines t)
+
+ ;; kill-ringに同じ内容を重複して入れない
+ (defadvice kill-new (before ys:no-kill-new-duplication activate)
+   (setq kill-ring (delete (ad-get-arg 0) kill-ring)))
+
+ ;; prevent annoying message "Text is read only" at mimibuffer
+ (plist-put minibuffer-prompt-properties
+            'point-entered 'minibuffer-avoid-prompt)
+
+ ;; enable completion in `eval-expression' (M-:)
+ (define-key read-expression-map (kbd "TAB") 'lisp-complete-symbol)
+
+ (defun indent-or-insert-tab ()
+   (interactive)
+   (let ((pos (point)))
+     (funcall indent-line-function)
+     (when (= pos (point))
+       (insert "\t"))))
+
+ (global-set-key "\C-i" 'indent-or-insert-tab)
+
+ (custom-set-faces
+  ;; custom-set-faces was added by Custom. If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance. If there is more than one, they won't work right.
+  '(hl-line ((t (:background "#141619")))))
+
+ ;; ----------------------------------------------------------------------
+ ;; command aliases
+
+ ;; for elisp
+ (defalias 'ev 'eval-defun)
+ (eval-after-load "edebug"
+   '(defalias 'ede 'edebug-defun))
+
+ ;; apropos
+ (when (featurep 'counsel)
+   (defalias 'a 'counsel-apropos))
+
+ (defalias 'l 'display-line-numbers-mode)
+ (defalias 'hl 'hl-line-mode)
+ (defalias 'com 'comment-or-uncomment-region)
+ (defalias 'ind 'indent-region)
+ (defalias 'calc 'quick-calc)
+
+
+ ;; ----------------------------------------------------------------------
+ ;; my-elisp
+ (add-to-list 'load-path "elisp")
+ (require 'discrete)
+ (require 'my-backup)
+ (setq my-backup-directory "~/bak")
+
+ ;; ----------------------------------------------------------------------
+                                        ; computer independent
+ (load
+  (cond ((eq system-type 'windows-nt) "~/.emacs.d/elisp/_windows.el")
+        ((eq system-type 'gnu/linux)  "~/.emacs.d/elisp/_linux.el")
+        (t                            "~/.emacs.d/elisp/_mac.el")))
+
+ ;; ----------------------------------------------------------------------
+ (my-font-lighter)
+ (my-load-frame)
+
+)) ;; emacs-startup-hook function ends here
+
+;; ----------------------------------------------------------------------
+;; utility for use-package
 (defun my-font-exists-p ($font-name)
   (if (null (x-list-fonts $font-name))
       nil t))
-
-(defun my-get-cursor-color ()
-  (car (cl-loop for ($k . $v) in (frame-parameters)
-                if (eq $k 'cursor-color)
-                collect $v)))
-
-;; ----------------------------------------------------------------------
-;; key unbinding / binding
-(keyboard-translate ?\C-h ?\C-?)                        ; c-h
-
-(global-unset-key (kbd "M-,"))                          ; xref
-(global-unset-key (kbd "M-."))                          ; xref
-(global-unset-key (kbd "C-z"))                          ; suspend-frame
-(global-unset-key (kbd "C-x C-z"))                      ; suspend-frame
-(global-unset-key (kbd "C-x o"))                        ; other-window
-(global-unset-key (kbd "M-t"))                          ; transpose-word
-(global-unset-key (kbd "M-'"))                          ; abbrev-prefix-mark
-(global-unset-key [f11])                                ; toggle-frame-fullscreen
-(global-unset-key [f12])                                ; "M-c"
-
-(global-set-key "(" 'my-insert-paren)                   ; ()
-(global-set-key "{" 'my-insert-brace)                   ; {} 
-(global-set-key "[" 'my-insert-bracket)                 ; []
-(global-set-key "<" 'my-insert-angle)                   ; <>
-(global-set-key "\"" 'my-insert-dquote)                 ; ""
-(global-set-key "'" 'my-insert-squote)                  ; ''
-
-(global-set-key (kbd "C-0") 'delete-window)
-(global-set-key (kbd "C-1") 'delete-other-windows)
-(global-set-key (kbd "C-2") 'split-window-below)
-(global-set-key (kbd "C-3") 'split-window-right)
-(global-set-key (kbd "C-o") 'other-window)
-
-(global-set-key (kbd "M-g") 'goto-line)
-(global-set-key (kbd "M-v") 'new-empty-buffer-other-frame)
-(global-set-key (kbd "C-x t") 'revert-buffer)
-(global-set-key (kbd "C-x C-t") 'toggle-truncate-lines)
-(global-set-key (kbd "C-x n f") 'narrow-to-defun)
-
-(global-set-key (kbd "M-9") 'insert-parentheses)
-(global-set-key (kbd "M-P") 'beginning-of-buffer)
-(global-set-key (kbd "M-N") 'end-of-buffer)
-
-(define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
-
-(defun my-func ()
-  "called \'my-func\'")
-
-(global-set-key [f2] '(lambda () (interactive) (message "%S" (funcall 'my-func))))
 
 ;; ----------------------------------------------------------------------
 (use-package cl)
@@ -254,7 +348,6 @@ auto-save-file-name-transforms
         (call-interactively 'evil-paste-pop)
       (call-interactively (if arg 'evil-paste-before 'evil-paste-after))))
 ;;  (define-key evil-normal-state-map (kbd "p") 'my-evil-paste)
-
 
   (defun my-gg ()
     (interactive)
@@ -834,10 +927,8 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package rainbow-delimiters
   ;; :disabled
+  :after cl-lib color
   :config
-  (require 'cl-lib)
-  (require 'color)
-
   (set-face-foreground 'rainbow-delimiters-depth-9-face "#9a4040")   ; swap 1 <--> 9
   (set-face-foreground 'rainbow-delimiters-depth-2-face "#ff5e5e")
   (set-face-foreground 'rainbow-delimiters-depth-3-face "#ffaa77")
@@ -1036,17 +1127,6 @@ That is, a string used to represent it on the tab bar."
   )
 
 ;; ----------------------------------------------------------------------
-(use-package align
-  ;; :disabled
-  :config
-  (add-to-list 'align-rules-list
-               '(tab-stop-assignment
-                 (regexp   . "\\(\\s-+\\)")
-                 (tab-stop . t)              ; タブ位置でそろえる
-                 (modes     . '(c-mode c++-mode))))
-  )
-
-;; ----------------------------------------------------------------------
 (use-package dired
   ;; :disabled
   :config
@@ -1072,18 +1152,6 @@ That is, a string used to represent it on the tab bar."
              ([left]  . dired-up-directory)
              ("r"     . revert-buffer))                                    ; reload
   
-  )
-
-;; ----------------------------------------------------------------------
-(use-package discrete
-  :load-path "elisp"
-  )
-
-;; ----------------------------------------------------------------------
-(use-package my-backup
-  :load-path "elisp"
-  :config
-  (setq my-backup-directory "~/bak")
   )
 
 ;; ----------------------------------------------------------------------
@@ -1170,94 +1238,6 @@ That is, a string used to represent it on the tab bar."
   )
 
 ;; ----------------------------------------------------------------------
-;; which-func-mode
-(setq which-func-unknown "-")
-(setq which-func-modes '(c-mode python-mode ruby-mode))
-(setq which-func-format '(:propertize which-func-current face which-func))
-
-;; ----------------------------------------------------------------------
-;; diminish
-(defmacro diminish-minor-mode (file mode &optional new-name)
-  "https://github.com/larstvei/dot-emacs/blob/master/init.org"
-  `(with-eval-after-load ,file
-     (diminish ,mode ,new-name)))
-
-(defmacro diminish-major-mode (hook new-name)
-  `(add-hook ,hook #'(lambda ()
-                    (setq mode-name ,new-name))))
-
-;; minor mode
-(diminish-minor-mode "undo-tree" 'undo-tree-mode)
-(diminish-minor-mode "eldoc" 'eldoc-mode)
-(diminish-minor-mode "abbrev" 'abbrev-mode)
-(diminish-minor-mode "cwarn" 'cwarn-mode)
-
-;; major mode
-(diminish-major-mode 'emacs-lisp-mode-hook "Elisp")
-(diminish-major-mode 'lisp-interaction-mode-hook "LispInt")
-
-;; ----------------------------------------------------------------------
-;; discrete setting
-(setq truncate-partial-width-windows nil)
-(setq-default truncate-lines t)
-
-;; kill-ringに同じ内容を重複して入れない
-(defadvice kill-new (before ys:no-kill-new-duplication activate)
-  (setq kill-ring (delete (ad-get-arg 0) kill-ring)))
-
-;; prevent annoying message "Text is read only" at mimibuffer
-(plist-put minibuffer-prompt-properties
-           'point-entered 'minibuffer-avoid-prompt)
-
-;; enable completion in `eval-expression' (M-:)
-(define-key read-expression-map (kbd "TAB") 'lisp-complete-symbol)
-
-(defun indent-or-insert-tab ()
-  (interactive)
-  (let ((pos (point)))
-    (funcall indent-line-function)
-    (when (= pos (point))
-      (insert "\t"))))
-
-(global-set-key "\C-i" 'indent-or-insert-tab)
-
-(custom-set-faces
- ;; custom-set-faces was added by Custom. If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance. If there is more than one, they won't work right.
- '(hl-line ((t (:background "#141619")))))
-
-;; ----------------------------------------------------------------------
-;; command aliases
-
-;; for elisp
-(defalias 'ev 'eval-defun)
-(eval-after-load "edebug"
-  '(defalias 'ede 'edebug-defun))
-
-;; apropos
-(when (featurep 'counsel)
-  (defalias 'a 'counsel-apropos))
-
-(defalias 'l 'display-line-numbers-mode)
-
-(defalias 'com 'comment-or-uncomment-region)
-(defalias 'ind 'indent-region)
-
-(defalias 'calc 'quick-calc)
-
-;; カーソル行をハイライト
-(defalias 'hl 'hl-line-mode)
-
-
-;; ----------------------------------------------------------------------
-; computer independent
-(load
- (cond ((eq system-type 'windows-nt) "~/.emacs.d/elisp/_windows.el")
-       ((eq system-type 'gnu/linux)  "~/.emacs.d/elisp/_linux.el")
-       (t                            "~/.emacs.d/elisp/_mac.el")))
-
-(my-font-lighter)
-
 (message "<-- loaded \"init.el\"")
 
 ;;

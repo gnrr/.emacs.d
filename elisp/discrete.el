@@ -10,7 +10,12 @@
 (message "--> loading \"discrete.el\"...")
 
 ;; ----------------------------------------------------------------------
-;; @@ common functions
+;; @@ utility
+(defun my-get-cursor-color ()
+  (car (cl-loop for ($k . $v) in (frame-parameters)
+                if (eq $k 'cursor-color)
+                collect $v)))
+
 (defun minibuffer-p (&optional window)
   (unless window (setq window (selected-window)))
   (eq window (minibuffer-window (window-frame window))))
@@ -972,6 +977,7 @@ is already narrowed."
       "(set-frame-position (selected-frame) "(int-to-string current-left-margin)" "(int-to-string current-top-margin)")\n"
       ))
     (save-buffer)))
+
 (defun my-load-frame()
   "`my-save-frame-file'に保存されたフレームの位置、大きさを復元します"
   (interactive)
@@ -979,7 +985,7 @@ is already narrowed."
     (when (file-exists-p file)
         (load-file file))))
 
-(add-hook 'emacs-startup-hook 'my-load-frame)
+;; (add-hook 'emacs-startup-hook 'my-load-frame)
 ;; (add-hook 'kill-emacs-hook 'my-save-frame) ; セーブは手動でやりたいのであえてフックしない
 ;; (run-with-idle-timer 60 t 'my-save-frame)
 
