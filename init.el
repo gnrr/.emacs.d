@@ -969,15 +969,6 @@ That is, a string used to represent it on the tab bar."
   )
 
 ;; ----------------------------------------------------------------------
-(use-package sublimity
-  :disabled
-  :if window-system
-  :config
-  (sublimity-mode 1)
-
-  )
-
-;; ----------------------------------------------------------------------
 (use-package guide-key-tip
   :disabled
   :after guide-key pos-tip
