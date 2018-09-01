@@ -9,6 +9,8 @@
 (setq-default inhibit-startup-screen t)           ; Disable start-up screen
 
 (add-hook 'emacs-startup-hook (lambda ()
+ (message "--> startup-hook")
+
  (setq-default
   auto-window-vscroll nil                          ; Lighten vertical scroll
   confirm-kill-emacs 'yes-or-no-p                  ; Confirm before exiting Emacs
@@ -182,8 +184,7 @@
 ;; which-func-mode
  (setq which-func-unknown "-"
        which-func-modes '(c-mode python-mode ruby-mode)
-       which-func-format '(:propertize which-func-current face which-func)
- )
+       which-func-format '(:propertize which-func-current face which-func))
 
 ;; ----------------------------------------------------------------------
 ;; diminish
@@ -262,15 +263,21 @@
  (setq my-backup-directory "~/bak")
 
  ;; ----------------------------------------------------------------------
-                                        ; computer independent
+ ;; computer independent
  (load
   (cond ((eq system-type 'windows-nt) "~/.emacs.d/elisp/_windows.el")
         ((eq system-type 'gnu/linux)  "~/.emacs.d/elisp/_linux.el")
-        (t                            "~/.emacs.d/elisp/_mac.el")))
+        (t                            "~/.emacs.d/elisp/_mac.el"))
+  nil t)
 
  ;; ----------------------------------------------------------------------
  (my-font-lighter)
  (my-load-frame)
+
+ (message "<-- startup-hook")
+
+ ;; startup message in mini-buffer
+ (message (replace-regexp-in-string "(.+)\\|of\\|[\n]" "" (emacs-version)))
 
 )) ;; emacs-startup-hook function ends here
 
@@ -1238,7 +1245,7 @@ That is, a string used to represent it on the tab bar."
   )
 
 ;; ----------------------------------------------------------------------
-(message "<-- loaded \"init.el\"")
+(message "<-- done    \"init.el\"")
 
 ;;
 ;; init.el ends here

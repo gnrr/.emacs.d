@@ -75,7 +75,7 @@
 ;;
 (global-set-key (kbd "C-M-f") 'toggle-frame-fullscreen)
 
-(message "<-- loaded \"_mac.el\"")
+(message "<-- done    \"_mac.el\"")
 
 ;;
 ;; _mac.el ends here

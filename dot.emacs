@@ -5,10 +5,6 @@
 ;;; $ ln -s ~/.emacs.d/dot.emacs ~/.emacs
 ;;;
 
-;; startup message in mini-buffer
-(defun display-startup-echo-area-message ()
-  (message "%s" (replace-regexp-in-string "(.+)\\|of\\|[\n]" "" (emacs-version))))
-
 ;;
 ;; package setting
 ;;
@@ -62,12 +58,12 @@
 (defvar backup-init-files-ext-old ".err")
 (defvar backup-init-files-file-list '("~/.emacs.d/init.el"))
 
-(add-hook 'after-init-hook #'(lambda () (message ">>>>done")))
 (defalias 'revert-init-files 'backup-init-files-restore)
+
 ;;
 ;; load ~/.emacs.d/init.d
 ;;
-(load "~/.emacs.d/init.el")
+(load "~/.emacs.d/init.el" nil t)
 
 (backup-init-files-backup)                ; backup init files when loaded normaly
 
@@ -77,7 +73,7 @@
 ;; customize setting
 ;;
 (setq custom-file "~/.emacs.d/custom.el") ; write custom settings into external file instead of init.el
-(load custom-file t)
+(load custom-file nil t)
 
 ;;
 ;; dot.emacs ends here

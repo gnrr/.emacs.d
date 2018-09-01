@@ -983,7 +983,7 @@ is already narrowed."
   (interactive)
   (let ((file my-save-frame-file))
     (when (file-exists-p file)
-        (load-file file))))
+        (load file t t))))
 
 ;; (add-hook 'emacs-startup-hook 'my-load-frame)
 ;; (add-hook 'kill-emacs-hook 'my-save-frame) ; セーブは手動でやりたいのであえてフックしない
@@ -1346,8 +1346,7 @@ is already narrowed."
 ;;;
 (provide 'discrete)
 
-(message "<-- loaded \"discrete.el\"")
-
+(message "<-- done    \"discrete.el\"")
 ;;
 ;; discrete.el ends here
 ;;
