@@ -2,7 +2,8 @@
 #+STARTUP showall
 
 * todo
-** TODO M-x compile 時のコンパイル結果の背景色をなんとかする
+** TODO which-key を入れる
+** DONE M-x compile 時のコンパイル結果の背景色をなんとかする
 ** TODO save-buffer で insert-state を抜ける
 ** TODO save-buffer で tabbar を再描画
 ** TODO stripe-buffer mode を入れる
@@ -14,7 +15,7 @@
 ** TODO M-RET が capitalize-word に当たっているのをなんとかする
 ** TODO counsel-ag のディレクトリ名補完をなんとかする
 ** TODO counsel-ag を M-x付きをデフォルトにする
-** DONE my-kill-buffer を xyzzy と同じように M-x 付きで全バッファを kill する
+** DONE my-kill-buffer を xyzzy と同じように C-u 付きで全バッファを kill する
 ** TODO my-comment-inline-comment-start-pos を ;のある行でも意図通りに返すようにする
 ** TODO isearch中は auto-highlight-symbol を無効化
 ** TODO モードラインの read-only を all-the-icons 化

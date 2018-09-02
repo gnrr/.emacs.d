@@ -106,7 +106,6 @@
 
  (global-auto-revert-mode -1)                            ; disable auto-revert-mode
  (setq indent-line-function 'indent-relative-maybe)
- (global-set-key "\C-m" 'newline-and-indent)             ; Returnキーで改行＋オートインデント
 
  ;; mode-line
  (column-number-mode t)
@@ -141,6 +140,7 @@
 
  (global-unset-key (kbd "M-,"))                          ; xref
  (global-unset-key (kbd "M-."))                          ; xref
+ (global-unset-key (kbd "C-r"))                          ; undo-tree-redo
  (global-unset-key (kbd "C-z"))                          ; suspend-frame
  (global-unset-key (kbd "C-x C-z"))                      ; suspend-frame
  (global-unset-key (kbd "C-x o"))                        ; other-window
@@ -153,25 +153,27 @@
  (global-set-key "{" 'my-insert-brace)                   ; {} 
  (global-set-key "[" 'my-insert-bracket)                 ; []
  (global-set-key "<" 'my-insert-angle)                   ; <>
- (global-set-key "\"" 'my-insert-dquote)                 ; ""
  (global-set-key "'" 'my-insert-squote)                  ; ''
+ (global-set-key "\"" 'my-insert-dquote)                 ; ""
 
+ (global-set-key (kbd "C-m") 'newline-and-indent)             ; Returnキーで改行＋オートインデント
  (global-set-key (kbd "C-0") 'delete-window)
  (global-set-key (kbd "C-1") 'delete-other-windows)
  (global-set-key (kbd "C-2") 'split-window-below)
  (global-set-key (kbd "C-3") 'split-window-right)
  (global-set-key (kbd "C-o") 'other-window)
 
+ (global-set-key (kbd "M-9") 'insert-parentheses)
  (global-set-key (kbd "M-g") 'goto-line)
  (global-set-key (kbd "M-v") 'new-empty-buffer-other-frame)
+ (global-set-key (kbd "M-P") 'beginning-of-buffer)
+ (global-set-key (kbd "M-N") 'end-of-buffer)
+
  (global-set-key (kbd "C-x t") 'revert-buffer)
  (global-set-key (kbd "C-x C-t") 'toggle-truncate-lines)
  (global-set-key (kbd "C-x n f") 'narrow-to-defun)
 
- (global-set-key (kbd "M-9") 'insert-parentheses)
- (global-set-key (kbd "M-P") 'beginning-of-buffer)
- (global-set-key (kbd "M-N") 'end-of-buffer)
-
+ (define-key undo-tree-map (kbd "C-?") 'nil)
  (define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
 
 ;; ----------------------------------------------------------------------
@@ -272,6 +274,7 @@
 
  ;; ----------------------------------------------------------------------
  (my-font-lighter)
+ (zerodark-setup-modeline-format)
  (my-load-frame)
 
  (message "<-- startup-hook")
@@ -433,7 +436,6 @@
   :config
   (setq zerodark-use-paddings-in-mode-line nil)
   (load-theme 'zerodark t)
-  ;; (zerodark-setup-modeline-format)
 
   (set-face-attribute 'cursor nil
                       :background (face-attribute 'mode-line :foreground)
@@ -450,8 +452,8 @@
   ;; (set-face-attribute 'fant-lock-variable-name-face nil :weight 'light)
   (set-face-attribute 'font-lock-warning-face nil :weight 'light)
 
-  (set-face-attribute 'mode-line          nil :slant 'italic :height 1.1)
-  (set-face-attribute 'mode-line-inactive nil :slant 'italic :height 1.1)
+  (set-face-attribute 'mode-line          nil :height 1.1)
+  (set-face-attribute 'mode-line-inactive nil :height 1.1)
   (set-face-attribute 'minibuffer-prompt  nil :slant 'italic :height 1.1 :foreground "#cc8800")
 
   (set-face-attribute 'line-number              nil :height 1.1 :slant 'italic :background "#2B2F38" :foreground "#5B6475")
@@ -482,16 +484,23 @@
   (set-face-background 'telephone-line-evil-emacs  "#cc8800")
   (set-face-background 'telephone-line-evil-normal "#0088cc")
 
-  (set-face-attribute 'telephone-line-accent-active nil
-                      :background "#7e7e7e" :foreground "#f9f9f9")
-  (set-face-attribute 'telephone-line-accent-inactive nil
-                      :background "#4e4e4e" :foreground (face-attribute 'mode-line-inactive :foreground))
+  (set-face-foreground 'telephone-line-evil-visual (face-background 'mode-line))
+  (set-face-foreground 'telephone-line-evil-insert (face-background 'mode-line))
+  (set-face-foreground 'telephone-line-evil-emacs (face-background 'mode-line))
+  (set-face-foreground 'telephone-line-evil-normal (face-background 'mode-line))
+
+  ;; (set-face-attribute 'telephone-line-accent-active nil
+                      ;; :background "#7e7e7e" :foreground "#f9f9f9")
+  ;; (set-face-attribute 'telephone-line-accent-inactive nil
+                      ;; :background "#4e4e4e" :foreground (face-attribute 'mode-line-inactive :foreground))
 
   (defface telephone-line-accent2-active
-    '((t (:background "#5e5e5e" :inherit telephone-line-accent-active))) "")
+    ;; '((t (:background "#5e5e5e" :inherit telephone-line-accent-active))) "")
+    '((t (:inherit telephone-line-accent-active))) "")
 
   (defface telephone-line-accent2-inactive
-    '((t (:background "#3a3a3a" :inherit telephone-line-accent-inactive))) "")
+    ;; '((t (:background "#3a3a3a" :inherit telephone-line-accent-inactive))) "")
+    '((t (:inherit telephone-line-accent-inactive))) "")
 
   (add-to-list 'telephone-line-faces
                '(accent2 . (telephone-line-accent2-active . telephone-line-accent2-inactive)))
@@ -504,16 +513,16 @@
 ;           (nil    . (telephone-line-buffer-segment))))
   (setq telephone-line-lhs
         '((evil   . (telephone-line-evil-tag-segment))
-          (accent . (telephone-line-vc-segment))
-          (accent2 . (telephone-line-buffer-info-segment))
+          (nil . (telephone-line-vc-segment))
+          (nil . (telephone-line-buffer-info-segment))
           (nil    . (telephone-line-buffer-segment
                      telephone-line-process-segment))))
 
   (setq telephone-line-rhs
         '((nil    . (telephone-line-misc-info-segment))
-          (accent2 . (telephone-line-minor-mode-segment))
-          (accent . (telephone-line-major-mode-segment))
-          (evil   . (telephone-line-position-segment))))
+          (nil . (telephone-line-minor-mode-segment))
+          (nil . (telephone-line-major-mode-segment))
+          (nil   . (telephone-line-position-segment))))
 
   (telephone-line-defsegment* telephone-line-buffer-info-segment ()
     `(""
@@ -533,10 +542,15 @@
       mode-line-frame-identification
       ,(telephone-line-raw mode-line-buffer-identification t)))
 
-  (setq telephone-line-primary-left-separator 'telephone-line-identity-left
-        telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
-        telephone-line-primary-right-separator 'telephone-line-identity-left
-        telephone-line-secondary-right-separator 'telephone-line-identity-hollow-left)
+  ;; (setq telephone-line-primary-left-separator 'telephone-line-identity-left
+  ;;       telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
+  ;;       telephone-line-primary-right-separator 'telephone-line-identity-left
+  ;;       telephone-line-secondary-right-separator 'telephone-line-identity-hollow-left)
+
+  (setq telephone-line-primary-left-separator 'telephone-line-flat
+        telephone-line-secondary-left-separator 'telephone-line-flat
+        telephone-line-primary-right-separator 'telephone-line-flat
+        telephone-line-secondary-right-separator 'telephone-line-flat)
 
   (setq telephone-line-height 16
         telephone-line-evil-use-short-tag nil)
@@ -549,6 +563,11 @@
        mode-line-position) t))
 
   (telephone-line-mode 1)
+
+  ;; (set-face-attribute nil 'telephone-line-evil-visual :foreground "#009161")
+  ;; (set-face-attribute nil 'telephone-line-evil-insert :foreground "#cc4444")
+  ;; (set-face-attribute nil 'telephone-line-evil-emacs  :foreground "#cc8800")
+  ;; (set-face-attribute nil 'telephone-line-evil-normal :foreground "#0088cc")
 
   (defun telephone-line-raw-mod (str &optional preformatted)
     "Conditionally render STR as mode-line data, or just verify output if not PREFORMATTED.
@@ -1012,7 +1031,7 @@ That is, a string used to represent it on the tab bar."
 (use-package hiwin
   :diminish hiwin-mode
   :config
-  (set-face-background 'hiwin-face "#313640")
+  ;; (set-face-background 'hiwin-face "#313640")
   (hiwin-mode)
   )
 
