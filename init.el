@@ -803,7 +803,7 @@ Return nil for blank/empty strings."
   (tabbar-mode)
 
   (set-face-attribute 'tabbar-default nil
-                      :height 0.85
+                      :height 0.9
                       :background (face-attribute 'mode-line :background)
                       :foreground (face-attribute 'telephone-line-accent-active :foreground)
                       :slant 'italic
