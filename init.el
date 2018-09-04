@@ -812,14 +812,14 @@ Return nil for blank/empty strings."
 
   (set-face-attribute 'tabbar-selected nil
                       :background (face-attribute 'default :background)
-                      :foreground (face-attribute 'zerodark-ro-face :foreground)
+                      :foreground (face-attribute 'line-number-current-line :foreground)
                       :slant 'italic
                       :box nil
                       )
 
   (set-face-attribute 'tabbar-unselected nil
                       ;; :background (face-attribute 'telephone-line-accent-active :background)
-                      :background "#888888"
+                      :background "#aaaaaa"
                       :foreground (face-attribute 'tabbar-selected :background)
                       :slant 'italic
                       :box nil

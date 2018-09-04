@@ -2,6 +2,11 @@
 #+STARTUP showall
 
 * todo
+** TODO tabbar の カレントバッファの文字色を白に(or line-number のカレント行の色に)
+** TODO tabbar の modified を undo にフック(or defadvice)
+** TODO ミニバッファの mode-line-mule-info の隣あたりに改行コードを表示 ← (:eval (my-mode-line-bom-info)) 
+** TODO ミニバッファを |EVIL|Major|minors|Git|file path|func|pos|にする ← zero-setup-modeline-format を部分的に使う
+** TODO neotree のスクロールバーを消す
 ** TODO which-key を入れる
 ** DONE M-x compile 時のコンパイル結果の背景色をなんとかする
 ** TODO save-buffer で insert-state を抜ける
