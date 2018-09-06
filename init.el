@@ -274,7 +274,7 @@
 
  ;; ----------------------------------------------------------------------
  (my-font-lighter)
- (zerodark-setup-modeline-format)
+ ;; (zerodark-setup-modeline-format)
  (my-load-frame)
 
  (message "<-- startup-hook")
@@ -803,46 +803,51 @@ Return nil for blank/empty strings."
   (tabbar-mode)
 
   (set-face-attribute 'tabbar-default nil
-                      :height 0.9
-                      :background (face-attribute 'mode-line :background)
-                      :foreground (face-attribute 'telephone-line-accent-active :foreground)
-                      :slant 'italic
+                      :height 0.8
+                      :background (face-background 'mode-line)
+                      :foreground (face-foreground 'telephone-line-accent-active)
+                      :slant 'normal
                       :box nil
                       )
 
   (set-face-attribute 'tabbar-selected nil
-                      :background (face-attribute 'default :background)
-                      :foreground (face-attribute 'line-number-current-line :foreground)
-                      :slant 'italic
+                      :foreground (face-background 'mode-line)
+                      :background (face-foreground 'line-number-current-line)
+                      ;; :inherit 'tabbar-default
+                      :slant 'normal
                       :box nil
                       )
 
   (set-face-attribute 'tabbar-unselected nil
                       ;; :background (face-attribute 'telephone-line-accent-active :background)
-                      :background "#aaaaaa"
-                      :foreground (face-attribute 'tabbar-selected :background)
-                      :slant 'italic
+                      ;; :background "#aaaaaa"
+                      :background (face-foreground 'tabbar-selected)
+                      :foreground (face-background 'tabbar-selected)
+                      ;; :inherit 'tabbar-default
+                      :slant 'normal
                       :box nil
                       )
-
+  
   (set-face-attribute 'tabbar-selected-modified nil
-                      :background (face-attribute 'tabbar-selected :background)
-                      :foreground (face-attribute 'tabbar-selected :foreground)
-                      :slant 'italic
-                      :overline "orange" 
+                      :background (face-background 'tabbar-selected)
+                      :foreground (face-foreground 'tabbar-selected)
+                      ;; :inherit 'tabbar-default
+                      :slant 'normal
                       :box nil
+                      :overline "orange" 
                       )
 
   (set-face-attribute 'tabbar-modified nil
                       :background (face-attribute 'tabbar-unselected :background)
                       :foreground (face-attribute 'tabbar-unselected :foreground)
-                      :slant 'italic
-                      :overline "orange"
+                      ;; :inherit 'tabbar-default
+                      :slant 'normal
                       :box nil
+                      :overline "orange"
                       )
-
+        
   (set-face-attribute 'tabbar-separator nil
-                      :background (face-attribute 'default :background))
+                      :background (face-attribute 'tabbar-selected :background))
 
   ;; (setq tabbar-separator '(0.2))
 
