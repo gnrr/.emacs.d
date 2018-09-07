@@ -253,6 +253,15 @@ double quotation characters \(\"\) from given string."
     (end-of-line)
     (point)))
 
+;; y-or-n-p accepts RET and SPACE as y
+(defun y-or-n-p-at-ease (orig-func &rest args)
+  (let ((query-replace-map (copy-keymap query-replace-map)))
+    (define-key query-replace-map (kbd "RET") 'act)
+    (define-key query-replace-map (kbd "SPC") 'act)
+    (apply orig-func args)))
+
+(advice-add 'y-or-n-p :around #'y-or-n-p-at-ease)
+
 ;; ----------------------------------------------------------------------
 ;; @@ `my-comment-*'
 (defun my-comment-or-uncomment-region (beg end)
