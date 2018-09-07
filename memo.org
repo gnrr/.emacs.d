@@ -92,14 +92,14 @@ http://pragmaticemacs.com/emacs/super-spotlight-search-with-counsel/
 'faicon
 ----------------------
 modified	 - floppy-o
-git			 - git
+git		 - git
 git 		 - code-fork
 git clean	 - check
 git clean	 - check-square-o
 modified	 - pencil
 !modified	 - square-o
 read-only	 - lock
-!read-only	 - unlock
+!read-only - unlock
 
 (all-the-icons-insert-icons-for 'faicon)
 

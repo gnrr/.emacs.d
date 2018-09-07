@@ -976,7 +976,8 @@ is already narrowed."
       "(set-frame-size (selected-frame) "(int-to-string current-width)" "(int-to-string current-height)")\n"
       "(set-frame-position (selected-frame) "(int-to-string current-left-margin)" "(int-to-string current-top-margin)")\n"
       ))
-    (save-buffer)))
+    (save-buffer)
+    (kill-buffer)))
 
 (defun my-load-frame()
   "`my-save-frame-file'に保存されたフレームの位置、大きさを復元します"
