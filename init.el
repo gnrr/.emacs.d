@@ -401,6 +401,9 @@
   ;; :diminish evil-surround-mode
   :config
   (global-evil-surround-mode 1)
+
+  :bind (:map evil-normal-state-map
+              ("=" . er/expand-region))
 )
 
 ;; ----------------------------------------------------------------------
