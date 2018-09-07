@@ -109,8 +109,8 @@
 
  ;; mode-line
  (column-number-mode t)
- (set-face-attribute 'mode-line          nil :box nil)   ; モードラインを非3D化
- (set-face-attribute 'mode-line-inactive nil :box nil)
+ (set-face-attribute 'mode-line          nil :box nil :height 1.0)   ; モードラインを非3D化
+ (set-face-attribute 'mode-line-inactive nil :box nil :height 1.0 :background (face-background 'hiwin-face) :foreground "#5f5f6f")
 
  ;; モードラインの割合表示を総行数表示に
  (defvar my-mode-line-position-format "%%3c:%%4l/%d")
@@ -455,8 +455,6 @@
   ;; (set-face-attribute 'fant-lock-variable-name-face nil :weight 'light)
   (set-face-attribute 'font-lock-warning-face nil :weight 'light)
 
-  (set-face-attribute 'mode-line          nil :height 1.1)
-  (set-face-attribute 'mode-line-inactive nil :height 1.1)
   (set-face-attribute 'minibuffer-prompt  nil :slant 'italic :height 1.1 :foreground "#cc8800")
 
   (set-face-attribute 'line-number              nil :height 1.1 :slant 'italic :background "#2B2F38" :foreground "#5B6475")
@@ -482,15 +480,6 @@
   :after evil zerodark-theme
   :if window-system
   :config
-  (set-face-background 'telephone-line-evil-visual "#009161")
-  (set-face-background 'telephone-line-evil-insert "#cc4444")
-  (set-face-background 'telephone-line-evil-emacs  "#cc8800")
-  (set-face-background 'telephone-line-evil-normal "#0088cc")
-
-  (set-face-foreground 'telephone-line-evil-visual (face-background 'mode-line))
-  (set-face-foreground 'telephone-line-evil-insert (face-background 'mode-line))
-  (set-face-foreground 'telephone-line-evil-emacs (face-background 'mode-line))
-  (set-face-foreground 'telephone-line-evil-normal (face-background 'mode-line))
 
   ;; (set-face-attribute 'telephone-line-accent-active nil
                       ;; :background "#7e7e7e" :foreground "#f9f9f9")
@@ -567,10 +556,22 @@
 
   (telephone-line-mode 1)
 
-  ;; (set-face-attribute nil 'telephone-line-evil-visual :foreground "#009161")
-  ;; (set-face-attribute nil 'telephone-line-evil-insert :foreground "#cc4444")
-  ;; (set-face-attribute nil 'telephone-line-evil-emacs  :foreground "#cc8800")
-  ;; (set-face-attribute nil 'telephone-line-evil-normal :foreground "#0088cc")
+  (set-face-background 'telephone-line-evil-insert   "#ff5d73")
+  (set-face-background 'telephone-line-evil-normal   "#61afef")
+  (set-face-background 'telephone-line-evil-visual   "#98be65")
+  (set-face-background 'telephone-line-evil-operator "#eb7bc0")
+  (set-face-background 'telephone-line-evil-motion   "#c678dd")
+  (set-face-background 'telephone-line-evil-replace  "#7c7a7a")
+  (set-face-background 'telephone-line-evil-emacs    "#e3b23c")
+
+  (dolist (f '(telephone-line-evil-insert
+               telephone-line-evil-normal
+               telephone-line-evil-visual
+               telephone-line-evil-operator
+               telephone-line-evil-motion
+               telephone-line-evil-replace
+               telephone-line-evil-emacs))
+    (set-face-foreground f "#061826"))
 
   (defun telephone-line-raw-mod (str &optional preformatted)
     "Conditionally render STR as mode-line data, or just verify output if not PREFORMATTED.
