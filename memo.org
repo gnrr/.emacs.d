@@ -2,6 +2,7 @@
 #+STARTUP showall
 
 * todo
+** TODO y-or-n-p をEnterでyを入力
 ** DONE tabbar の カレントバッファの文字色を白に(or line-number のカレント行の色に)
 ** TODO tabbar の modified を undo にフック(or defadvice)
 ** TODO ミニバッファの mode-line-mule-info の隣あたりに改行コードを表示 ← (:eval (my-mode-line-bom-info)) 

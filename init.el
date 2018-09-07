@@ -1124,7 +1124,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package beacon
-  :disabled
+  ;; :disabled
   :diminish beacon-mode
   :config
  (setq beacon-blink-when-focused t)
