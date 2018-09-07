@@ -42,6 +42,9 @@
 (set-keyboard-coding-system 'utf-8)
 (set-clipboard-coding-system 'utf-8)
 
+(setq coding-system-for-read 'utf-8-unix)
+(setq coding-system-for-write 'utf-8-unix)
+
 ;; http://sakito.jp/emacs/emacsshell.html#id7
 (cond ((or (eq window-system 'mac) (eq window-system 'ns))
        ;; mac os x の hfs+ ファイルフォーマットではファイル名は nfd (の様な物)で扱うため以下の設定をする必要がある

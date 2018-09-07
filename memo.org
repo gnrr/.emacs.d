@@ -2,15 +2,15 @@
 #+STARTUP showall
 
 * todo
-** TODO tabbar の カレントバッファの文字色を白に(or line-number のカレント行の色に)
+** DONE tabbar の カレントバッファの文字色を白に(or line-number のカレント行の色に)
 ** TODO tabbar の modified を undo にフック(or defadvice)
 ** TODO ミニバッファの mode-line-mule-info の隣あたりに改行コードを表示 ← (:eval (my-mode-line-bom-info)) 
-** TODO ミニバッファを |EVIL|Major|minors|Git|file path|func|pos|にする ← zero-setup-modeline-format を部分的に使う
+** DONE ミニバッファを |EVIL|Major|minors|Git|file path|func|pos|にする ← zero-setup-modeline-format を部分的に使う
 ** TODO neotree のスクロールバーを消す
 ** TODO which-key を入れる
 ** DONE M-x compile 時のコンパイル結果の背景色をなんとかする
-** TODO save-buffer で insert-state を抜ける
-** TODO save-buffer で tabbar を再描画
+** DONE save-buffer で insert-state を抜ける
+** DONE save-buffer で tabbar を再描画
 ** TODO stripe-buffer mode を入れる
 ** TODO smartscroll を入れる
 ** TODO insert-state から抜けるときにIME OFFする
@@ -23,16 +23,14 @@
 ** DONE my-kill-buffer を xyzzy と同じように C-u 付きで全バッファを kill する
 ** TODO my-comment-inline-comment-start-pos を ;のある行でも意図通りに返すようにする
 ** TODO isearch中は auto-highlight-symbol を無効化
-** TODO モードラインの read-only を all-the-icons 化
-** TODO モードラインの modified を all-the-icons 化
-** TODO モードラインの Git を all-the-icons 化
+** DONE モードラインの read-only を all-the-icons 化
+** DONE モードラインの modified を all-the-icons 化
+** DONE モードラインの Git を all-the-icons 化
 ** TODO モードラインの Git modified を all-the-icons 化
 ** TODO isearchの色をカーソル色に
 ** TODO auto-highlight-symbol の色をカーソル色に
-** TODO dashboard の recentf リストのアンダーラインをなくす
 ** TODO helm-fild-files をリカーシブに
 ** TODO gist-region をmini-bufferで題名入力
-** TODO magit c のコミットメッセージをmini-bufferで入力
 ** TODO avy を近場は単一文字でジャンプ
 
 * org-mode			

@@ -534,8 +534,8 @@
   (telephone-line-defsegment* telephone-line-major-mode-segment ()
     `(""
       minor-mode-alist
-      "/"
-     mode-name)) 
+      ":"
+     mode-name))
   (telephone-line-defsegment* telephone-line-buffer-segment ()
     `(,mode-line-mule-info
       ;; mode-line-modified
@@ -569,7 +569,7 @@
 
   (telephone-line-mode 1)
 
-  (set-face-background 'telephone-line-evil-insert   "#ff5d73")
+  (set-face-background 'telephone-line-evil-insert   "#ff6b7f")
   (set-face-background 'telephone-line-evil-normal   "#61afef")
   (set-face-background 'telephone-line-evil-visual   "#98be65")
   (set-face-background 'telephone-line-evil-operator "#eb7bc0")
@@ -825,6 +825,7 @@ Return nil for blank/empty strings."
                       :background (face-background 'mode-line)
                       :slant 'normal
                       :box nil
+                      :overline (face-background 'mode-line)
                       )
 
   (set-face-attribute 'tabbar-selected nil
@@ -833,6 +834,7 @@ Return nil for blank/empty strings."
                       ;; :inherit 'tabbar-default
                       :slant 'normal
                       :box nil
+                      :overline (face-foreground 'line-number-current-line)
                       )
 
   (set-face-attribute 'tabbar-unselected nil
@@ -843,6 +845,7 @@ Return nil for blank/empty strings."
                       ;; :inherit 'tabbar-default
                       :slant 'normal
                       :box nil
+                      :overline (face-foreground 'tabbar-selected)
                       )
   
   (set-face-attribute 'tabbar-selected-modified nil
@@ -851,7 +854,7 @@ Return nil for blank/empty strings."
                       ;; :inherit 'tabbar-default
                       :slant 'normal
                       :box nil
-                      :overline "orange" 
+                      :overline "orange"
                       )
 
   (set-face-attribute 'tabbar-modified nil
