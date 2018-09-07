@@ -803,13 +803,13 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package tabbar
+  ;; :disabled
   :config
   (tabbar-mode)
 
   (set-face-attribute 'tabbar-default nil
-                      :height 0.8
+                      :height 0.9
                       :background (face-background 'mode-line)
-                      :foreground (face-foreground 'telephone-line-accent-active)
                       :slant 'normal
                       :box nil
                       )
@@ -1108,9 +1108,13 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package beacon
+  ;; :disabled
   :diminish beacon-mode
   :config
-  ;; (beacon-mode 1)
+ (setq beacon-blink-when-focused t)
+ (setq beacon-color "SteelBlue3")
+ (setq beacon-blink-delay 0.1)
+ (beacon-mode t)
   )
 
 ;; ----------------------------------------------------------------------
