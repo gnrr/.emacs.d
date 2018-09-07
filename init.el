@@ -423,6 +423,15 @@
 )
 
 ;; ----------------------------------------------------------------------
+(use-package common-header-mode-line
+  :disabled
+  :config
+  (common-mode-line-mode 1)
+  (common-header-line-mode 1)
+  ;; (setq common-header-mode-line-update-delay 0.5)
+  )
+
+;; ----------------------------------------------------------------------
 (use-package atom-one-dark-theme
   :disabled
   :if window-system
@@ -477,7 +486,8 @@
 
 ;; ----------------------------------------------------------------------
 (use-package telephone-line
-  :after evil zerodark-theme
+  :disabled
+  :after evil zerodark-theme all-the-icons
   :if window-system
   :config
 
@@ -486,16 +496,16 @@
   ;; (set-face-attribute 'telephone-line-accent-inactive nil
                       ;; :background "#4e4e4e" :foreground (face-attribute 'mode-line-inactive :foreground))
 
-  (defface telephone-line-accent2-active
-    ;; '((t (:background "#5e5e5e" :inherit telephone-line-accent-active))) "")
-    '((t (:inherit telephone-line-accent-active))) "")
+  ;; (defface telephone-line-accent2-active
+  ;;   ;; '((t (:background "#5e5e5e" :inherit telephone-line-accent-active))) "")
+  ;;   '((t (:inherit telephone-line-accent-active))) "")
 
-  (defface telephone-line-accent2-inactive
-    ;; '((t (:background "#3a3a3a" :inherit telephone-line-accent-inactive))) "")
-    '((t (:inherit telephone-line-accent-inactive))) "")
+  ;; (defface telephone-line-accent2-inactive
+  ;;   ;; '((t (:background "#3a3a3a" :inherit telephone-line-accent-inactive))) "")
+  ;;   '((t (:inherit telephone-line-accent-inactive))) "")
 
-  (add-to-list 'telephone-line-faces
-               '(accent2 . (telephone-line-accent2-active . telephone-line-accent2-inactive)))
+  ;; (add-to-list 'telephone-line-faces
+  ;;              '(accent2 . (telephone-line-accent2-active . telephone-line-accent2-inactive)))
 
 ;   (setq telephone-line-lhs
 ;         '((evil   . (telephone-line-evil-tag-segment))
@@ -504,48 +514,38 @@
 ;           (accent2 . (telephone-line-buffer-info-segment))
 ;           (nil    . (telephone-line-buffer-segment))))
   (setq telephone-line-lhs
-        '((evil   . (telephone-line-evil-tag-segment))
-          (nil . (telephone-line-vc-segment))
-          (nil . (telephone-line-buffer-info-segment))
-          (nil    . (telephone-line-buffer-segment
+        '((evil . (telephone-line-evil-tag-segment))
+          (nil  . (telephone-line-vc-segment))
+          ;; (nil  . (telephone-line-buffer-info-segment))
+          (nil  . (telephone-line-buffer-segment
                      telephone-line-process-segment))))
 
   (setq telephone-line-rhs
-        '((nil    . (telephone-line-misc-info-segment))
-          (nil . (telephone-line-minor-mode-segment))
-          (nil . (telephone-line-major-mode-segment))
-          (nil   . (telephone-line-position-segment))))
+        '((nil . (telephone-line-misc-info-segment
+                  ;; telephone-line-minor-mode-segment
+                  telephone-line-major-mode-segment))
+          (nil . (telephone-line-position-segment))))
 
-  (telephone-line-defsegment* telephone-line-buffer-info-segment ()
+  (telephone-line-defsegment* telephone-line-vc-segment ()
     `(""
-      mode-line-mule-info
-      mode-line-modified
-      ;; mode-line-client
-      ;; mode-line-remote
-      ;; mode-line-frame-identification
-      ;; ,(telephone-line-raw mode-line-buffer-identification t)
+      ,zerodark-modeline-vc
       ))
 
+  (telephone-line-defsegment* telephone-line-major-mode-segment ()
+    `(""
+      minor-mode-alist
+      "/"
+     mode-name)) 
   (telephone-line-defsegment* telephone-line-buffer-segment ()
-    `(; mode-line-mule-info
+    `(,mode-line-mule-info
       ;; mode-line-modified
       ;; mode-line-client
       ;; mode-line-remote
-      mode-line-frame-identification
+      ,zerodark-modeline-ro
+      ,zerodark-modeline-modified
+      ,(telephone-line-raw mode-line-frame-identification t)
+      " "
       ,(telephone-line-raw mode-line-buffer-identification t)))
-
-  ;; (setq telephone-line-primary-left-separator 'telephone-line-identity-left
-  ;;       telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
-  ;;       telephone-line-primary-right-separator 'telephone-line-identity-left
-  ;;       telephone-line-secondary-right-separator 'telephone-line-identity-hollow-left)
-
-  (setq telephone-line-primary-left-separator 'telephone-line-flat
-        telephone-line-secondary-left-separator 'telephone-line-flat
-        telephone-line-primary-right-separator 'telephone-line-flat
-        telephone-line-secondary-right-separator 'telephone-line-flat)
-
-  (setq telephone-line-height 16
-        telephone-line-evil-use-short-tag nil)
 
   (telephone-line-defsegment* telephone-line-position-segment ()
     (telephone-line-raw-mod
@@ -553,6 +553,19 @@
          ;;Paradox fills this with position info.
          mode-line-front-space
        mode-line-position) t))
+
+  ;; (setq telephone-line-primary-left-separator 'telephone-line-identity-left
+  ;;       telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
+  ;;       telephone-line-primary-right-separator 'telephone-line-identity-left
+  ;;       telephone-line-secondary-right-separator 'telephone-line-identity-hollow-left)
+
+  (setq telephone-line-primary-left-separator 'telephone-line-flat)
+        ;; telephone-line-secondary-left-separator 'telephone-line-flat
+        ;; telephone-line-primary-right-separator 'telephone-line-flat
+        ;; telephone-line-secondary-right-separator 'telephone-line-flat)
+
+  (setq telephone-line-height 16
+        telephone-line-evil-use-short-tag nil)
 
   (telephone-line-mode 1)
 
