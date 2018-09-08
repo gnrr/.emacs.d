@@ -898,7 +898,7 @@ double quotation characters \(\"\) from given string."
           (t
            (setq cmd "open %s %s")
            (setq opt "-R")
-           (setq path "~")))
+           (setq path (or path "~"))))
     (shell-command (format cmd opt path))))
 
 (defalias 'e 'open-current-folder)

@@ -1281,11 +1281,11 @@ That is, a string used to represent it on the tab bar."
 
   (add-hook 'compilation-filter-hook #'endless/colorize-compilation)
 
-  :after telephone-line
-  :config
-  ;; workaround for *compilation* buffer
-  (dolist (f '(compilation-info compilation-warning compilation-error))
-    (set-face-background f (face-attribute 'telephone-line-accent-inactive :background)))
+  ;; :after telephone-line
+  ;; :config
+  ;; ;; workaround for *compilation* buffer
+  ;; (dolist (f '(compilation-info compilation-warning compilation-error))
+  ;;   (set-face-background f (face-attribute 'telephone-line-accent-inactive :background)))
 
   )
 
