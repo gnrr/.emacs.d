@@ -958,6 +958,12 @@ That is, a string used to represent it on the tab bar."
   (set-face-background 'show-paren-match "#263652")
   (setq show-paren-delay 0.2)
   (show-paren-mode 1)
+
+  ;; depends on modes
+  (sp-with-modes '(lisp-mode lisp-interaction-mode)
+   (sp-local-pair "'" nil :actions nil)
+   (sp-local-pair "`" nil :actions nil))
+
   )
 
 ;; ----------------------------------------------------------------------
@@ -1066,10 +1072,16 @@ That is, a string used to represent it on the tab bar."
   :after evil
   :config
   (evil-add-hjkl-bindings gist-list-menu-mode-map 'emacs
+    (kbd "x")       'gist-kill-current
+    (kbd "d")       'gist-kill-current
     (kbd "/")       'evil-search-forward
     (kbd "n")       'evil-search-next
     (kbd "N")       'evil-search-previous)
 
+  :bind (:map gist-mode-map
+              ("q"       . my-kill-buffer)
+              ("C-x C-s" . gist-mode-save-buffer)
+              ("C-c C-c" . gist-mode-save-buffer))
   )
 
 ;; ----------------------------------------------------------------------
@@ -1127,10 +1139,10 @@ That is, a string used to represent it on the tab bar."
   ;; :disabled
   :diminish beacon-mode
   :config
- (setq beacon-blink-when-focused t)
- (setq beacon-color "SteelBlue3")
- (setq beacon-blink-delay 0.1)
- (beacon-mode t)
+  (setq beacon-blink-when-focused t)
+  (setq beacon-color "SteelBlue3")
+  (setq beacon-blink-delay 0.1)
+  (beacon-mode t)
   )
 
 ;; ----------------------------------------------------------------------
