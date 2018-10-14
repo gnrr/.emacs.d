@@ -625,7 +625,10 @@ Return nil for blank/empty strings."
   )
 
 ;; ----------------------------------------------------------------------
-(use-package all-the-icons)
+(use-package all-the-icons
+  :config
+  (setq inhibit-compacting-font-caches t)
+  )
 
 ;; ----------------------------------------------------------------------
 (use-package neotree

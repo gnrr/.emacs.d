@@ -57,6 +57,7 @@
 	glip=	left align, in-paragraph, =			e.g. one     = 1	
   gLib,	right align, in-brace, ,			e.g. (a      => 1, ... )
   1glip"	1st occurence of "					e.g. (cyan       "#54b6b6")
+
 * syntax table
 
   Whitespace characters: 		‘ ’ or ‘-’
