@@ -1177,6 +1177,7 @@ That is, a string used to represent it on the tab bar."
   :config
   (defvar google-translate-english-chars "[:ascii:]`‘’“”–'\"`"
     "これらの文字が含まれているときは英語とみなす")
+
   (defun google-translate-enja-or-jaen (&optional string)
     "regionか、現在のセンテンスを言語自動判別でGoogle翻訳する。"
     (interactive)
