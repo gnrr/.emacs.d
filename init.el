@@ -442,7 +442,6 @@
 ;; ----------------------------------------------------------------------
 (use-package zerodark-theme
   ;; :disabled
-  ;; :after ivy
   :load-path "~/git-clone/zerodark-theme"
   :if window-system
   :config
@@ -720,7 +719,7 @@ Return nil for blank/empty strings."
   ;; refrect .ignore to the root of the project
   (setq counsel-git-cmd "rg --files")
   (setq counsel-rg-base-command
-        "rg -i -M 120 --no-heading --line-number --color never %s .")
+        "rg -i --no-heading --line-number --color never %s .")
   
   (defun my-ivy-done ()
     (interactive)
@@ -732,12 +731,31 @@ Return nil for blank/empty strings."
   ;; (define-key ivy-minibuffer-map [(return)] 'ivy-done)
 
   
-  (defun counsel-rg-at-point ()
+  (defun my-counsel-rg (&optional initial-input)
+    "counsel-at-point in specified directory"
     (interactive)
-    (counsel-rg (or (symbol-name (symbol-at-point)) "")))
+    (ivy-read "rg dir: " 'read-file-name-internal
+              :matcher #'counsel--find-file-matcher
+              :initial-input initial-input
+              :action #'my-counsel-rg-1
+              :preselect (counsel--preselect-file)
+              :require-match 'confirm-after-completion
+              :history 'file-name-history
+              :keymap counsel-find-file-map
+              :caller 'my-counsel-rg))
+
+  (defun my-counsel-rg-1 (dir)
+    (let ((counsel-ag-base-command counsel-rg-base-command)
+          (initial-input (if (symbol-at-point) (symbol-name (symbol-at-point)) ""))
+          (initial-directory dir)
+          (extra-rg-args nil)
+          (rg-prompt nil))
+      (counsel-ag initial-input initial-directory extra-rg-args rg-prompt)))
+
+  (cl-pushnew 'my-counsel-rg-1 ivy-highlight-grep-commands)
 
   :bind (("M-r"     . counsel-recentf)
-         ("M-o"     . counsel-rg-at-point)
+         ("M-o"     . my-counsel-rg)
          ("C-x C-b" . counsel-ibuffer)
          ;; ("C-x C-f" . my-counsel-find-file)
          ;; ("C-s"     . swiper)
@@ -773,6 +791,7 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package counsel-gtags
+  ;; :disabled
   :after counsel evil
   :diminish '(counsel-gtags-mode . "Gtags")
   :init
