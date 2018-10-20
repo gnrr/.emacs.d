@@ -721,16 +721,15 @@ Return nil for blank/empty strings."
   (setq counsel-rg-base-command
         "rg -i --no-heading --line-number --color never %s .")
   
+  (defvar my-ivy-done-command-alist '(counsel-find-file my-counsel-rg my-gtags-create))
   (defun my-ivy-done ()
     (interactive)
-    (cond ((eq last-command 'counsel-find-file)
+    (cond ((memq last-command my-ivy-done-command-alist)
            (ivy-immediate-done))
           (t (ivy-done))))
 
   (define-key ivy-minibuffer-map [(return)] 'my-ivy-done)
-  ;; (define-key ivy-minibuffer-map [(return)] 'ivy-done)
 
-  
   (defun my-counsel-rg (&optional initial-input)
     "counsel-at-point in specified directory"
     (interactive)
@@ -797,6 +796,7 @@ Return nil for blank/empty strings."
   :init
   (add-hook 'c-mode-hook 'counsel-gtags-mode)
 
+  :config
   (setq counsel-gtags-auto-update t
         counsel-gtags-path-style 'root
         )
@@ -808,8 +808,20 @@ Return nil for blank/empty strings."
   ;;         (call-interactively 'helm-gtags-create-tags)
   ;;       (message "Updated GTAGS files."))))
 
-  (defalias 'gtags-update 'counsel-gtags-update-tags)
-  (defalias 'gtags-create 'counsel-gtags-create-tags)
+  (defalias 'my-gtags-update 'counsel-gtags-update-tags)
+
+  (defun my-gtags-create (rootdir)
+    "Create tag database in ROOTDIR. Prompt for ROOTDIRif not given.  This command is asynchronous."
+    (interactive (list (read-directory-name "dir: " nil nil t)))
+    (let* ((default-directory rootdir)
+           (proc-buf (get-buffer-create " *counsel-gtags-tag-create*"))
+           (proc (start-file-process
+                  "counsel-gtags-tag-create" proc-buf
+                  "gtags" "-q" (concat "--gtagslabel=default"))))
+      (set-process-sentinel
+       proc
+       (counsel-gtags--make-gtags-sentinel 'create))))
+  (fset 'counsel-gtags-create-tags nil)               ; undefine original command
 
   :bind (("C-x C-g" . counsel-gtags-find-file)
          :map evil-normal-state-map
