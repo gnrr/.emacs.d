@@ -666,36 +666,33 @@ Return nil for blank/empty strings."
 
   :config
   (counsel-mode 1)
-  (setq ivy-use-virtual-buffers t          ;; add ‘recentf-mode’ and bookmarks to ‘ivy-switch-buffer’.
+  (setq ivy-use-virtual-buffers t                                ;; add ‘recentf-mode’ and bookmarks to ‘ivy-switch-buffer’.
         ivy-height 20
-        ;; ivy-count-format ""             ;; does not count candidates
-        ivy-initial-inputs-alist nil       ;; no regexp by default
+        ivy-initial-inputs-alist nil                             ;; no regexp by default
         ivy-on-del-error-function 'ignore
-        ivy-extra-directories nil          ;; '("../")
-        ivy-re-builders-alist              ;; configure regexp engine.
-        '((t   . ivy--regex-ignore-order)) ;; allow input not in order
+        ivy-extra-directories nil                                ;; '("../")
+        ivy-re-builders-alist '((t . ivy--regex-ignore-order))   ;; configure regexp engine. allow input not in order
         counsel-find-file-ignore-regexp "\\.elc\\'"
   )
 
-(defvar my-ivy-done-immediate-flag nil)
-(defun my-ivy-done ()
-  (interactive)
-  (if my-ivy-done-immediate-flag
-      (progn (setq ivy-immediate-done nil)
-             (ivy-immediate-done))
-    (ivy-done)))
+  (defun my-ivy-done ()
+    (interactive)
+    (if (and (boundp 'my-ivy-immediate-flag) (eq my-ivy-immediate-flag t))
+        (ivy-immediate-done)
+      (ivy-done)))
 
-(define-key ivy-minibuffer-map [(return)] 'my-ivy-done)
+  (define-key ivy-minibuffer-map [(return)] 'my-ivy-done)
 
-(defun my-counsel-find-file ()
-  (interactive)
-  (setq my-ivy-done-immediate-flag t)
-  (call-interactively
-   (cond ((and (fboundp 'counsel-gtags-find-file) (locate-dominating-file default-directory "GTAGS"))
-          'counsel-gtags-find-file)
-         ((and (fboundp 'magit-find-file) (locate-dominating-file default-directory ".git"))
-          'magit-find-file)
-         (t 'counsel-find-file))))
+  (defun my-counsel-find-file ()
+    (interactive)
+    (let ((my-ivy-immediate-flag t))
+      (call-interactively
+       (cond ((and (fboundp 'counsel-gtags-find-file) (locate-dominating-file default-directory "GTAGS"))
+              'counsel-gtags-find-file)
+             ((and (fboundp 'magit-find-file) (locate-dominating-file default-directory ".git"))
+              'magit-find-file)
+             (t 'counsel-find-file)))))
+
 
   ;; refrect .ignore to the root of the project
   (setq counsel-git-cmd "rg --files")
@@ -705,7 +702,7 @@ Return nil for blank/empty strings."
   (defun my-counsel-rg (&optional initial-input)
     "counsel-at-point in specified directory"
     (interactive)
-    (setq my-ivy-done-immediate-flag t)
+    (let ((my-ivy-immediate-flag t))
     (ivy-read "rg dir: " 'read-file-name-internal
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
@@ -714,14 +711,14 @@ Return nil for blank/empty strings."
               :require-match 'confirm-after-completion
               :history 'file-name-history
               :keymap counsel-find-file-map
-              :caller 'my-counsel-rg))
+              :caller 'my-counsel-rg)))
 
   (defun my-counsel-rg-1 (dir)
-    (let ((counsel-ag-base-command counsel-rg-base-command)
+    (let  ((counsel-ag-base-command counsel-rg-base-command)
           (initial-input (if (symbol-at-point) (symbol-name (symbol-at-point)) ""))
           (initial-directory dir)
           (extra-rg-args nil)
-          (rg-prompt nil))
+          (rg-prompt dir))
       (counsel-ag initial-input initial-directory extra-rg-args rg-prompt)))
 
   (cl-pushnew 'my-counsel-rg-1 ivy-highlight-grep-commands)
@@ -785,17 +782,17 @@ Return nil for blank/empty strings."
 
   (defun my-gtags-create (rootdir)
     "Create tag database in ROOTDIR. Prompt for ROOTDIRif not given.  This command is asynchronous."
-    (interactive (list (read-directory-name "dir: " nil nil t)))
-    (setq my-ivy-done-immediate-flag t)
-    (let* ((default-directory rootdir)
-           (proc-buf (get-buffer-create " *counsel-gtags-tag-create*"))
-           (proc (start-file-process
-                  "counsel-gtags-tag-create" proc-buf
-                  "gtags" "-q" (concat "--gtagslabel=default"))))
-      (set-process-sentinel
-       proc
-       (counsel-gtags--make-gtags-sentinel 'create))))
-  (fset 'counsel-gtags-create-tags nil)               ; undefine original command
+    (interactive (list (read-directory-name "GTAGS Dir: " nil nil t)))
+    (let ((my-ivy-immediate-flag t))
+      (let* ((default-directory rootdir)
+             (proc-buf (get-buffer-create " *counsel-gtags-tag-create*"))
+             (proc (start-file-process
+                    "counsel-gtags-tag-create" proc-buf
+                    "gtags" "-q" (concat "--gtagslabel=default"))))
+        (set-process-sentinel
+         proc
+         (counsel-gtags--make-gtags-sentinel 'create)))))
+    (fset 'counsel-gtags-create-tags nil)               ; undefine original command
 
   :bind (("C-x C-g" . counsel-gtags-find-file)
          :map evil-normal-state-map
