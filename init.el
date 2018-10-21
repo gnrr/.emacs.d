@@ -677,62 +677,35 @@ Return nil for blank/empty strings."
         counsel-find-file-ignore-regexp "\\.elc\\'"
   )
 
-  ;; ;; my-ivy-find-file
-  ;; ;; (defvar my-ivy-find-file-exclude "-not \\( -path '*\\/.svn\\/*' -o -path '*\\/.git\\/*' -o -path '*\\~' -o -path '*\\.DS_Store' -o -path '\\.emacs-places' \\)")
+(defvar my-ivy-done-immediate-flag nil)
+(defun my-ivy-done ()
+  (interactive)
+  (if my-ivy-done-immediate-flag
+      (progn (setq ivy-immediate-done nil)
+             (ivy-immediate-done))
+    (ivy-done)))
 
-  ;; ;; (defun my-ivy-find-file-exclude-p (str)
-  ;; ;;   (catch 'loop
-  ;; ;;     (dolist (regex my-ivy-find-file-exclude-regex-list)
-  ;; ;;       (when (string-match regex str)
-  ;; ;;         (throw 'loop t)))))
+(define-key ivy-minibuffer-map [(return)] 'my-ivy-done)
 
-  ;; (defun my-ivy-find-file (&optional dir)
-  ;;   "list files recursively under specified directory"
-  ;;   (interactive "")
-  ;;   ;; (let* ((cmd (format "find %s -type f" (if dir dir ".")))
-  ;;   ;;        (cands (remove-if 'my-ivy-find-file-exclude-p
-  ;;   ;;                          (split-string (shell-command-to-string cmd) "\n" t))))
-  ;;   ;;   (ivy-read "%d File: " cands
-  ;;   ;;             :action #'find-file
-  ;;   ;;             :caller 'my-ivy-find-file)))
-
-  ;;   (let* ((dir (cond ((and dir (file-exists-p dir)) dir)
-  ;;                     ((buffer-file-name) (directory-file-name
-  ;;                                          (file-name-directory (buffer-file-name))))
-  ;;                      (t (file-name-directory (expand-file-name "~")))))
-  ;;          (cmd (format "find %s -type f %s" dir my-ivy-find-file-exclude))
-  ;;          (cands (split-string (shell-command-to-string cmd) "\n" t)))
-  ;;     ;; (ivy-read (format "%s %%d: " dir) cands
-  ;;     (ivy-read (format "%s %%d: " dir) cands
-  ;;               :action #'find-file
-  ;;               :caller 'my-ivy-find-file)))
-
-  (defun my-counsel-find-file ()
-    (interactive)
-    (call-interactively
-     (cond ((and (fboundp 'counsel-gtags-find-file) (locate-dominating-file default-directory "GTAGS"))
-            'counsel-gtags-find-file)
-           ((and (fboundp 'magit-find-file) (locate-dominating-file default-directory ".git"))
-            'magit-find-file)
-           (t 'counsel-find-file))))
+(defun my-counsel-find-file ()
+  (interactive)
+  (setq my-ivy-done-immediate-flag t)
+  (call-interactively
+   (cond ((and (fboundp 'counsel-gtags-find-file) (locate-dominating-file default-directory "GTAGS"))
+          'counsel-gtags-find-file)
+         ((and (fboundp 'magit-find-file) (locate-dominating-file default-directory ".git"))
+          'magit-find-file)
+         (t 'counsel-find-file))))
 
   ;; refrect .ignore to the root of the project
   (setq counsel-git-cmd "rg --files")
   (setq counsel-rg-base-command
         "rg -i --no-heading --line-number --color never %s .")
   
-  (defvar my-ivy-done-command-alist '(counsel-find-file my-counsel-rg my-gtags-create))
-  (defun my-ivy-done ()
-    (interactive)
-    (cond ((memq last-command my-ivy-done-command-alist)
-           (ivy-immediate-done))
-          (t (ivy-done))))
-
-  (define-key ivy-minibuffer-map [(return)] 'my-ivy-done)
-
   (defun my-counsel-rg (&optional initial-input)
     "counsel-at-point in specified directory"
     (interactive)
+    (setq my-ivy-done-immediate-flag t)
     (ivy-read "rg dir: " 'read-file-name-internal
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
@@ -813,6 +786,7 @@ Return nil for blank/empty strings."
   (defun my-gtags-create (rootdir)
     "Create tag database in ROOTDIR. Prompt for ROOTDIRif not given.  This command is asynchronous."
     (interactive (list (read-directory-name "dir: " nil nil t)))
+    (setq my-ivy-done-immediate-flag t)
     (let* ((default-directory rootdir)
            (proc-buf (get-buffer-create " *counsel-gtags-tag-create*"))
            (proc (start-file-process
