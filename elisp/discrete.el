@@ -263,6 +263,22 @@ double quotation characters \(\"\) from given string."
 (advice-add 'y-or-n-p :around #'y-or-n-p-at-ease)
 
 ;; ----------------------------------------------------------------------
+;; @@ `my-beginning-of-defun'
+(defvar my-beginning-of-defun-pos nil)
+
+(defun my-beginning-of-defun ()
+  (interactive)
+  (if (and (eq last-command this-command) my-beginning-of-defun-pos)
+      (progn 
+        (goto-char my-beginning-of-defun-pos)
+        (setq my-beginning-of-defun-pos nil))
+    (setq my-beginning-of-defun-pos (point))
+    (beginning-of-defun)
+    ))
+
+(define-key evil-normal-state-map (kbd "g f") 'my-beginning-of-defun)
+
+;; ----------------------------------------------------------------------
 ;; @@ `my-comment-*'
 (defun my-comment-or-uncomment-region (beg end)
   (interactive)
@@ -1282,6 +1298,22 @@ is already narrowed."
     (calc-grab-region beg end nil)))
 (global-set-key "\C-c\C-c" 'my-calc)
 
+
+;; ----------------------------------------------------------------------
+;; @@ `mod dired-find-alternate-file'
+;; dired ファイルなら別バッファで、ディレクトリなら同じバッファで開く
+;; http://nishikawasasaki.hatenablog.com/entry/20120222/1329932699
+(defun dired-open-in-accordance-with-situation ()
+  (interactive)
+  (let ((file (dired-get-filename)))
+    (if (file-directory-p file)
+        (dired-find-alternate-file)
+      (dired-find-file))))
+
+;; dired-find-alternate-file の有効化
+(put 'dired-find-alternate-file 'disabled nil)
+;; RET 標準の dired-find-file では dired バッファが複数作られるので dired-find-alternate-file を代わりに使う
+(define-key dired-mode-map (kbd "RET") 'dired-open-in-accordance-with-situation)
 
 ;; ----------------------------------------------------------------------
 ;;@@ `create tag-file automatically'
