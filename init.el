@@ -725,6 +725,24 @@ Return nil for blank/empty strings."
 
   (cl-pushnew 'my-counsel-rg-1 ivy-highlight-grep-commands)
 
+  (defun my-find (&optional initial-input)
+    (interactive)
+    (let ((my-ivy-immediate-flag t))
+      (ivy-read "find dir: " 'read-file-name-internal
+                :matcher #'counsel--find-file-matcher
+                :initial-input initial-input
+                :action #'my-find-1
+                :preselect (counsel--preselect-file)
+                :require-match 'confirm-after-completion
+                :history 'file-name-history
+                :keymap counsel-find-file-map
+                :caller 'my-find)))
+
+  (defun my-find-1 (dir)
+    (let* ((my-ivy-immediate-flag nil)
+           (initial-input (or (thing-at-point 'filename) "")))
+      (counsel-file-jump initial-input dir)))
+
   :bind (("M-r"     . counsel-recentf)
          ("M-o"     . my-counsel-rg)
          ("C-x C-b" . counsel-ibuffer)
