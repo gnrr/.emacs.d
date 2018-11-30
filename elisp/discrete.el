@@ -1084,10 +1084,10 @@ is already narrowed."
   (my-insert-pair my-insert-bracket-arg))
 
 ;; <>
-(defvar my-insert-angle-arg '(nil ?\< ?\>))
-(defun my-insert-angle ()
-  (interactive)
-  (my-insert-pair my-insert-angle-arg))
+;; (defvar my-insert-angle-arg '(nil ?\< ?\>))
+;; (defun my-insert-angle ()
+;;   (interactive)
+;;   (my-insert-pair my-insert-angle-arg))
 
 ;; ""
 (defvar my-insert-dquote-arg '(nil ?\" ?\"))

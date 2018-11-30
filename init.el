@@ -795,6 +795,8 @@ Return nil for blank/empty strings."
          (counsel-gtags--make-gtags-sentinel 'create)))))
     (fset 'counsel-gtags-create-tags nil)               ; undefine original command
 
+    (setenv "GTAGSLIBPATH" "/usr/local/Cellar/avr-gcc/7.3.0/avr/include") ; for qmk_firmware on Mac
+
   :bind (("C-x C-g" . counsel-gtags-find-file)
          :map evil-normal-state-map
          ("g t" . counsel-gtags-dwim)
