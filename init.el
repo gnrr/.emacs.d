@@ -672,6 +672,7 @@ Return nil for blank/empty strings."
         ivy-on-del-error-function 'ignore
         ivy-extra-directories nil                                ;; '("../")
         ivy-re-builders-alist '((t . ivy--regex-ignore-order))   ;; configure regexp engine. allow input not in order
+        avy-timeout-seconds 0.4
         counsel-find-file-ignore-regexp "\\.elc\\'"
   )
 
@@ -734,7 +735,7 @@ Return nil for blank/empty strings."
          ;; ([remap ivy-done] . ivy-immediate-done)
          ([(return)] . my-ivy-done)
          ("M-h" . ivy-backward-kill-word)
-         ("C-f" . ivy-avy)
+         ;; ("C-f" . ivy-avy)
 
          :map counsel-find-file-map
          ("M-RET" . ivy-immediate-done)
@@ -745,7 +746,7 @@ Return nil for blank/empty strings."
          ;; ("M-c" . ivy-immediate-done)                      ; M-RET
 
          :map evil-motion-state-map
-         ("f" . avy-goto-word-1)
+         ("f" . avy-goto-char-timer)
 
          :map evil-normal-state-map
          ("R" . ivy-resume))
