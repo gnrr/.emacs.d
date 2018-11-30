@@ -152,7 +152,7 @@
  (global-set-key "(" 'my-insert-paren)                   ; ()
  (global-set-key "{" 'my-insert-brace)                   ; {} 
  (global-set-key "[" 'my-insert-bracket)                 ; []
- (global-set-key "<" 'my-insert-angle)                   ; <>
+ ;; (global-set-key "<" 'my-insert-angle)                   ; <>
  (global-set-key "'" 'my-insert-squote)                  ; ''
  (global-set-key "\"" 'my-insert-dquote)                 ; ""
 
