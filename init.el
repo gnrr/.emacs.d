@@ -802,16 +802,17 @@ Return nil for blank/empty strings."
 
   (defun my-gtags-create (rootdir)
     "Create tag database in ROOTDIR. Prompt for ROOTDIRif not given.  This command is asynchronous."
-    (interactive (list (read-directory-name "GTAGS Dir: " nil nil t)))
-    (let ((my-ivy-immediate-flag t))
-      (let* ((default-directory rootdir)
-             (proc-buf (get-buffer-create " *counsel-gtags-tag-create*"))
-             (proc (start-file-process
-                    "counsel-gtags-tag-create" proc-buf
-                    "gtags" "-q" (concat "--gtagslabel=default"))))
-        (set-process-sentinel
-         proc
-         (counsel-gtags--make-gtags-sentinel 'create)))))
+    (interactive (list
+                  (let ((my-ivy-immediate-flag t))
+                    (read-directory-name "GTAGS Dir: " nil nil t))))
+    (let* ((default-directory rootdir)
+           (proc-buf (get-buffer-create " *counsel-gtags-tag-create*"))
+           (proc (start-file-process
+                  "counsel-gtags-tag-create" proc-buf
+                  "gtags" "-q" (concat "--gtagslabel=default"))))
+      (set-process-sentinel
+       proc
+       (counsel-gtags--make-gtags-sentinel 'create))))
     (fset 'counsel-gtags-create-tags nil)               ; undefine original command
 
     (setenv "GTAGSLIBPATH" "/usr/local/Cellar/avr-gcc/7.3.0/avr/include") ; for qmk_firmware on Mac
@@ -1301,13 +1302,18 @@ That is, a string used to represent it on the tab bar."
   :config
   ;; enable ANSI color in *compilation* buffer
   ;; (require 'ansi-color)
-  (defun endless/colorize-compilation ()
+  (defun colorize-compilation-mode-hook ()
     "Colorize from `compilation-filter-start' to `point'."
     (let ((inhibit-read-only t))
       (ansi-color-apply-on-region
        compilation-filter-start (point))))
+  (add-hook 'compilation-filter-hook #'colorize-compilation-mode-hook)
 
-  (add-hook 'compilation-filter-hook #'endless/colorize-compilation)
+  (defun truncate-compilation-mode-hook ()
+    (setq truncate-lines t) ;; automatically becomes buffer local
+    (set (make-local-variable 'truncate-partial-width-windows) nil))
+  (add-hook 'compilation-mode-hook 'truncate-compilation-mode-hook)
+
 
   ;; :after telephone-line
   ;; :config
