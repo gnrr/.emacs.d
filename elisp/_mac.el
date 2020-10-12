@@ -7,14 +7,14 @@
 ;;;
 ;;; window size and position
 ;;;
-;; (setq initial-frame-alist (append '(
-;; 				    (top    . 0)
-;; 				    (left   . 1009)
-;; 				    ;; (left   . 71)
-;; 				    (height . 64)
-;; 				    (width  . 110))
-;; 				  initial-frame-alist))
-;; (setq default-frame-alist initial-frame-alist)
+(setq initial-frame-alist (append '(
+				    (top    . 0)
+				    (left   . 529)      ;; Macbook Pro 13"
+				    ;; (left   . 71)
+				    (height . 64)
+				    (width  . 110))
+				  initial-frame-alist))
+(setq default-frame-alist initial-frame-alist)
 
 ;;;
 ;;; font
@@ -34,6 +34,7 @@
 ;; 日本語環境設定 for mac
 ;; http://maro.air-nifty.com/maro/2009/02/carbon-emacs-sh.html
 ;; (set-language-environment "japanese")
+
 (set-language-environment 'utf-8)
 (prefer-coding-system 'utf-8-unix)
 (setq default-buffer-file-coding-system 'utf-8)
@@ -42,8 +43,8 @@
 (set-keyboard-coding-system 'utf-8)
 (set-clipboard-coding-system 'utf-8)
 
-(setq coding-system-for-read 'utf-8-unix)
-(setq coding-system-for-write 'utf-8-unix)
+;; (setq coding-system-for-read 'utf-8-unix)
+;; (setq coding-system-for-write 'utf-8-unix)
 
 ;; http://sakito.jp/emacs/emacsshell.html#id7
 (cond ((or (eq window-system 'mac) (eq window-system 'ns))

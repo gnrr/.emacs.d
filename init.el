@@ -301,6 +301,7 @@
   :config
   (evil-mode 1)
   (evil-set-initial-state 'help-mode 'emacs)
+  (evil-set-initial-state 'slime-editing-mode 'emacs)
 
   (defalias #'forward-evil-word #'forward-evil-symbol)
 
@@ -330,8 +331,11 @@
   (define-key evil-motion-state-map (kbd "6") 'evil-first-non-blank)
   (define-key evil-motion-state-map (kbd "4") 'evil-end-of-line)
   (define-key evil-motion-state-map (kbd "]") 'evil-jump-item)
+  (define-key evil-motion-state-map (kbd ":") nil)          ; unmap :
+  (define-key evil-motion-state-map (kbd ";") 'evil-ex)     ; ; works as :
 
   ;; normal-state-map
+  (define-key evil-normal-state-map (kbd "q") nil)
   (define-key evil-normal-state-map (kbd "m") nil)
   (define-key evil-normal-state-map (kbd "M-.") nil)        ; evil-repeat-pop-next
   (define-key evil-normal-state-map (kbd "C-p") nil)        ; evil-paste-pop
@@ -340,6 +344,7 @@
   (define-key evil-normal-state-map (kbd "TAB") 'evil-indent-line)
   (define-key evil-normal-state-map (kbd "U") 'undo-tree-redo)
   (define-key evil-normal-state-map (kbd "M-p") 'evil-paste-pop-next)
+  (define-key evil-normal-state-map (kbd "SPC") 'evil-force-normal-state)
 
   ;; insert-state-map
   (define-key evil-insert-state-map (kbd "C-h") 'delete-backward-char)
@@ -374,14 +379,14 @@
     (kbd "n")       'evil-search-next
     (kbd "N")       'evil-search-previous)
 
-  )
+)
 
 ;; ----------------------------------------------------------------------
 (use-package evil-collection
   ;; :disabled
   :after evil
   :config
-  (evil-collection-init '(edebug dired neotree))
+  (evil-collection-init '(edebug dired neotree slime))
   )
 
 ;; ----------------------------------------------------------------------
@@ -752,6 +757,8 @@ Return nil for blank/empty strings."
          :map ivy-minibuffer-map
          ;; ([remap ivy-done] . ivy-immediate-done)
          ([(return)] . my-ivy-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
          ("M-h" . ivy-backward-kill-word)
          ;; ("C-f" . ivy-avy)
 
@@ -1025,13 +1032,16 @@ That is, a string used to represent it on the tab bar."
   (set-face-foreground 'rainbow-delimiters-depth-8-face "#afafaf")
   (set-face-foreground 'rainbow-delimiters-depth-1-face "#f0f0f0")   ; swap 1 <--> 9
 
-  (rainbow-delimiters-mode 1)
+  ;; (rainbow-delimiters-mode 1)
   (setq rainbow-delimiters-outermost-only-face-count 1)
   (set-face-bold 'rainbow-delimiters-depth-1-face t)
 
-  (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
-  (add-hook 'c-mode-hook 'rainbow-delimiters-mode)
-
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+  ;; (defvar my-rainbow-delimiters-mode-hook-list '(emacs-lisp-mode-hook
+  ;;                                                lisp-mode-hook
+  ;;                                                c-mode-hook))
+  ;; (dolist (x my-rainbow-delimiters-mode-hook-list)
+  ;;   (add-hook x 'rainbow-delimiters-mode))
   )
 
 ;; ----------------------------------------------------------------------
@@ -1039,12 +1049,52 @@ That is, a string used to represent it on the tab bar."
   :diminish rainbow-mode
   :config
   (setq rainbow-html-colors nil)
-  (add-hook 'lisp-interaction-mode-hook 'rainbow-mode)
-  (add-hook 'emacs-lisp-mode-hook 'rainbow-mode)
-  ;; (add-hook 'css-mode-hook 'rainbow-mode)
-  ;; (add-hook 'less-mode-hook 'rainbow-mode)
-  ;; (add-hook 'web-mode-hook 'rainbow-mode)
-  ;; (add-hook 'html-mode-hook 'rainbow-mode)
+  (add-hook 'prog-mode-hook #'rainbow-mode)
+  )
+
+;; ----------------------------------------------------------------------
+(use-package symbol-overlay
+  :ensure t
+;  :hook ((prog-mode . symbol-overlay-mode))
+  :config
+  (set-face-attribute 'highlight nil :background "#555555" :foreground "#eeeeee" :bold nil)
+
+  (let ((color (face-attribute 'cursor :background)))
+    (set-face-attribute 'symbol-overlay-face-1 nil :background color :bold nil)
+    (set-face-attribute 'symbol-overlay-face-2 nil :background color :bold nil)
+    (set-face-attribute 'symbol-overlay-face-3 nil :background color :bold nil)
+    (set-face-attribute 'symbol-overlay-face-4 nil :background color :bold nil)
+    (set-face-attribute 'symbol-overlay-face-5 nil :background color :bold nil)
+    (set-face-attribute 'symbol-overlay-face-6 nil :background color :bold nil)
+    (set-face-attribute 'symbol-overlay-face-7 nil :background color :bold nil)
+    (set-face-attribute 'symbol-overlay-face-8 nil :background color :bold nil))
+
+  (defun my-symbol-overlay-mode-enable ()
+    (symbol-overlay-mode t))
+  (add-hook 'prog-mode-hook 'my-symbol-overlay-mode-enable)
+
+  (defvar my-symbol-overlay-marker (make-marker))
+
+  (defun my-symbol-overlay-enter ()
+    (interactive)
+    (set-marker my-symbol-overlay-marker (point))
+    (symbol-overlay-put))
+
+  (defun my-symbol-overlay-exit ()
+    (interactive)
+    (symbol-overlay-put)    ;; exit
+    (symbol-overlay-remove-all)
+    (goto-char my-symbol-overlay-marker)
+    (set-marker my-symbol-overlay-marker nil))
+
+  :bind (("M-s" . symbol-overlay-mode)
+         ("M-i" . my-symbol-overlay-enter)
+         :map symbol-overlay-map
+         ("j"   . symbol-overlay-jump-next)
+         ("k"   . symbol-overlay-jump-prev)
+         ("c"   . symbol-overlay-save-symbol)
+         ("C-g" . my-symbol-overlay-exit)
+         ("M-s" . my-symbol-overlay-exit))
   )
 
 ;; ----------------------------------------------------------------------
@@ -1083,8 +1133,8 @@ That is, a string used to represent it on the tab bar."
   :after evil
   :load-path "elisp"
   :bind (:map evil-normal-state-map
-              ("g m" . quick-back-mark)
-              ("g q" . quick-back-jump))
+              ("q SPC" . quick-back-mark)
+              ("q q"   . quick-back-jump))
   )
 
 ;; ----------------------------------------------------------------------
@@ -1328,6 +1378,64 @@ That is, a string used to represent it on the tab bar."
 (use-package arduino-mode
   :mode (("\\.pde$" . arduino-mode)
          ("\\.ino$" . arduino-mode))
+  )
+
+;; ----------------------------------------------------------------------
+;; arduino mode
+(use-package mql-mode
+  ;; :config
+  ;; (modify-coding-system-alist 'file "\\.mq4\\'" 'utf-16-dos)
+  )
+
+;; ----------------------------------------------------------------------
+;; slime
+(use-package slime
+  :init
+  (load (expand-file-name "~/.roswell/helper.el"))
+
+  :config
+  (setq slime-net-coding-system 'utf-8-unix)
+  (add-hook 'slime-load-hook (lambda () (require 'slime-fancy)))
+  (slime-setup '(slime-fancy slime-banner))
+
+  ;; LISPモードで新しくファイルを開いたらウィンドウが上下に分割して下にREPL
+  (add-hook 'lisp-mode-hook
+            (lambda ()
+              (global-set-key "\C-cH" 'hyperspec-lookup)
+              (cond ((not (featurep 'slime))
+                     (require 'slime)
+                     (normal-mode)))
+              (my-slime)))
+
+  ;; 分割したウィンドウでslime起動
+  (defun my-slime (&optional command coding-system)
+    "Run slime and split window."
+    (interactive)
+    (if (< (count-windows) 2)
+        (split-window-vertically))
+    (slime command coding-system)
+    (other-window 1))
+
+  ;; 選択範囲をslime-replへ送って評価
+  (defun slime-repl-send-region (start end)
+    "Send region to slime-repl."
+    (interactive "r")
+    (let ((buf-name (buffer-name (current-buffer)))
+          (sbcl-buf (get-buffer "*slime-repl sbcl*")))
+      (cond (sbcl-buf 
+             (copy-region-as-kill start end)
+             (switch-to-buffer-other-window sbcl-buf)
+             (yank)
+             (slime-repl-send-input "\n")
+             (switch-to-buffer-other-window buf-name))
+            (t (message "Not exist *slime-repl sbcl* buffer!")))))
+
+  :bind (:map lisp-mode-map
+             ("M-r" . nil)
+             ("C-x C-e" . slime-eval-last-expression-in-repl)
+             ("C-c C-c" . slime-compile-and-load-file)
+             ("C-c C-r" . slime-repl-send-region)
+             ("C-c C-f" . slime-compile-defun))
   )
 
 ;; ----------------------------------------------------------------------
