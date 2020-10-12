@@ -664,7 +664,6 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package ivy
-  ;; :disabled
   :diminish counsel-mode
   :init
   (ivy-mode 1)
@@ -790,13 +789,13 @@ Return nil for blank/empty strings."
   ;; :disabled
   :after counsel evil
   :diminish '(counsel-gtags-mode . "Gtags")
+  :hook ((c-mode . counsel-gtags-mode))
   :init
-  (add-hook 'c-mode-hook 'counsel-gtags-mode)
+  ;; (add-hook 'c-mode-hook 'counsel-gtags-mode)
 
   :config
   (setq counsel-gtags-auto-update t
-        counsel-gtags-path-style 'root
-        )
+        counsel-gtags-path-style 'root)
   
   ;; (defun gtags-update ()
   ;;   (interactive)
@@ -852,6 +851,8 @@ Return nil for blank/empty strings."
 ;; ----------------------------------------------------------------------
 (use-package tabbar
   ;; :disabled
+  :hook ((after-save. tabbar-on-saving-buffer)
+         (first-change . tabbar-on-modifying-buffer))
   :config
   (tabbar-mode)
 
@@ -967,9 +968,6 @@ That is, a string used to represent it on the tab bar."
     (tabbar-set-template tabbar-current-tabset nil)
     (tabbar-display-update))
 
-  (add-hook 'after-save-hook 'tabbar-on-saving-buffer)
-  (add-hook 'first-change-hook 'tabbar-on-modifying-buffer)
-
   :if (and window-system (my-font-exists-p "x14y24pxHeadUpDaisy"))
   :config
   (set-face-attribute 'tabbar-default nil :family "x14y24pxHeadUpDaisy")
@@ -1021,6 +1019,7 @@ That is, a string used to represent it on the tab bar."
 (use-package rainbow-delimiters
   ;; :disabled
   :after cl-lib color
+  :hook ((prog-mode . rainbow-delimiters-mode))
   :config
   (set-face-foreground 'rainbow-delimiters-depth-9-face "#9a4040")   ; swap 1 <--> 9
   (set-face-foreground 'rainbow-delimiters-depth-2-face "#ff5e5e")
@@ -1032,30 +1031,22 @@ That is, a string used to represent it on the tab bar."
   (set-face-foreground 'rainbow-delimiters-depth-8-face "#afafaf")
   (set-face-foreground 'rainbow-delimiters-depth-1-face "#f0f0f0")   ; swap 1 <--> 9
 
-  ;; (rainbow-delimiters-mode 1)
   (setq rainbow-delimiters-outermost-only-face-count 1)
   (set-face-bold 'rainbow-delimiters-depth-1-face t)
-
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-  ;; (defvar my-rainbow-delimiters-mode-hook-list '(emacs-lisp-mode-hook
-  ;;                                                lisp-mode-hook
-  ;;                                                c-mode-hook))
-  ;; (dolist (x my-rainbow-delimiters-mode-hook-list)
-  ;;   (add-hook x 'rainbow-delimiters-mode))
   )
 
 ;; ----------------------------------------------------------------------
 (use-package rainbow-mode
   :diminish rainbow-mode
+  :hook ((prog-mode . rainbow-mode))
   :config
   (setq rainbow-html-colors nil)
-  (add-hook 'prog-mode-hook #'rainbow-mode)
   )
 
 ;; ----------------------------------------------------------------------
 (use-package symbol-overlay
   :ensure t
-;  :hook ((prog-mode . symbol-overlay-mode))
+  :hook ((prog-mode . symbol-overlay-mode))
   :config
   (set-face-attribute 'highlight nil :background "#555555" :foreground "#eeeeee" :bold nil)
 
@@ -1068,10 +1059,6 @@ That is, a string used to represent it on the tab bar."
     (set-face-attribute 'symbol-overlay-face-6 nil :background color :bold nil)
     (set-face-attribute 'symbol-overlay-face-7 nil :background color :bold nil)
     (set-face-attribute 'symbol-overlay-face-8 nil :background color :bold nil))
-
-  (defun my-symbol-overlay-mode-enable ()
-    (symbol-overlay-mode t))
-  (add-hook 'prog-mode-hook 'my-symbol-overlay-mode-enable)
 
   (defvar my-symbol-overlay-marker (make-marker))
 
@@ -1164,40 +1151,32 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package git-gutter
-  :disabled
-  :load-path "~/git-clone/emacs-git-gutter"
-  )
-
-;; ----------------------------------------------------------------------
-(use-package git-gutter-fringe
-  ;; :disabled
-  :diminish git-gutter-mode
-  :after git-gutter fringe-helper
+  :ensure t
   :init
-  (global-git-gutter-mode t)
+  (use-package git-gutter-fringe
+    :ensure t
+    :config
+    (fringe-helper-define 'git-gutter-fr:modified nil
+      "........"
+      ".XXXXXX."
+      ".XXXXXX."
+      ".XXXXXX."
+      ".XXXXXX."
+      ".XXXXXX."
+      ".XXXXXX."
+      "........")
+
+    (set-face-attribute 'git-gutter:separator nil :background (face-attribute 'fringe :background))
+    (set-face-attribute 'git-gutter:modified  nil :background (face-attribute 'fringe :background))
+    (set-face-attribute 'git-gutter:added     nil :background (face-attribute 'fringe :background))
+    (set-face-attribute 'git-gutter:deleted   nil :background (face-attribute 'fringe :background))
+    (set-face-attribute 'git-gutter:unchanged nil :background (face-attribute 'fringe :background)))
 
   :config
-  (fringe-helper-define 'git-gutter-fr:modified nil
-                        "........"
-                        ".XXXXXX."
-                        ".XXXXXX."
-                        ".XXXXXX."
-                        ".XXXXXX."
-                        ".XXXXXX."
-                        ".XXXXXX."
-                        "........")
-
-  (set-face-attribute 'git-gutter:separator nil :background (face-attribute 'fringe :background))
-  (set-face-attribute 'git-gutter:modified  nil :background (face-attribute 'fringe :background))
-  (set-face-attribute 'git-gutter:added     nil :background (face-attribute 'fringe :background))
-  (set-face-attribute 'git-gutter:deleted   nil :background (face-attribute 'fringe :background))
-  (set-face-attribute 'git-gutter:unchanged nil :background (face-attribute 'fringe :background))
-
-  (add-hook 'focus-in-hook 'git-gutter)      ; refresh automatically when modifyed current buffer by external program
+  (global-git-gutter-mode)
 
   :bind (([M-down] . git-gutter:next-hunk)
          ([M-up]   . git-gutter:previous-hunk))
-
   )
 
 ;; ----------------------------------------------------------------------
@@ -1294,14 +1273,13 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package flycheck
+  :hook ((c-mode . flycheck-c-mode-hook-func))
   :init
   (defun flycheck-c-mode-hook-func ()
     ;; (flycheck-select-checker 'my-c) 
     (flycheck-mode t)
     (setq flycheck-check-syntax-automatically '(mode-enabled save)) ;; new-line also possible
     )
-
-  (add-hook 'c-mode-hook 'flycheck-c-mode-hook-func)
 
   ;; :config
   ;; (flycheck-define-checker my-c
