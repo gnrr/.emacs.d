@@ -280,7 +280,6 @@
 
  ;; ----------------------------------------------------------------------
  ;; my-elisp
- (add-to-list 'load-path "elisp")
  (require 'discrete)
  (require 'my-backup)
  (setq my-backup-directory "~/bak")
@@ -1167,6 +1166,7 @@ That is, a string used to represent it on the tab bar."
          ("c"      . symbol-overlay-save-symbol)
          ("C-g"    . my-symbol-overlay-exit)
          ([escape] . my-symbol-overlay-exit)
+         ([(return)] . my-symbol-overlay-exit)
          ("s"      . my-symbol-overlay-exit))
   )
 
