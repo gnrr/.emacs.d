@@ -4,8 +4,12 @@
 
 (defvar mql-mode-exts '("\\.mq4\\'" "\\.mq5\\'" "\\.mql\\'"))
 
-(defvar mql4-compiler "c:\\bin\\metalang4.exe")
-(defvar mql5-compiler "c:\\bin\\metalang5.exe")
+(defvar compiler-path (cond ((eq system-type 'windows-nt) '("c:\\bin\\" "/mql4"))
+                      ((eq system-type 'darwin)  '("wine " "/mql4"))
+                      (t nil)))
+
+;; (defvar mql4-compiler "c:\\bin\\metalang4.exe")
+;; (defvar mql5-compiler "c:\\bin\\metalang5.exe")
 
 (defvar mql-mode-keywords
   '(("\\<\\(?:Ask\\|B\\(?:ars\\|id\\)\\|Close\\|Digits\\|High\\|Low\\|Open\\|Point\\|\\(?:Ti\\|Volu\\)me\\)\\>" . font-lock-builtin-face)
@@ -17,16 +21,20 @@
 (defvar ac-source-mql
   '((candidates . mql-source-canidates)))
 
-(defun compile-mql4 ()
-  "compile mql4 file"
+;; fixme
+(defun compile-mql ()
+  "compile mql4/5 file"
   (interactive)
-  (compile (concat mql4-compiler " \"" (buffer-file-name) "\"")))
-
-(defun compile-mql5 ()
-  "compile mql5 file"
-  (interactive)
-  (compile (concat mql5-compiler " \"" (buffer-file-name) "\"")))
-
+  (if (buffer-file-name)
+      (message "This buffer does not have file name.")
+    (let* ((ext (file-name-extension (buffer-file-name)))
+           (exe (strconcat (first mql-compiler) (cond ((string= ext "mq4") "metalang4.exe")
+                                                      ((string= ext "mq5") "metalang5.exe")
+                                                      (t nil))))
+           (args (second mql-compiler)))
+      (if (not (file-exists-p exe))
+          (message (format "Compiler not found: %s" exe))
+        (compile (format "%s %s \"%s\"" exe args (buffer-file-name)))))))
 
 ;;;###autoload
 (define-derived-mode mql-mode c-mode "MQL"
@@ -36,10 +44,18 @@
   (set (make-local-variable 'compilation-scroll-output) t)
 
   (dolist (ext mql-mode-exts)
-    (modify-coding-system-alist 'file ext 'utf-16-dos))
+    (modify-coding-system-alist 'file ext 'utf-16-le-dos))
 
   (define-key mql-mode-map "\C-c\C-b" 'compile-mql5)
   (define-key mql-mode-map "\C-c\C-c" 'compile-mql4)
+
+  (add-hook 'mql-mode-hook #'(lambda ()
+                                     (symbol-overlay-mode t)
+                                     ;; (gtags-mode nil)
+                                     ;; (flycheck-mode nil)
+                                     (when (fboundp 'gtags-mode) (gtags-mode nil))
+                                     (when (fboundp 'flycheck-mode) (flycheck-mode nil))
+                                     ))
   )
 
 ;;;###autoload

@@ -21,4 +21,4 @@ init.el.err
 var/*
 .tutor-ja/*
 .my-save-frame
-
+*.last-load

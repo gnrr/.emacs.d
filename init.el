@@ -5,6 +5,27 @@
 (message "--> loading \"init.el\"...")
 
 ;; ----------------------------------------------------------------------
+;; mycolor
+(defun mycolor (name)
+  (let ((colors '((white       . "#f9f9f9")
+                  (light-gray  . "#a4a2a2")
+                  (gray        . "#7c7a7a")
+                  (dark-gray   . "#555555")
+                  (black       . "#000000")
+                  (red         . "#ff6b7f")
+                  (blue        . "#61afef")
+                  (green       . "#98be65")
+                  (pink        . "#eb7bc0")
+                  (purple      . "#c678dd")
+                  (orange      . "#e3b23c")
+                  ;; (charcoal . "#3d363e"))))
+                  ;; (charcoal    . "#362f37"))))
+                  (charcoal    . "#2b262c"))))
+    (cdr (assoc name colors))))
+
+;; e.g. (mycolor 'red) => "#ff6b7f"
+
+;; ----------------------------------------------------------------------
 ;; defaults
 (setq-default inhibit-startup-screen t)           ; Disable start-up screen
 
@@ -27,7 +48,7 @@
   uniquify-buffer-name-style 'forward              ; Uniquify buffer names
   window-combination-resize t                      ; Resize windows proportionally
 
-  bidi-display-reordering nil                      ; 右から左に読む言語に対応させないことで描画を高速化 
+  bidi-display-reordering nil                      ; 右から左に読む言語に対応させないことで描画を高速化
   vc-follow-symlinks t
   ring-bell-function 'ignore
   parens-require-spaces nil
@@ -42,7 +63,7 @@
   ;; display-line-numbers-width-start 10
   ;; line-number-display-width 10
   display-line-numbers-width 4
-  
+
   ;; 1行スクロール
   ;; (setq scroll-conservatively most-positive-fixnum)
   scroll-margin 3
@@ -110,7 +131,7 @@
  ;; mode-line
  (column-number-mode t)
  (set-face-attribute 'mode-line          nil :box nil :height 1.0)   ; モードラインを非3D化
- (set-face-attribute 'mode-line-inactive nil :box nil :height 1.0 :background (face-background 'hiwin-face) :foreground "#5f5f6f")
+ (set-face-attribute 'mode-line-inactive nil :box nil :height 1.0 :background (mycolor 'charcoal) :foreground "#5f5f6f")
 
  ;; モードラインの割合表示を総行数表示に
  (defvar my-mode-line-position-format "%%3c:%%4l/%d")
@@ -150,7 +171,7 @@
  (global-unset-key [f12])                                ; "M-c"
 
  (global-set-key "(" 'my-insert-paren)                   ; ()
- (global-set-key "{" 'my-insert-brace)                   ; {} 
+ (global-set-key "{" 'my-insert-brace)                   ; {}
  (global-set-key "[" 'my-insert-bracket)                 ; []
  ;; (global-set-key "<" 'my-insert-angle)                   ; <>
  (global-set-key "'" 'my-insert-squote)                  ; ''
@@ -373,11 +394,49 @@
 
   (define-key evil-motion-state-map (kbd "gg") 'my-gg)
 
+  (defvar my-evil-visual-state-symbol-overlay-p nil)
+  (defun my-evil-visual-state-entry-hook-func ()
+    (setq my-evil-visual-state-symbol-overlay-p symbol-overlay-mode)
+    (symbol-overlay-remove-all)
+    (symbol-overlay-mode nil))
+  (defun my-evil-visual-state-exit-hook-func ()
+    (symbol-overlay-mode my-evil-visual-state-symbol-overlay-p))
+
+  (defvar my-evil-visual-state-symbol-overlay-p nil)
+  (defun my-expand-region ()
+    (interactive)
+    (setq my-evil-visual-state-symbol-overlay-p symbol-overlay-mode)
+    (symbol-overlay-remove-all)
+    (symbol-overlay-mode nil)
+    (call-interactively 'er/expand-region))
+
+  (defun my-contract-region ()
+    (interactive)
+    (symbol-overlay-mode my-evil-visual-state-symbol-overlay-p)
+    (call-interactively 'er/contract-region))
+
+  (add-hook 'evil-visual-state-entry-hook #'my-evil-visual-state-entry-hook-func)
+  (add-hook 'evil-visual-state-exit-hook #'my-evil-visual-state-exit-hook-func)
+;  :hook ((evil-visual-state-entry . my-evil-visual-state-entry-hook-func)
+;         (evil-visual-state-exit . my-evil-visual-state-exit-hook-func))
+
+  (define-key evil-normal-state-map (kbd "=") 'er/expand-region)
+  (define-key evil-normal-state-map (kbd "-") 'er/contract-region)
+  (define-key evil-visual-state-map (kbd "=") 'er/expand-region)
+  (define-key evil-visual-state-map (kbd "-") 'er/contract-region)
+ ;; :bind (:map evil-normal-state-map
+ ;;        ("=" . my-expand-region)
+ ;;        ("-" . my-contract-region)
+ ;;        :map evil-visual-state-map
+ ;;        ("=" . my-expand-region)
+ ;;        ("-" . my-contract-region))
+  :config
   ;; package-mode
-  (evil-add-hjkl-bindings package-menu-mode-map 'emacs
-    (kbd "/")       'evil-search-forward
-    (kbd "n")       'evil-search-next
-    (kbd "N")       'evil-search-previous)
+ (evil-add-hjkl-bindings package-menu-mode-map 'emacs
+   (kbd "/")       'evil-search-forward
+   (kbd "n")       'evil-search-next
+   (kbd "N")       'evil-search-previous)
+
 
 )
 
@@ -402,6 +461,7 @@
 
 ;; ----------------------------------------------------------------------
 (use-package evil-surround
+  :disabled
   :after evil
   ;; :diminish evil-surround-mode
   :config
@@ -413,8 +473,8 @@
 
 ;; ----------------------------------------------------------------------
 (use-package evil-lion
+  :ensure t
   :after evil
-  ;; :diminish evil-surround-mode
   :config
   (evil-lion-mode)
 )
@@ -468,7 +528,7 @@
   ;; (set-face-attribute 'fant-lock-variable-name-face nil :weight 'light)
   (set-face-attribute 'font-lock-warning-face nil :weight 'light)
 
-  (set-face-attribute 'minibuffer-prompt  nil :slant 'italic :height 1.1 :foreground "#cc8800")
+  (set-face-attribute 'minibuffer-prompt  nil :slant 'italic :height 1.1 :foreground (mycolor 'blue))
 
   (set-face-attribute 'line-number              nil :height 1.1 :slant 'italic :background "#2B2F38" :foreground "#5B6475")
   (set-face-attribute 'line-number-current-line nil :height 1.1 :slant 'italic :background "#2B2F38")
@@ -573,13 +633,13 @@
 
   (telephone-line-mode 1)
 
-  (set-face-background 'telephone-line-evil-insert   "#ff6b7f")
-  (set-face-background 'telephone-line-evil-normal   "#61afef")
-  (set-face-background 'telephone-line-evil-visual   "#98be65")
-  (set-face-background 'telephone-line-evil-operator "#eb7bc0")
-  (set-face-background 'telephone-line-evil-motion   "#c678dd")
-  (set-face-background 'telephone-line-evil-replace  "#7c7a7a")
-  (set-face-background 'telephone-line-evil-emacs    "#e3b23c")
+  (set-face-background 'telephone-line-evil-insert   (mycolor 'red))
+  (set-face-background 'telephone-line-evil-normal   (mycolor 'blue))
+  (set-face-background 'telephone-line-evil-visual   (mycolor 'green))
+  (set-face-background 'telephone-line-evil-operator (mycolor 'pink))
+  (set-face-background 'telephone-line-evil-motion   (mycolor 'purple))
+  (set-face-background 'telephone-line-evil-replace  (mycolor 'gray))
+  (set-face-background 'telephone-line-evil-emacs    (mycolor 'orange))
 
   (dolist (f '(telephone-line-evil-insert
                telephone-line-evil-normal
@@ -678,7 +738,34 @@ Return nil for blank/empty strings."
         ivy-re-builders-alist '((t . ivy--regex-ignore-order))   ;; configure regexp engine. allow input not in order
         avy-timeout-seconds 0.4
         counsel-find-file-ignore-regexp "\\.elc\\'"
+        ivy-display-style t
   )
+
+  (set-face-foreground 'ivy-action (mycolor 'red))
+  (set-face-background 'ivy-confirm-face "'green")
+  ;; (set-face-background 'ivy-current-match "#0a5770")
+  (set-face-attribute  'ivy-current-match nil
+                    :foreground (mycolor 'black) :background (mycolor 'red))
+  (set-face-background 'ivy-cursor "'brown")
+  (set-face-background 'ivy-highlight-face "'SkyBlue")
+  (set-face-background 'ivy-match-required-face "#ce123e")
+  (set-face-background 'ivy-minibuffer-match-face-1 "#cc8800")
+  ;; (set-face-background 'ivy-minibuffer-match-face-2 "#0a5770")
+  (set-face-attribute  'ivy-minibuffer-match-face-2 nil
+                    ;; :foreground (face-background 'ivy-current-match) :background (face-background 'default) :bold t)
+                    :foreground (face-background 'ivy-current-match) :background nil :bold t)
+  (set-face-background 'ivy-minibuffer-match-face-3 "'DarkGray")
+  (set-face-background 'ivy-minibuffer-match-face-4 "'DarkCyan")
+  (set-face-background 'ivy-minibuffer-match-highlight "#008800")
+  (set-face-background 'ivy-modified-buffer "#008800")
+  ;; (set-face-background 'ivy-prompt-match "#008800")
+  (copy-face 'ivy-current-match 'ivy-prompt-match)
+  (set-face-background 'ivy-remote "#008800")
+  (set-face-background 'ivy-subdir "#008800")
+  (set-face-background 'ivy-virtual "#008800")
+
+  (defalias 'list-faces 'counsel-faces)
+  (fset 'list-faces-display nil)
 
   (defun my-ivy-done ()
     (interactive)
@@ -703,7 +790,7 @@ Return nil for blank/empty strings."
   (setq counsel-git-cmd "rg --files")
   (setq counsel-rg-base-command
         "rg -i --no-heading --line-number --color never %s .")
-  
+
   (defun my-counsel-rg (&optional initial-input)
     "counsel-at-point in specified directory"
     (interactive)
@@ -779,7 +866,7 @@ Return nil for blank/empty strings."
 ;; ----------------------------------------------------------------------
 (use-package counsel-etags
   :disabled
-  ;; :diminish 
+  ;; :diminish
   :after counsel
 
   )
@@ -796,7 +883,7 @@ Return nil for blank/empty strings."
   :config
   (setq counsel-gtags-auto-update t
         counsel-gtags-path-style 'root)
-  
+
   ;; (defun gtags-update ()
   ;;   (interactive)
   ;;   (let ((s (shell-command-to-string "global -uv")))
@@ -883,7 +970,7 @@ Return nil for blank/empty strings."
                       :box nil
                       :overline (face-foreground 'tabbar-selected)
                       )
-  
+
   (set-face-attribute 'tabbar-selected-modified nil
                       :background (face-background 'tabbar-selected)
                       :foreground (face-foreground 'tabbar-selected)
@@ -901,7 +988,7 @@ Return nil for blank/empty strings."
                       :box nil
                       :overline "orange"
                       )
-        
+
   (set-face-attribute 'tabbar-separator nil
                       :background (face-attribute 'tabbar-selected :background))
 
@@ -1001,18 +1088,12 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package expand-region
-  :after evil
+  :after evil symbol-overlay
   :config
   (push 'er/mark-outside-pairs er/try-expand-list)
   (setq expand-region-smart-cursor nil)
   ;; (setq expand-region-autocopy-register "e")
   ;; (setq expand-region-autocopy-kill-ring t)
-
-  (define-key evil-normal-state-map (kbd "+") 'er/expand-region)
-  ;; (define-key evil-visual-state-map (kbd "x") 'er/expand-region)
-  ;; (define-key evil-visual-state-map (kbd "X") 'er/contract-region)
-  (define-key evil-visual-state-map (kbd "+") 'er/expand-region)
-  (define-key evil-visual-state-map (kbd "_") 'er/contract-region)
   )
 
 ;; ----------------------------------------------------------------------
@@ -1048,9 +1129,11 @@ That is, a string used to represent it on the tab bar."
   :ensure t
   :hook ((prog-mode . symbol-overlay-mode))
   :config
+  (setq symbol-overlay-idle-time 0.2)
   (set-face-attribute 'highlight nil :background "#555555" :foreground "#eeeeee" :bold nil)
 
-  (let ((color (face-attribute 'cursor :background)))
+  ;; (let ((color (face-attribute 'telephone-line-evil-insert :background)))
+  (let ((color (mycolor 'red)))
     (set-face-attribute 'symbol-overlay-face-1 nil :background color :bold nil)
     (set-face-attribute 'symbol-overlay-face-2 nil :background color :bold nil)
     (set-face-attribute 'symbol-overlay-face-3 nil :background color :bold nil)
@@ -1071,17 +1154,20 @@ That is, a string used to represent it on the tab bar."
     (interactive)
     (symbol-overlay-put)    ;; exit
     (symbol-overlay-remove-all)
-    (goto-char my-symbol-overlay-marker)
-    (set-marker my-symbol-overlay-marker nil))
+    (when my-symbol-overlay-marker
+      (goto-char my-symbol-overlay-marker)
+      (set-marker my-symbol-overlay-marker nil)))
 
-  :bind (("M-s" . symbol-overlay-mode)
-         ("M-i" . my-symbol-overlay-enter)
+  :bind (:map evil-normal-state-map
+         ("M-s"    . symbol-overlay-mode)
+         ("s"      . my-symbol-overlay-enter)
          :map symbol-overlay-map
-         ("j"   . symbol-overlay-jump-next)
-         ("k"   . symbol-overlay-jump-prev)
-         ("c"   . symbol-overlay-save-symbol)
-         ("C-g" . my-symbol-overlay-exit)
-         ("M-s" . my-symbol-overlay-exit))
+         ("j"      . symbol-overlay-jump-next)
+         ("k"      . symbol-overlay-jump-prev)
+         ("c"      . symbol-overlay-save-symbol)
+         ("C-g"    . my-symbol-overlay-exit)
+         ([escape] . my-symbol-overlay-exit)
+         ("s"      . my-symbol-overlay-exit))
   )
 
 ;; ----------------------------------------------------------------------
@@ -1126,10 +1212,13 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package hiwin
+  ;; :disabled
+  :ensure t
   :diminish hiwin-mode
   :config
-  ;; (set-face-background 'hiwin-face "#313640")
-  (hiwin-mode)
+  (set-face-background 'hiwin-face (mycolor 'charcoal))
+  ;; (set-face-foreground 'hiwin-face (mycolor 'light-gray))
+  (hiwin-mode t)
   )
 
 ;; ----------------------------------------------------------------------
@@ -1268,7 +1357,7 @@ That is, a string used to represent it on the tab bar."
              ([right] . dired-open-in-accordance-with-situation)
              ([left]  . dired-up-directory)
              ("r"     . revert-buffer))                                    ; reload
-  
+
   )
 
 ;; ----------------------------------------------------------------------
@@ -1276,7 +1365,7 @@ That is, a string used to represent it on the tab bar."
   :hook ((c-mode . flycheck-c-mode-hook-func))
   :init
   (defun flycheck-c-mode-hook-func ()
-    ;; (flycheck-select-checker 'my-c) 
+    ;; (flycheck-select-checker 'my-c)
     (flycheck-mode t)
     (setq flycheck-check-syntax-automatically '(mode-enabled save)) ;; new-line also possible
     )
@@ -1400,7 +1489,7 @@ That is, a string used to represent it on the tab bar."
     (interactive "r")
     (let ((buf-name (buffer-name (current-buffer)))
           (sbcl-buf (get-buffer "*slime-repl sbcl*")))
-      (cond (sbcl-buf 
+      (cond (sbcl-buf
              (copy-region-as-kill start end)
              (switch-to-buffer-other-window sbcl-buf)
              (yank)
@@ -1414,6 +1503,14 @@ That is, a string used to represent it on the tab bar."
              ("C-c C-c" . slime-compile-and-load-file)
              ("C-c C-r" . slime-repl-send-region)
              ("C-c C-f" . slime-compile-defun))
+  )
+
+;; ----------------------------------------------------------------------
+(use-package embrace
+  ;; :after evil
+  :ensure t
+  :bind (:map evil-visual-state-map
+              ("s" . embrace-commander))
   )
 
 ;; ----------------------------------------------------------------------
