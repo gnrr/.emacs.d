@@ -530,7 +530,8 @@
   (load-theme 'zerodark t)
 
   (set-face-attribute 'cursor nil
-                      :background (face-attribute 'mode-line :foreground)
+                      ;; :background (face-attribute 'mode-line :foreground)
+                      :background (mycolor 'blue)
                       :foreground "#000000"
                       :weight 'bold)
   (set-face-attribute 'font-lock-builtin-face nil :weight 'light)
@@ -974,7 +975,7 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
 ;; ----------------------------------------------------------------------
 (use-package tabbar
   ;; :disabled
-  :hook ((after-save. tabbar-on-saving-buffer)
+  :hook ((after-save   . tabbar-on-saving-buffer)
          (first-change . tabbar-on-modifying-buffer))
   :config
   (tabbar-mode)
