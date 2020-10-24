@@ -755,13 +755,15 @@ Return nil for blank/empty strings."
                     :foreground (face-background 'ivy-current-match) :background nil :bold t)
   (set-face-background 'ivy-minibuffer-match-face-3 "'DarkGray")
   (set-face-background 'ivy-minibuffer-match-face-4 "'DarkCyan")
-  (set-face-background 'ivy-minibuffer-match-highlight "#008800")
+  ;; (set-face-background 'ivy-minibuffer-match-highlight "#008800")
+  (copy-face 'ivy-highlight-face 'ivy-minibuffer-match-highlight)
+
   (set-face-background 'ivy-modified-buffer "#008800")
   ;; (set-face-background 'ivy-prompt-match "#008800")
   (copy-face 'ivy-current-match 'ivy-prompt-match)
-  (set-face-background 'ivy-remote "#008800")
-  (set-face-background 'ivy-subdir "#008800")
-  (set-face-background 'ivy-virtual "#008800")
+  (set-face-foreground 'ivy-remote (mycolor 'pink))
+  (set-face-foreground 'ivy-subdir (mycolor 'blue))
+  (set-face-foreground 'ivy-virtual (mycolor 'orange))
 
   (defalias 'list-faces 'counsel-faces)
   (fset 'list-faces-display nil)
@@ -833,7 +835,8 @@ Return nil for blank/empty strings."
            (initial-input (or (thing-at-point 'filename) "")))
       (counsel-file-jump initial-input dir)))
 
-  :bind (("M-r"     . counsel-recentf)
+  :bind (("M-z"     . ivy-resume)
+         ("M-r"     . counsel-recentf)
          ("M-o"     . my-counsel-rg)
          ("C-x C-b" . counsel-ibuffer)
          ;; ("C-x C-f" . my-counsel-find-file)
@@ -845,6 +848,7 @@ Return nil for blank/empty strings."
          ("C-j" . ivy-next-line)
          ("C-k" . ivy-previous-line)
          ("M-h" . ivy-backward-kill-word)
+         ("C-o" . nil)
          ;; ("C-f" . ivy-avy)
 
          :map counsel-find-file-map
@@ -860,6 +864,22 @@ Return nil for blank/empty strings."
 
          :map evil-normal-state-map
          ("R" . ivy-resume))
+  )
+
+;; ----------------------------------------------------------------------
+(use-package all-the-icons-ivy
+  :init
+  (setq all-the-icons-scale-factor 1.0)
+  (defun all-the-icons-ivy-icon-for-file (s)
+    "Return icon for filename S.
+Return the octicon for directory if S is a directory.
+Otherwise fallback to calling `all-the-icons-icon-for-file'."
+    (cond
+     ((string-match-p "\\/$" s)
+      (all-the-icons-octicon "file-directory" :face 'all-the-icons-ivy-dir-face))
+     (t (all-the-icons-icon-for-file s :v-adjust 0.02))))
+
+  (all-the-icons-ivy-setup)
   )
 
 ;; ----------------------------------------------------------------------
