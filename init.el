@@ -1279,6 +1279,7 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package git-gutter
   :ensure t
+  :hook ((focus-in . git-gutter))
   :init
   (use-package git-gutter-fringe
     :ensure t
