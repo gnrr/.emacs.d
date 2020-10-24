@@ -5,7 +5,6 @@
 (message "--> loading \"init.el\"...")
 
 ;; ----------------------------------------------------------------------
-;; mycolor
 (defun mycolor (name)
   (let ((colors '((white       . "#f9f9f9")
                   (light-gray  . "#a4a2a2")
@@ -24,6 +23,24 @@
     (cdr (assoc name colors))))
 
 ;; e.g. (mycolor 'red) => "#ff6b7f"
+
+(defun myfont (type)
+  (let* ((fonts '((default . "Source Han Code JP N")
+                  (ui      . "x14y24pxHeadUpDaisy")
+                  (ui2     . "Krungthep")
+                  (ui3     . "Squarea")))
+         (name (cdr (assoc type fonts))))
+    (if window-system
+        (if (x-list-fonts name)
+            name
+          (progn
+            (message (format "ERROR: Font not found: %s" name))
+            nil))
+      (progn
+        (message "ERROR: Specifying font can only work under any window-system.")
+        nil))))
+
+;; e.g. (myfont 'default) => "Source Han Code JP N"
 
 ;; ----------------------------------------------------------------------
 ;; defaults
@@ -536,14 +553,14 @@
   (set-face-attribute 'fringe nil :foreground (face-attribute 'line-number :foreground)
                       	          :background (face-attribute 'line-number :background))
 
-  :if (and window-system (my-font-exists-p "x14y24pxHeadUpDaisy"))
-  :config
-  (set-face-attribute 'mode-line          nil :family "x14y24pxHeadUpDaisy")
-  (set-face-attribute 'mode-line-inactive nil :family "x14y24pxHeadUpDaisy")
-  (set-face-attribute 'minibuffer-prompt  nil :family "x14y24pxHeadUpDaisy")
+  (let ((font (myfont 'ui)))
+    (when font
+      (set-face-attribute 'mode-line          nil :family font)
+      (set-face-attribute 'mode-line-inactive nil :family font)
+      (set-face-attribute 'minibuffer-prompt  nil :family font)
 
-  (set-face-attribute 'line-number              nil :family "x14y24pxHeadUpDaisy")
-  (set-face-attribute 'line-number-current-line nil :family "x14y24pxHeadUpDaisy")
+      (set-face-attribute 'line-number              nil :family font)
+      (set-face-attribute 'line-number-current-line nil :family font)))
 
   )
 
@@ -1074,9 +1091,9 @@ That is, a string used to represent it on the tab bar."
     (tabbar-set-template tabbar-current-tabset nil)
     (tabbar-display-update))
 
-  :if (and window-system (my-font-exists-p "x14y24pxHeadUpDaisy"))
-  :config
-  (set-face-attribute 'tabbar-default nil :family "x14y24pxHeadUpDaisy")
+  (let ((font (myfont 'ui)))
+    (when font
+      (set-face-attribute 'tabbar-default nil :family font)))
 
   )
 
