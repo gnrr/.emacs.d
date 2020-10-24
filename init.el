@@ -1450,7 +1450,13 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 ;; arduino mode
 (use-package mql-mode
-  ;; :config
+  :config
+  (add-hook 'mql-mode-hook (lambda ()
+                             (flycheck-mode -1)
+                             (counsel-gtags-mode -1)
+                             (symbol-overlay-mode t)
+                             ))
+
   ;; (modify-coding-system-alist 'file "\\.mq4\\'" 'utf-16-dos)
   )
 

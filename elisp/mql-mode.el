@@ -49,13 +49,6 @@
   (define-key mql-mode-map "\C-c\C-b" 'compile-mql5)
   (define-key mql-mode-map "\C-c\C-c" 'compile-mql4)
 
-  (add-hook 'mql-mode-hook #'(lambda ()
-                                     (symbol-overlay-mode t)
-                                     ;; (gtags-mode nil)
-                                     ;; (flycheck-mode nil)
-                                     (when (fboundp 'gtags-mode) (gtags-mode nil))
-                                     (when (fboundp 'flycheck-mode) (flycheck-mode nil))
-                                     ))
   )
 
 ;;;###autoload
