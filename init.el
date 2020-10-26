@@ -13,6 +13,7 @@
                   (black       . "#000000")
                   (red         . "#ff6b7f")
                   (blue        . "#61afef")
+                  (dark-blue   . "#126EBA")
                   (green       . "#98be65")
                   (pink        . "#eb7bc0")
                   (purple      . "#c678dd")
@@ -172,6 +173,8 @@
                                    (:eval (or (replace-home-directory-string (buffer-file-name))
                                               (buffer-name)))))
 
+ (set-face-background 'region (mycolor 'dark-blue))
+
  ;; ----------------------------------------------------------------------
  ;; key unbinding / binding
  (keyboard-translate ?\C-h ?\C-?)                        ; c-h
@@ -187,12 +190,12 @@
  (global-unset-key [f11])                                ; toggle-frame-fullscreen
  (global-unset-key [f12])                                ; "M-c"
 
- (global-set-key "(" 'my-insert-paren)                   ; ()
- (global-set-key "{" 'my-insert-brace)                   ; {}
- (global-set-key "[" 'my-insert-bracket)                 ; []
- ;; (global-set-key "<" 'my-insert-angle)                   ; <>
- (global-set-key "'" 'my-insert-squote)                  ; ''
- (global-set-key "\"" 'my-insert-dquote)                 ; ""
+ ;; (global-set-key "(" 'my-insert-paren)                   ; ()
+ ;; (global-set-key "{" 'my-insert-brace)                   ; {}
+ ;; (global-set-key "[" 'my-insert-bracket)                 ; []
+ ;; ;; (global-set-key "<" 'my-insert-angle)                   ; <>
+ ;; (global-set-key "'" 'my-insert-squote)                  ; ''
+ ;; (global-set-key "\"" 'my-insert-dquote)                 ; ""
 
  (global-set-key (kbd "C-m") 'newline-and-indent)             ; Returnキーで改行＋オートインデント
  (global-set-key (kbd "C-0") 'delete-window)
@@ -410,36 +413,32 @@
 
   (define-key evil-motion-state-map (kbd "gg") 'my-gg)
 
-  (defvar my-evil-visual-state-symbol-overlay-p nil)
-  (defun my-evil-visual-state-entry-hook-func ()
-    (setq my-evil-visual-state-symbol-overlay-p symbol-overlay-mode)
-    (symbol-overlay-remove-all)
-    (symbol-overlay-mode nil))
-  (defun my-evil-visual-state-exit-hook-func ()
-    (symbol-overlay-mode my-evil-visual-state-symbol-overlay-p))
+  ;; (defvar my-evil-visual-state-symbol-overlay-p nil)
+  ;; (defun my-evil-visual-state-entry-hook-func ()
+  ;;   (setq my-evil-visual-state-symbol-overlay-p symbol-overlay-mode)
+  ;;   (symbol-overlay-remove-all)
+  ;;   (symbol-overlay-mode nil))
+  ;; (defun my-evil-visual-state-exit-hook-func ()
+  ;;   (symbol-overlay-mode my-evil-visual-state-symbol-overlay-p))
 
-  (defvar my-evil-visual-state-symbol-overlay-p nil)
-  (defun my-expand-region ()
-    (interactive)
-    (setq my-evil-visual-state-symbol-overlay-p symbol-overlay-mode)
-    (symbol-overlay-remove-all)
-    (symbol-overlay-mode nil)
-    (call-interactively 'er/expand-region))
+  ;; (defvar my-evil-visual-state-symbol-overlay-p nil)
+  ;; (defun my-expand-region ()
+  ;;   (interactive)
+  ;;   (setq my-evil-visual-state-symbol-overlay-p symbol-overlay-mode)
+  ;;   (symbol-overlay-remove-all)
+  ;;   (symbol-overlay-mode nil)
+  ;;   (call-interactively 'er/expand-region))
 
-  (defun my-contract-region ()
-    (interactive)
-    (symbol-overlay-mode my-evil-visual-state-symbol-overlay-p)
-    (call-interactively 'er/contract-region))
+  ;; (defun my-contract-region ()
+  ;;   (interactive)
+  ;;   (symbol-overlay-mode my-evil-visual-state-symbol-overlay-p)
+  ;;   (call-interactively 'er/contract-region))
 
-  (add-hook 'evil-visual-state-entry-hook #'my-evil-visual-state-entry-hook-func)
-  (add-hook 'evil-visual-state-exit-hook #'my-evil-visual-state-exit-hook-func)
+  ;; (add-hook 'evil-visual-state-entry-hook #'my-evil-visual-state-entry-hook-func)
+  ;; (add-hook 'evil-visual-state-exit-hook #'my-evil-visual-state-exit-hook-func)
 ;  :hook ((evil-visual-state-entry . my-evil-visual-state-entry-hook-func)
 ;         (evil-visual-state-exit . my-evil-visual-state-exit-hook-func))
 
-  (define-key evil-normal-state-map (kbd "=") 'er/expand-region)
-  (define-key evil-normal-state-map (kbd "-") 'er/contract-region)
-  (define-key evil-visual-state-map (kbd "=") 'er/expand-region)
-  (define-key evil-visual-state-map (kbd "-") 'er/contract-region)
  ;; :bind (:map evil-normal-state-map
  ;;        ("=" . my-expand-region)
  ;;        ("-" . my-contract-region)
@@ -452,7 +451,6 @@
    (kbd "/")       'evil-search-forward
    (kbd "n")       'evil-search-next
    (kbd "N")       'evil-search-previous)
-
 
 )
 
@@ -814,7 +812,7 @@ Return nil for blank/empty strings."
     "counsel-at-point in specified directory"
     (interactive)
     (let ((my-ivy-immediate-flag t))
-    (ivy-read "rg dir: " 'read-file-name-internal
+      (ivy-read "rg dir: " 'read-file-name-internal
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
               :action #'my-counsel-rg-1
@@ -853,6 +851,17 @@ Return nil for blank/empty strings."
            (initial-input (or (thing-at-point 'filename) "")))
       (counsel-file-jump initial-input dir)))
 
+  ;; replace
+  ;; M-x m
+  (defun counsel-find-file-move (x)
+    "Move or rename file X."
+    (let* ((name (if (and ivy--directory (string-match "/$" (ivy-state-current ivy-last)))
+                     (substring (ivy-state-current ivy-last) 0 -1)
+                   (ivy-state-current ivy-last)))
+           (new-name (read-no-blanks-input "Rename to:" name)))
+      (require 'dired-aux)
+      (dired-rename-file name new-name 1)))
+
   :bind (("M-z"     . ivy-resume)
          ("M-r"     . counsel-recentf)
          ("M-o"     . my-counsel-rg)
@@ -867,6 +876,12 @@ Return nil for blank/empty strings."
          ("C-k" . ivy-previous-line)
          ("M-h" . ivy-backward-kill-word)
          ("C-o" . nil)
+         ("M-x" . ivy-dispatching-done)     ; M-o --> M-x
+         ("C-M-x" . ivy-dispatching-call)   ; C-M-o --> C-M-x
+         ("M-j" . ivy-next-history-element)
+         ("M-k" . ivy-previous-history-element)
+         ("M-<down>" . ivy-next-history-element)
+         ("M-<up>"   . ivy-previous-history-element)
          ;; ("C-f" . ivy-avy)
 
          :map counsel-find-file-map
@@ -1131,6 +1146,11 @@ That is, a string used to represent it on the tab bar."
   (setq expand-region-smart-cursor nil)
   ;; (setq expand-region-autocopy-register "e")
   ;; (setq expand-region-autocopy-kill-ring t)
+  (define-key evil-normal-state-map (kbd "=") 'er/expand-region)
+  (define-key evil-normal-state-map (kbd "-") 'er/contract-region)
+  (define-key evil-visual-state-map (kbd "=") 'er/expand-region)
+  (define-key evil-visual-state-map (kbd "-") 'er/contract-region)
+
   )
 
 ;; ----------------------------------------------------------------------
