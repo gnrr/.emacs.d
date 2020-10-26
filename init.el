@@ -194,8 +194,8 @@
  ;; (global-set-key "{" 'my-insert-brace)                   ; {}
  ;; (global-set-key "[" 'my-insert-bracket)                 ; []
  ;; ;; (global-set-key "<" 'my-insert-angle)                   ; <>
- ;; (global-set-key "'" 'my-insert-squote)                  ; ''
- ;; (global-set-key "\"" 'my-insert-dquote)                 ; ""
+ (global-set-key "'" 'my-insert-squote)                  ; ''
+ (global-set-key "\"" 'my-insert-dquote)                 ; ""
 
  (global-set-key (kbd "C-m") 'newline-and-indent)             ; Returnキーで改行＋オートインデント
  (global-set-key (kbd "C-0") 'delete-window)
@@ -323,6 +323,14 @@
  (message (replace-regexp-in-string "(.+)\\|of\\|[\n]" "" (emacs-version)))
 
 )) ;; emacs-startup-hook function ends here
+
+;; ----------------------------------------------------------------------
+;; auto-insert
+(add-hook 'find-file-hook 'auto-insert)
+(setq auto-insert-directory "~/.emacs.d/templates")
+(defvar auto-insert-alist nil)
+(setq auto-insert-alist (append '(("\\.mq4" . "mq4"))
+                                auto-insert-alist))
 
 ;; ----------------------------------------------------------------------
 ;; utility for use-package
@@ -1496,16 +1504,14 @@ That is, a string used to represent it on the tab bar."
   ;;   (set-face-background f (face-attribute 'telephone-line-accent-inactive :background)))
 
   )
-
+ 
 ;; ----------------------------------------------------------------------
-;; arduino mode
 (use-package arduino-mode
   :mode (("\\.pde$" . arduino-mode)
          ("\\.ino$" . arduino-mode))
   )
 
 ;; ----------------------------------------------------------------------
-;; arduino mode
 (use-package mql-mode
   :config
   (add-hook 'mql-mode-hook (lambda ()
@@ -1513,12 +1519,9 @@ That is, a string used to represent it on the tab bar."
                              (counsel-gtags-mode -1)
                              (symbol-overlay-mode t)
                              ))
-
-  ;; (modify-coding-system-alist 'file "\\.mq4\\'" 'utf-16-dos)
   )
 
 ;; ----------------------------------------------------------------------
-;; slime
 (use-package slime
   :init
   (load (expand-file-name "~/.roswell/helper.el"))

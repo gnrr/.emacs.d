@@ -7,14 +7,35 @@
 
 (message "--> loading \"dot.emacs\"...")
 (setq msg-succeeded-dot-emacs "<-- done    \"dot.emacs\"")
+  
+;;;
+;;; test-emacs-settings
+;;;
+(defvar test-emacs-settings-target-list '("dot.emacs" "init.el" "discrete.el" "my-backup.el"))
+(defvar test-emacs-settings-top "~/.emacs.d/dot.emacs")
+(defvar test-emacs-settings-ok-string msg-succeeded-dot-emacs)
+
+(defun test-emacs-settings-1 ()
+  (let* ((cmd (concat "emacs -batch -l " test-emacs-settings-top))
+         (last-line (car (last (delete "" (split-string (shell-command-to-string cmd) "\n"))))))
+    (if (string= last-line test-emacs-settings-ok-string)
+        "OK!"
+      (format "NG: \"%s\"" last-line))))
 
 (defun test-emacs-settings ()
   (interactive)
-  (let* ((cmd "emacs -batch -l ~/.emacs.d/dot.emacs")
-         (last-line (car (last (delete "" (split-string (shell-command-to-string cmd) "\n"))))))
-    (message (if (string= last-line msg-succeeded-dot-emacs)
-                 "OK!"
-               (format "NG: \"%s\"" last-line)))))
+  (let ((fn (file-name-nondirectory (buffer-file-name))))
+    (message "Checking \"%s\"..." fn))
+  (message (test-emacs-settings-1)))
+
+(defun test-emacs-settings-after ()
+  (let ((fn (file-name-nondirectory (buffer-file-name))))
+    (when (and (equal major-mode 'emacs-lisp-mode)
+               (member fn test-emacs-settings-target-list))
+      (message "Checking \"%s\"..." fn)
+      (message (test-emacs-settings-1)))))
+
+(add-hook 'after-save-hook  'test-emacs-settings-after)
 
 ;;
 ;; package setting
