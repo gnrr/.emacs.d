@@ -851,8 +851,8 @@ Return nil for blank/empty strings."
            (initial-input (or (thing-at-point 'filename) "")))
       (counsel-file-jump initial-input dir)))
 
-  ;; replace
-  ;; M-x m
+  ;; re-defun from counsel.el
+  ;; Usage: C-x C-f M-x m
   (defun counsel-find-file-move (x)
     "Move or rename file X."
     (let* ((name (if (and ivy--directory (string-match "/$" (ivy-state-current ivy-last)))
@@ -876,8 +876,8 @@ Return nil for blank/empty strings."
          ("C-k" . ivy-previous-line)
          ("M-h" . ivy-backward-kill-word)
          ("C-o" . nil)
-         ("M-x" . ivy-dispatching-done)     ; M-o --> M-x
-         ("C-M-x" . ivy-dispatching-call)   ; C-M-o --> C-M-x
+         ("M-x" . ivy-dispatching-done)                 ; M-o   --> M-x
+         ("C-M-x" . ivy-dispatching-call)               ; C-M-o --> C-M-x
          ("M-j" . ivy-next-history-element)
          ("M-k" . ivy-previous-history-element)
          ("M-<down>" . ivy-next-history-element)
@@ -886,11 +886,9 @@ Return nil for blank/empty strings."
 
          :map counsel-find-file-map
          ("M-RET" . ivy-immediate-done)
-         ;; ("M-c" . ivy-immediate-done)                      ; M-RET
 
          :map counsel-mode-map
          ("M-RET" . ivy-immediate-done)
-         ;; ("M-c" . ivy-immediate-done)                      ; M-RET
 
          :map evil-motion-state-map
          ("f" . avy-goto-char-timer)
