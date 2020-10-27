@@ -446,7 +446,7 @@ double quotation characters \(\"\) from given string."
 
 ;; ----------------------------------------------------------------------
 ;; @@ `my-font-lighter'
-(defun my-font-lighter ()
+(defun my-font-lighter (face-list)
   (interactive)
   (mapc
    (lambda (face)
@@ -455,7 +455,7 @@ double quotation characters \(\"\) from given string."
            ((eq (face-attribute face :weight) 'bold)       (set-face-attribute face nil :weight 'normal))
            ((eq (face-attribute face :weight) 'extra-bold) (set-face-attribute face nil :weight 'normal))
            ((eq (face-attribute face :weight) 'ultra-bold) (set-face-attribute face nil :weight 'normal))))
-   (face-list)))
+   face-list))
 
 ;; ----------------------------------------------------------------------
 ;; @@ `my-current-path'

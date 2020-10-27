@@ -26,10 +26,13 @@
 ;; e.g. (mycolor 'red) => "#ff6b7f"
 
 (defun myfont (type)
-  (let* ((fonts '((default . "Source Han Code JP N")
-                  (ui      . "x14y24pxHeadUpDaisy")
-                  (ui2     . "Krungthep")
-                  (ui3     . "Squarea")))
+  (let* ((fonts '((default  . "Source Han Code JP N")
+                  (default2 . "Consolas")
+                  (default3 . "Cica")
+                  (default4 . "Hack")
+                  (ui       . "x14y24pxHeadUpDaisy")
+                  (ui2      . "Krungthep")
+                  (ui3      . "Squarea")))
          (name (cdr (assoc type fonts))))
     (if window-system
         (if (x-list-fonts name)
@@ -313,7 +316,14 @@
   nil t)
 
  ;; ----------------------------------------------------------------------
- (my-font-lighter)
+ (defvar exclude-face-list '(mode-line-buffer-id
+                             mode-line-emphasis
+                             mode-line-highlight
+                             mode-line-inactive
+                             mode-line))
+
+ (my-font-lighter (remove-if (lambda (x) (member x exclude-face-list)) (face-list)))
+
  ;; (zerodark-setup-modeline-format)
  (my-load-frame)
 
@@ -813,8 +823,6 @@ Return nil for blank/empty strings."
 
   ;; refrect .ignore to the root of the project
   (setq counsel-git-cmd "rg --files")
-  (setq counsel-rg-base-command
-        "rg -i --no-heading --line-number --color never %s .")
 
   (defun my-counsel-rg (&optional initial-input)
     "counsel-at-point in specified directory"
@@ -830,8 +838,11 @@ Return nil for blank/empty strings."
               :keymap counsel-find-file-map
               :caller 'my-counsel-rg)))
 
+  (defvar my-counsel-rg-exe "")  ;; overridden by _windows.el or _mac.el
+
   (defun my-counsel-rg-1 (dir)
-    (let  ((counsel-ag-base-command counsel-rg-base-command)
+    (let  ((counsel-ag-base-command (concat my-counsel-rg-exe
+                                            " -i --no-heading --line-number --color never %s ."))
            (initial-input (if (symbol-at-point) (symbol-name (symbol-at-point)) ""))
            (initial-directory dir)
            (extra-rg-args nil)
