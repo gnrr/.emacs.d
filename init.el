@@ -771,7 +771,7 @@ Return nil for blank/empty strings."
         ivy-re-builders-alist '((t . ivy--regex-ignore-order))   ;; configure regexp engine. allow input not in order
         avy-timeout-seconds 0.4
         counsel-find-file-ignore-regexp "\\.elc\\'"
-        ivy-display-style t
+        ;; ivy-display-style t
   )
 
   (set-face-foreground 'ivy-action (mycolor 'red))
@@ -782,19 +782,21 @@ Return nil for blank/empty strings."
   (set-face-background 'ivy-cursor "'brown")
   (set-face-background 'ivy-highlight-face "'SkyBlue")
   (set-face-background 'ivy-match-required-face "#ce123e")
-  (set-face-background 'ivy-minibuffer-match-face-1 "#cc8800")
-  ;; (set-face-background 'ivy-minibuffer-match-face-2 "#0a5770")
-  (set-face-attribute  'ivy-minibuffer-match-face-2 nil
-                    ;; :foreground (face-background 'ivy-current-match) :background (face-background 'default) :bold t)
-                    :foreground (face-background 'ivy-current-match) :background nil :bold t)
-  (set-face-background 'ivy-minibuffer-match-face-3 "'DarkGray")
-  (set-face-background 'ivy-minibuffer-match-face-4 "'DarkCyan")
-  ;; (set-face-background 'ivy-minibuffer-match-highlight "#008800")
-  (copy-face 'ivy-highlight-face 'ivy-minibuffer-match-highlight)
 
-  (set-face-background 'ivy-modified-buffer "#008800")
-  ;; (set-face-background 'ivy-prompt-match "#008800")
+  ;; (set-face-background 'ivy-minibuffer-match-face-1 "#cc8800")
+  ;; (set-face-background 'ivy-minibuffer-match-face-2 "#0a5770")
+  ;; (set-face-background 'ivy-minibuffer-match-face-3 "'DarkGray")
+  ;; (set-face-background 'ivy-minibuffer-match-face-4 "'DarkCyan")
+  (set-face-attribute 'ivy-minibuffer-match-face-1 nil :foreground (face-background 'ivy-current-match) :background nil :bold t)
+  (copy-face 'ivy-minibuffer-match-face-1 'ivy-minibuffer-match-face-2)
+  (copy-face 'ivy-minibuffer-match-face-1 'ivy-minibuffer-match-face-3)
+  (copy-face 'ivy-minibuffer-match-face-1 'ivy-minibuffer-match-face-4)
+
+  ;; (copy-face 'ivy-highlight-face 'ivy-minibuffer-match-highlight)
+  (set-face-attribute 'ivy-minibuffer-match-highlight nil :foreground nil :background nil)  ; disable
+
   (copy-face 'ivy-current-match 'ivy-prompt-match)
+  (set-face-background 'ivy-modified-buffer "#008800")
   (set-face-foreground 'ivy-remote (mycolor 'pink))
   (set-face-foreground 'ivy-subdir (mycolor 'blue))
   (set-face-foreground 'ivy-virtual (mycolor 'orange))
@@ -1206,7 +1208,6 @@ That is, a string used to represent it on the tab bar."
   (setq symbol-overlay-idle-time 0.2)
   (set-face-attribute 'highlight nil :background "#555555" :foreground "#eeeeee" :bold nil)
 
-  ;; (let ((color (face-attribute 'telephone-line-evil-insert :background)))
   (let ((color (mycolor 'red)))
     (set-face-attribute 'symbol-overlay-face-1 nil :background color :bold nil)
     (set-face-attribute 'symbol-overlay-face-2 nil :background color :bold nil)
