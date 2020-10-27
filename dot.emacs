@@ -2,6 +2,13 @@
 ;;;
 ;;; ~/.emacs.d/dot.emacs
 ;;;
+
+;;; ** Windows **
+;;; $ cp ~/.emacs.d/dot.emacs ~/.emacs
+;;;   and
+;;; Make new USER ENVIROMENT VARIABLE "HOME" --> "C:\Users\XXXX"
+;;;
+;;; ** Mac/Linux **
 ;;; $ ln -s ~/.emacs.d/dot.emacs ~/.emacs
 ;;;
 

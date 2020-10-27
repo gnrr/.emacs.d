@@ -529,7 +529,7 @@
 ;; ----------------------------------------------------------------------
 (use-package zerodark-theme
   ;; :disabled
-  :load-path "~/git-clone/zerodark-theme"
+  :load-path "~/.emacs.d/elisp/zerodark-theme"
   :if window-system
   :config
   (setq zerodark-use-paddings-in-mode-line nil)
@@ -1250,6 +1250,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package scratch-log
+  :ensure t
   :config
   ;; (setq sl-scratch-log-file "~/.emacs.d/.scratch-log")  ;; default
   ;; (setq sl-prev-scratch-string-file "~/.emacs.d/.scratch-log-prev")
@@ -1523,6 +1524,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package slime
+  :disabled
   :init
   (load (expand-file-name "~/.roswell/helper.el"))
 
