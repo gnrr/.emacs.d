@@ -87,6 +87,11 @@
 (add-hook 'mac-selected-keyboard-input-source-change-hook 'my-mac-selected-keyboard-input-source-change)
 
 ;;
+;;
+;;
+(setq my-counsel-rg-exe "rg")
+
+;;
 ;; fullscreen
 ;;
 (global-set-key (kbd "C-M-f") 'toggle-frame-fullscreen)
