@@ -4,6 +4,9 @@
 ;;;
 (message "--> loading \"init.el\"...")
 
+;; to hide message "ad-handle-definition: ‘vc-revert’ got redefined"
+(setq ad-redefinition-action 'accept)
+
 ;; ----------------------------------------------------------------------
 (defun mycolor (name)
   (let ((colors '((white       . "#f9f9f9")
@@ -13,6 +16,7 @@
                   (black       . "#000000")
                   (red         . "#ff6b7f")
                   (blue        . "#61afef")
+                  (dark-blue2  . "#1684DF")
                   (dark-blue   . "#126EBA")
                   (green       . "#98be65")
                   (pink        . "#eb7bc0")
@@ -638,13 +642,11 @@
   (doom-modeline-icon t)
   (doom-modeline-major-mode-icon t)
   (doom-modeline-minor-modes nil)
-  (doom-modeline-height 16)
+  (doom-modeline-height 18)
 
   :config
-  ;; (setq doom-modeline-height 16)
-  ;; (setq doom-modeline-modal-icon t)
-  ;; (line-number-mode 1)
-  ;; (column-number-mode 1)
+  (set-face-foreground 'doom-modeline-project-dir (mycolor 'blue))
+  (set-face-foreground 'doom-modeline-buffer-file (mycolor 'green))
 
   (let ((bg (face-background 'mode-line)))
     (setq evil-normal-state-tag   (propertize " NORMAL " 'face `((:background ,(mycolor 'blue)    :foreground ,(face-background 'mode-line) :weight bold)))
@@ -663,11 +665,54 @@
 
   (doom-modeline-def-segment linum-colnum
     "Display current linum/colnum"
-    (propertize (format " %s/%s,%-3s"
+    (propertize (format " %4s/%s,%-3s"
                         (format-mode-line "%l")
                         (line-number-at-pos (point-max))
                         (format-mode-line "%c"))
                 'face '(:foreground (face-foreground 'mode-line) :weight bold)))
+
+  ;; mod
+  (doom-modeline-def-segment buffer-encoding
+  "Displays the eol and the encoding style of the buffer the same way Atom does."
+  (when doom-modeline-buffer-encoding
+    (let ((face (if (doom-modeline--active) 'mode-line 'mode-line-inactive))
+          (mouse-face 'mode-line-highlight))
+      (concat
+       (doom-modeline-spc)
+
+       ;; coding system
+       (propertize
+        (let ((sys (coding-system-plist buffer-file-coding-system)))
+          (cond ((memq (plist-get sys :category)
+                       '(coding-category-undecided coding-category-utf-8))
+                 "UTF-8")
+                (t (upcase (symbol-name (plist-get sys :name))))))
+        'face face
+        'mouse-face mouse-face
+        'help-echo 'mode-line-mule-info-help-echo
+        'local-map mode-line-coding-system-map)
+
+       ;; eol type
+       (let ((eol (coding-system-eol-type buffer-file-coding-system)))
+         (propertize
+          (pcase eol
+            (0 "/LF")
+            (1 "/CRLF")
+            (2 "/CR")
+            (_ ""))
+          'face face
+          'mouse-face mouse-face
+          'help-echo (format "End-of-line style: %s\nmouse-1: Cycle"
+                             (pcase eol
+                               (0 "Unix-style LF")
+                               (1 "DOS-style CRLF")
+                               (2 "Mac-style CR")
+                               (_ "Undecided")))
+          'local-map (let ((map (make-sparse-keymap)))
+		               (define-key map [mode-line mouse-1] 'mode-line-change-eol)
+		               map)))
+
+       ))))
 
   (doom-modeline-def-modeline 'main
     ;; '(bar workspace-number window-number evil-state god-state ryo-modal xah-fly-keys matches buffer-info remote-host buffer-position parrot selection-info)
@@ -822,7 +867,7 @@ Return nil for blank/empty strings."
 ;; ----------------------------------------------------------------------
 (use-package dashboard
   :disabled
-;; :defer t
+  ;; :defer t
   :config
   (setq inhibit-startup-message t)
   (setq dashboard-banner-logo-title "Life with Evil")
@@ -836,6 +881,7 @@ Return nil for blank/empty strings."
 (use-package all-the-icons
   :config
   (setq inhibit-compacting-font-caches t)
+  (setq all-the-icons-color-icons nil)
   )
 
 ;; ----------------------------------------------------------------------
