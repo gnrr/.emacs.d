@@ -337,7 +337,7 @@
  (message "<-- startup-hook")
 
  ;; startup message in mini-buffer
- (message (replace-regexp-in-string "(.+)\\|of\\|[\n]" "" (emacs-version)))
+ (message "%s / %s" (replace-regexp-in-string "(.+)\\|of\\|[\n]" "" (emacs-version)) (emacs-init-time))
 
 )) ;; emacs-startup-hook function ends here
 
@@ -669,7 +669,7 @@
                         (format-mode-line "%l")
                         (line-number-at-pos (point-max))
                         (format-mode-line "%c"))
-                'face '(:foreground (face-foreground 'mode-line) :weight bold)))
+                'face '(:foreground (face-foreground mode-line) :weight bold)))
 
   ;; mod
   (doom-modeline-def-segment buffer-encoding
@@ -718,7 +718,7 @@
     ;; '(bar workspace-number window-number evil-state god-state ryo-modal xah-fly-keys matches buffer-info remote-host buffer-position parrot selection-info)
     ;; '(misc-info persp-name lsp github debug minor-modes input-method major-mode process vcs checker))
     '(evil-state matches buffer-info remote-host parrot)
-    '(misc-info persp-name lsp github debug buffer-encoding linum-colnum minor-modes major-mode process vcs checker))
+    '(misc-info persp-name lsp github debug buffer-encoding linum-colnum minor-modes major-mode vcs))
 
   (defun my-minor-modes-toggle ()
     (interactive)
