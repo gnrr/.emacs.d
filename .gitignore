@@ -11,7 +11,6 @@ url/*
 auto-save-list/*
 \.scratch-log*
 scratch-log*
-_windows.el
 history
 .emacs-places
 .historian

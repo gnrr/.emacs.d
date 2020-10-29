@@ -1219,8 +1219,8 @@ the local keymap will be `evil-test-state-local-map', and so on.
       (cond
        ((eq key :tag)
         (setq tag-value arg))
-       ((eq key :message)
-        (setq message-value arg))
+       ;; ((eq key :message)
+       ;;  (setq message-value arg))
        ((eq key :cursor)
         (setq cursor-value arg))
        ((eq key :entry-hook)

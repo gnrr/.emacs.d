@@ -123,7 +123,7 @@
   ;; lock file to `.#hoge'
   create-lockfiles nil                   ; disabled
 
-  )
+  ) ;; setq-default
 
  (fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
  (tool-bar-mode -1)
@@ -155,7 +155,7 @@
  (set-face-attribute 'mode-line-inactive nil :box nil :height 1.0 :background (mycolor 'charcoal) :foreground "#5f5f6f")
 
  ;; モードラインの割合表示を総行数表示に
- (defvar my-mode-line-position-format "%%3c:%%4l/%d")
+ (defvar my-mode-line-position-format "%%3c %%4l/%d")
  (setq mode-line-position '(:eval (format my-mode-line-position-format
                                           (count-lines (point-max) (point-min)))))
 
@@ -184,7 +184,6 @@
 
  (global-unset-key (kbd "M-,"))                          ; xref
  (global-unset-key (kbd "M-."))                          ; xref
- (global-unset-key (kbd "C-r"))                          ; undo-tree-redo
  (global-unset-key (kbd "C-z"))                          ; suspend-frame
  (global-unset-key (kbd "C-x C-z"))                      ; suspend-frame
  (global-unset-key (kbd "C-x o"))                        ; other-window
@@ -218,6 +217,7 @@
  (global-set-key (kbd "C-x n f") 'narrow-to-defun)
 
  (define-key undo-tree-map (kbd "C-?") 'nil)
+ (define-key undo-tree-map (kbd "C-r") 'nil)
  (define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
 
 ;; ----------------------------------------------------------------------
@@ -229,9 +229,10 @@
 ;; ----------------------------------------------------------------------
 ;; which-func-mode
  (setq which-func-unknown "-"
-       which-func-modes '(c-mode python-mode ruby-mode)
+       ;; which-func-modes '(emacs-lisp-mode lisp-interaction-mode c-mode python-mode ruby-mode)
        which-func-format '(:propertize which-func-current face which-func))
 
+ (which-function-mode 1)        ;; global
 ;; ----------------------------------------------------------------------
 ;; diminish
  (defmacro diminish-minor-mode (file mode &optional new-name)
@@ -281,6 +282,8 @@
   ;; custom-set-faces was added by Custom. If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance. If there is more than one, they won't work right.
   '(hl-line ((t (:background "#141619")))))
+
+ ;; (global-hl-line-mode 1)
 
  ;; ----------------------------------------------------------------------
  ;; command aliases
@@ -545,11 +548,24 @@
   (setq zerodark-use-paddings-in-mode-line nil)
   (load-theme 'zerodark t)
 
+  ;; mod
+  (setq zerodark-modeline-vc '(vc-mode (""
+     (:eval (all-the-icons-faicon "code-fork"
+                                  ;; :height 0.9
+                                  :v-adjust 0
+                                  :face (when (zerodark--active-window-p)
+                                          (zerodark-git-face))))
+     (:eval (when (eq zerodark-theme-display-vc-status 'full)
+              ;; (propertize (truncate-string-to-width vc-mode 25 nil nil "...")
+              (propertize (truncate-string-to-width (replace-regexp-in-string "^.+:" " " vc-mode) 25 nil nil "...")
+                          'face (when (zerodark--active-window-p)
+                                  (zerodark-git-face))))))))
+
   (set-face-attribute 'cursor nil
-                      ;; :background (face-attribute 'mode-line :foreground)
                       :background (mycolor 'blue)
                       :foreground "#000000"
                       :weight 'bold)
+
   (set-face-attribute 'font-lock-builtin-face nil :weight 'light)
   (set-face-attribute 'font-lock-comment-face nil :weight 'light)
   (set-face-attribute 'font-lock-constant-face nil :weight 'light)
@@ -582,8 +598,93 @@
   )
 
 ;; ----------------------------------------------------------------------
-(use-package telephone-line
+(use-package eros
+  :config
+  (eros-mode 1)
+  )
+
+;; ----------------------------------------------------------------------
+(use-package doom-themes
+  :disabled
+  :config
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold nil    ; if nil, bold is universally disabled
+        doom-themes-enable-italic nil) ; if nil, italics is universally disabled
+  (load-theme 'doom-one t)
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  
+  ;; Enable custom neotree theme (all-the-icons must be installed!)
+  (doom-themes-neotree-config)
+  ;; or for treemacs users
+  (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
+  (doom-themes-treemacs-config)
+  
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config)
+  )
+
+;; ----------------------------------------------------------------------
+(use-package doom-modeline
   ;; :disabled
+  :ensure t
+  :after evil
+  :hook
+  (after-init . doom-modeline-mode)
+
+  :custom
+  (doom-modeline-buffer-file-name-style 'truncate-with-project)
+  (doom-modeline-icon t)
+  (doom-modeline-major-mode-icon t)
+  (doom-modeline-minor-modes nil)
+  (doom-modeline-height 16)
+
+  :config
+  ;; (setq doom-modeline-height 16)
+  ;; (setq doom-modeline-modal-icon t)
+  ;; (line-number-mode 1)
+  ;; (column-number-mode 1)
+
+  (let ((bg (face-background 'mode-line)))
+    (setq evil-normal-state-tag   (propertize " NORMAL " 'face `((:background ,(mycolor 'blue)    :foreground ,(face-background 'mode-line) :weight bold)))
+          evil-emacs-state-tag    (propertize " EMACS  " 'face `((:background ,(mycolor 'orange)  :foreground ,(face-background 'mode-line) :weight bold)))
+          evil-insert-state-tag   (propertize " INSERT " 'face `((:background ,(mycolor 'red)     :foreground ,(face-background 'mode-line) :weight bold)))
+          evil-motion-state-tag   (propertize " MOTION " 'face `((:background ,(mycolor 'purple)  :foreground ,(face-background 'mode-line) :weight bold)))
+          evil-visual-state-tag   (propertize " VISUAL " 'face `((:background ,(mycolor 'green)   :foreground ,(face-background 'mode-line) :weight bold)))
+          evil-operator-state-tag (propertize " OPERATOR " 'face `((:background ,(mycolor 'pink)    :foreground ,(face-background 'mode-line) :weight bold)))))
+
+  (doom-modeline-def-segment evil-state
+    "The current evil state.  Requires `evil-mode' to be enabled."
+    (when (bound-and-true-p evil-local-mode)
+      ;; (s-trim-right (evil-state-property evil-state :tag t))))
+      (evil-state-property evil-state :tag t)))
+
+
+  (doom-modeline-def-segment linum-colnum
+    "Display current linum/colnum"
+    (propertize (format " %s/%s,%-3s"
+                        (format-mode-line "%l")
+                        (line-number-at-pos (point-max))
+                        (format-mode-line "%c"))
+                'face '(:foreground (face-foreground 'mode-line) :weight bold)))
+
+  (doom-modeline-def-modeline 'main
+    ;; '(bar workspace-number window-number evil-state god-state ryo-modal xah-fly-keys matches buffer-info remote-host buffer-position parrot selection-info)
+    ;; '(misc-info persp-name lsp github debug minor-modes input-method major-mode process vcs checker))
+    '(evil-state matches buffer-info remote-host parrot)
+    '(misc-info persp-name lsp github debug buffer-encoding linum-colnum minor-modes major-mode process vcs checker))
+
+  (defun my-minor-modes-toggle ()
+    (interactive)
+    (setq doom-modeline-minor-modes (if doom-modeline-minor-modes nil t)))
+  ;; (remove-text-properties )
+
+  )
+
+;; ----------------------------------------------------------------------
+(use-package telephone-line
+  :disabled
   :after evil zerodark-theme all-the-icons
   :if window-system
   :config
@@ -618,21 +719,24 @@
                      telephone-line-process-segment))))
 
   (setq telephone-line-rhs
-        '((nil . (telephone-line-misc-info-segment
-                  ;; telephone-line-minor-mode-segment
-                  telephone-line-major-mode-segment))
-          (nil . (telephone-line-position-segment))))
+        '((nil . (telephone-line-position-segment))
+          (nil . (telephone-line-mode-segment))))
+          ;; (nil . (telephone-line-misc-info-segment
+          ;;         ;; telephone-line-minor-mode-segment
+          ;;         telephone-line-mode-segment))))
 
   (telephone-line-defsegment* telephone-line-vc-segment ()
     `(""
       ,zerodark-modeline-vc
+      " "
       ))
 
-  (telephone-line-defsegment* telephone-line-major-mode-segment ()
-    `(""
+  (telephone-line-defsegment* telephone-line-mode-segment ()
+    `("|"
       minor-mode-alist
-      ":"
-     mode-name))
+      " | "
+      mode-name
+      " |"))
   (telephone-line-defsegment* telephone-line-buffer-segment ()
     `(,mode-line-mule-info
       ;; mode-line-modified
@@ -640,12 +744,14 @@
       ;; mode-line-remote
       ,zerodark-modeline-ro
       ,zerodark-modeline-modified
-      ,(telephone-line-raw mode-line-frame-identification t)
       " "
+      ,(telephone-line-raw mode-line-frame-identification t)
+      ""
       ,(telephone-line-raw mode-line-buffer-identification t)))
 
   (telephone-line-defsegment* telephone-line-position-segment ()
-    (telephone-line-raw-mod
+    ;; (telephone-line-raw-mod
+    (telephone-line-raw
      (if (eq major-mode 'paradox-menu-mode)
          ;;Paradox fills this with position info.
          mode-line-front-space
@@ -657,6 +763,11 @@
   ;;       telephone-line-secondary-right-separator 'telephone-line-identity-hollow-left)
 
   (setq telephone-line-primary-left-separator 'telephone-line-flat)
+        ;; telephone-line-secondary-left-separator 'telephone-line-flat
+        ;; telephone-line-primary-right-separator 'telephone-line-flat
+        ;; telephone-line-secondary-right-separator 'telephone-line-flat)
+
+  (setq telephone-line-primary-right-separator 'telephone-line-flat)
         ;; telephone-line-secondary-left-separator 'telephone-line-flat
         ;; telephone-line-primary-right-separator 'telephone-line-flat
         ;; telephone-line-secondary-right-separator 'telephone-line-flat)
@@ -774,6 +885,7 @@ Return nil for blank/empty strings."
         ;; ivy-display-style t
   )
 
+  ;; color
   (set-face-foreground 'ivy-action (mycolor 'red))
   (set-face-background 'ivy-confirm-face "'green")
   ;; (set-face-background 'ivy-current-match "#0a5770")
@@ -787,7 +899,7 @@ Return nil for blank/empty strings."
   ;; (set-face-background 'ivy-minibuffer-match-face-2 "#0a5770")
   ;; (set-face-background 'ivy-minibuffer-match-face-3 "'DarkGray")
   ;; (set-face-background 'ivy-minibuffer-match-face-4 "'DarkCyan")
-  (set-face-attribute 'ivy-minibuffer-match-face-1 nil :foreground (face-background 'ivy-current-match) :background nil :bold t)
+  (set-face-attribute 'ivy-minibuffer-match-face-1 nil :foreground nil :background nil :bold t :underline t)
   (copy-face 'ivy-minibuffer-match-face-1 'ivy-minibuffer-match-face-2)
   (copy-face 'ivy-minibuffer-match-face-1 'ivy-minibuffer-match-face-3)
   (copy-face 'ivy-minibuffer-match-face-1 'ivy-minibuffer-match-face-4)
@@ -912,10 +1024,7 @@ Return nil for blank/empty strings."
          ("M-RET" . ivy-immediate-done)
 
          :map evil-motion-state-map
-         ("f" . avy-goto-char-timer)
-
-         :map evil-normal-state-map
-         ("R" . ivy-resume))
+         ("f" . avy-goto-char-timer))
   )
 
 ;; ----------------------------------------------------------------------
@@ -1109,7 +1218,7 @@ That is, a string used to represent it on the tab bar."
           label
         (tabbar-shorten
          label (max 1 (/ (window-width)
-                         (length (tabbar-riew
+                         (length (tabbar-view
                                   (tabbar-current-tabset)))))))))
 
   (defun tabbar-on-saving-buffer ()
@@ -1487,7 +1596,7 @@ That is, a string used to represent it on the tab bar."
               ;; (setq compile-command "make")               ; make時のデフォルトコマンド
               ;; (c-toggle-hungry-state 1)                   ; backspace時にカーソルの左の空白をすべて削除
               (cwarn-mode)
-              (which-func-mode 1)
+              ;; (which-function-mode 1)
               (display-line-numbers-mode)
               (setq compilation-scroll-output t)
               ;; (setq compile-command "cd ~/git-clone/qmk_firmware; make dichotemy:default")
