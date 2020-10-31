@@ -362,6 +362,7 @@
 (use-package evil
   :init
   (setq evil-want-integration nil)
+  (setq evil-kill-on-visual-paste nil)
 
   :config
   (evil-mode 1)
