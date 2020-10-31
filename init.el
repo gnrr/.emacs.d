@@ -371,11 +371,11 @@
 
   (defalias #'forward-evil-word #'forward-evil-symbol)
 
-  (evil-ex-define-cmd "q[uit]" 'kill-this-buffer)
+  (evil-ex-define-cmd "q[uit]" #'kill-this-buffer)
 
   ;; インサートモードではEmacsキーバインド
   (setcdr evil-insert-state-map nil)
-  (define-key evil-insert-state-map [escape] 'evil-normal-state)
+  (define-key evil-insert-state-map [escape] #'evil-normal-state)
 
   ;; motion-state-map
   (define-key evil-motion-state-map (kbd "C-f") nil)
@@ -390,16 +390,16 @@
   (define-key evil-motion-state-map (kbd "C-y") nil)        ; evil-scrollline-up
   (define-key evil-motion-state-map (kbd "M-h") nil)
 
-  (define-key evil-motion-state-map (kbd "m") 'evil-scroll-page-down)
-  (define-key evil-motion-state-map (kbd "M") 'evil-scroll-page-up)
-  (define-key evil-motion-state-map (kbd "j") 'evil-next-visual-line)
-  (define-key evil-motion-state-map (kbd "k") 'evil-previous-visual-line)
-  (define-key evil-motion-state-map (kbd "6") 'evil-first-non-blank)
-  (define-key evil-motion-state-map (kbd "4") 'evil-end-of-line)
-  (define-key evil-motion-state-map (kbd "]") 'evil-jump-item)
+  (define-key evil-motion-state-map (kbd "m") #'evil-scroll-page-down)
+  (define-key evil-motion-state-map (kbd "M") #'evil-scroll-page-up)
+  (define-key evil-motion-state-map (kbd "j") #'evil-next-visual-line)
+  (define-key evil-motion-state-map (kbd "k") #'evil-previous-visual-line)
+  (define-key evil-motion-state-map (kbd "6") #'evil-first-non-blank)
+  (define-key evil-motion-state-map (kbd "4") #'evil-end-of-line)
+  (define-key evil-motion-state-map (kbd "]") #'evil-jump-item)
   (define-key evil-motion-state-map (kbd "M-w") #'my-forward-word)
   (define-key evil-motion-state-map (kbd ":") nil)          ; unmap :
-  (define-key evil-motion-state-map (kbd ";") 'evil-ex)     ; ; works as :
+  (define-key evil-motion-state-map (kbd ";") #'evil-ex)     ; ; works as :
 
   ;; normal-state-map
   (define-key evil-normal-state-map (kbd "q") nil)
@@ -408,28 +408,28 @@
   (define-key evil-normal-state-map (kbd "C-p") nil)        ; evil-paste-pop
   (define-key evil-normal-state-map (kbd "M-j") nil)        ; outline-move-sutree-*
   (define-key evil-normal-state-map (kbd "M-k") nil)        ; outline-move-sutree-*
-  (define-key evil-normal-state-map (kbd "TAB") 'evil-indent-line)
-  (define-key evil-normal-state-map (kbd "U") 'undo-tree-redo)
-  (define-key evil-normal-state-map (kbd "M-p") 'evil-paste-pop-next)
-  (define-key evil-normal-state-map (kbd "SPC") 'evil-force-normal-state)
+  (define-key evil-normal-state-map (kbd "TAB") #'evil-indent-line)
+  (define-key evil-normal-state-map (kbd "U") #'undo-tree-redo)
+  (define-key evil-normal-state-map (kbd "M-p") #'evil-paste-pop-next)
+  (define-key evil-normal-state-map (kbd "SPC") #'evil-force-normal-state)
 
   ;; insert-state-map
-  (define-key evil-insert-state-map (kbd "C-h") 'delete-backward-char)
-  (define-key evil-insert-state-map (kbd "M-h") 'my-backward-kill-word)
-  (define-key evil-insert-state-map (kbd "TAB") '(lambda () (interactive) (insert-tab)))
+  (define-key evil-insert-state-map (kbd "C-h") #'delete-backward-char)
+  (define-key evil-insert-state-map (kbd "M-h") #'my-backward-kill-word)
+  (define-key evil-insert-state-map (kbd "TAB") #'(lambda () (interactive) (insert-tab)))
 
   (defun evil-return-insert-mode-after-save ()
     (when evil-insert-state-minor-mode
       (funcall (evil-escape--escape-normal-state))))
 
-  (add-hook 'after-save-hook 'evil-return-insert-mode-after-save)
+  (add-hook 'after-save-hook #'evil-return-insert-mode-after-save)
 
   (defun my-evil-paste (&optional arg)
     (interactive  "P")
     (if (memq last-command '(evil-paste-before evil-paste-after))
-        (call-interactively 'evil-paste-pop)
-      (call-interactively (if arg 'evil-paste-before 'evil-paste-after))))
-;;  (define-key evil-normal-state-map (kbd "p") 'my-evil-paste)
+        (call-interactively #'evil-paste-pop)
+      (call-interactively (if arg #'evil-paste-before #'evil-paste-after))))
+;;  (define-key evil-normal-state-map (kbd "p") #'my-evil-paste)
 
   (defun my-gg ()
     (interactive)
@@ -438,7 +438,7 @@
       (push-mark (point) t)
       (goto-char (point-min))))
 
-  (define-key evil-motion-state-map (kbd "gg") 'my-gg)
+  (define-key evil-motion-state-map (kbd "gg") #'my-gg)
 
   ;; (defvar my-evil-visual-state-symbol-overlay-p nil)
   ;; (defun my-evil-visual-state-entry-hook-func ()
