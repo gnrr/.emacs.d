@@ -221,7 +221,7 @@
  (global-set-key (kbd "C-x n f") 'narrow-to-defun)
 
  (define-key undo-tree-map (kbd "C-?") 'nil)
- (define-key undo-tree-map (kbd "C-r") 'nil)
+ (define-key undo-tree-map (kbd "C-r") 'nil)    ;; undo-tree-redo      FIXME: not work
  (define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
 
 ;; ----------------------------------------------------------------------
