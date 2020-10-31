@@ -397,6 +397,7 @@
   (define-key evil-motion-state-map (kbd "6") 'evil-first-non-blank)
   (define-key evil-motion-state-map (kbd "4") 'evil-end-of-line)
   (define-key evil-motion-state-map (kbd "]") 'evil-jump-item)
+  (define-key evil-motion-state-map (kbd "M-w") #'my-forward-word)
   (define-key evil-motion-state-map (kbd ":") nil)          ; unmap :
   (define-key evil-motion-state-map (kbd ";") 'evil-ex)     ; ; works as :
 
