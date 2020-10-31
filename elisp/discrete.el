@@ -11,6 +11,10 @@
 
 ;; ----------------------------------------------------------------------
 ;; @@ utility
+(defun nop ()
+  "often use to disable parent key-bindings"
+  (interactive))
+
 (defun my-get-cursor-color ()
   (car (cl-loop for ($k . $v) in (frame-parameters)
                 if (eq $k 'cursor-color)

@@ -604,12 +604,6 @@
   )
 
 ;; ----------------------------------------------------------------------
-(use-package eros
-  :config
-  (eros-mode 1)
-  )
-
-;; ----------------------------------------------------------------------
 (use-package doom-themes
   :disabled
   :config
@@ -1394,6 +1388,7 @@ That is, a string used to represent it on the tab bar."
          ("M-s"    . symbol-overlay-mode)
          ("s"      . my-symbol-overlay-enter)
          :map symbol-overlay-map
+         ("q"      . nop)
          ("j"      . symbol-overlay-jump-next)
          ("k"      . symbol-overlay-jump-prev)
          ("c"      . symbol-overlay-save-symbol)
