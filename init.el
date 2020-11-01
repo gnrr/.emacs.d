@@ -431,7 +431,7 @@
       (call-interactively (if arg #'evil-paste-before #'evil-paste-after))))
 ;;  (define-key evil-normal-state-map (kbd "p") #'my-evil-paste)
 
-  (defun my-evil-search-from-region-next ()
+  (defun my-evil-search-from-region ()
     "under the evil-visual-state, jump immediately after selecting region and pressing specified key."
     (interactive)
     (when (use-region-p)
@@ -444,7 +444,7 @@
     (evil-normal-state nil)
     (evil-search-next 1))
 
-  (define-key evil-visual-state-map "n" #'my-evil-search-from-region-next)
+;; (define-key evil-visual-state-map "n" #'my-evil-search-from-region)
 
   (defun my-gg ()
     (interactive)
