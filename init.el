@@ -431,20 +431,32 @@
       (call-interactively (if arg #'evil-paste-before #'evil-paste-after))))
 ;;  (define-key evil-normal-state-map (kbd "p") #'my-evil-paste)
 
-  (defun my-evil-search-from-region ()
-    "under the evil-visual-state, jump immediately after selecting region and pressing specified key."
+  (defun my-evil-search-from-region-next ()
+    "under the evil-visual-state, jump forward immediately after selecting region and pressing specified key."
     (interactive)
+    (goto-char (second (my-evil-search-from-region-1)))
+    (evil-search-next 1))
+
+  (defun my-evil-search-from-region-prev ()
+    "under the evil-visual-state, jump backward immediately after selecting region and pressing specified key."
+    (interactive)
+    (goto-char (first (my-evil-search-from-region-1)))
+    (evil-search-previous 1))
+
+  (defun my-evil-search-from-region-1 ()
+    "pull string from region as search string then return '(begin end) of region for jumping"
     (when (use-region-p)
       (let ((beg (region-beginning))
             (end (region-end)))
         (when (< beg end)
           (delete-duplicates (push (buffer-substring-no-properties beg end)
                                    (if evil-regexp-search regexp-search-ring search-ring))
-                             :test 'string= :from-end t))))
-    (evil-normal-state nil)
-    (evil-search-next 1))
+                             :test 'string= :from-end t))
+        (evil-normal-state nil)
+        (list beg end))))
 
-;; (define-key evil-visual-state-map "n" #'my-evil-search-from-region)
+  (define-key evil-visual-state-map "n" #'my-evil-search-from-region-next)
+  (define-key evil-visual-state-map "N" #'my-evil-search-from-region-prev)
 
   (defun my-gg ()
     (interactive)
