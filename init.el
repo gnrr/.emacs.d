@@ -431,15 +431,32 @@
       (call-interactively (if arg #'evil-paste-before #'evil-paste-after))))
 ;;  (define-key evil-normal-state-map (kbd "p") #'my-evil-paste)
 
-  (defun my-evil-search-from-region-next ()
-    "under the evil-visual-state, jump next immediately after selecting region and pressing specified key."
-    (interactive)
-    (my-evil-search-from-region-1 t))
+(defun my-evil-search-dummy-func ()
+  (remove-hook 'isearch-mode-hook #'my-evil-search-dummy-func)
+  (setq unread-command-events (listify-key-sequence (kbd "RET"))))
 
-  (defun my-evil-search-from-region-prev ()
-    "under the evil-visual-state, jump previous immediately after selecting region and pressing specified key."
-    (interactive)
-    (my-evil-search-from-region-1 nil))
+(defun my-evil-search-dummy ()
+  "workaround for `my-evil-search-from-region-next'. swapping search direction is prevent by calling this function prior 'my-evil-search-from-region-next'."
+  (add-hook 'isearch-mode-hook #'my-evil-search-dummy-func)
+  (call-interactively 'evil-search-forward))
+
+(defvar my-evil-search-first-time t)
+
+(defun my-evil-search-from-region-next ()
+  "under the evil-visual-state, jump next immediately after selecting region and pressing specified key."
+  (interactive)
+  (when my-evil-search-first-time
+    (my-evil-search-dummy)
+    (setq my-evil-search-first-time nil))
+  (my-evil-search-from-region-1 t))
+
+(defun my-evil-search-from-region-prev ()
+  "under the evil-visual-state, jump previous immediately after selecting region and pressing specified key."
+  (interactive)
+  (when my-evil-search-first-time
+    (my-evil-search-dummy)
+    (setq my-evil-search-first-time nil))
+  (my-evil-search-from-region-1 nil))
 
   (defun my-evil-search-from-region-1 (forward)
     "pull string from region as search string then jump"
@@ -454,10 +471,7 @@
               (evil-search s forward))))))
 
   (define-key evil-visual-state-map (kbd "n") #'my-evil-search-from-region-next)
-  (define-key evil-normal-state-map (kbd "n") #'evil-search-previous)       ;; can't make sense
-
   (define-key evil-visual-state-map (kbd "N") #'my-evil-search-from-region-prev)
-  (define-key evil-normal-state-map (kbd "N") #'evil-search-next)           ;; can't make sense
 
   (defun my-gg ()
     (interactive)
