@@ -903,6 +903,12 @@ Return nil for blank/empty strings."
   )
 
 ;; ----------------------------------------------------------------------
+(use-package hide-mode-line
+  :hook
+  ((neotree-mode) . hide-mode-line-mode)
+  )
+
+;; ----------------------------------------------------------------------
 (use-package dashboard
   :disabled
   ;; :defer t
