@@ -683,8 +683,9 @@
   (doom-modeline-height 18)
 
   :config
-  (set-face-foreground 'doom-modeline-project-dir (mycolor 'blue))
-  (set-face-foreground 'doom-modeline-buffer-file (mycolor 'green))
+  (set-face-attribute 'doom-modeline-project-dir nil :foreground (mycolor 'blue) :weight 'normal)
+  (set-face-attribute 'doom-modeline-buffer-file nil :foreground (mycolor 'blue) :weight 'bold)
+  (set-face-foreground 'doom-modeline-warning (face-foreground 'doom-modeline-buffer-modified)) ;; for lock icon
 
   (let ((bg (face-background 'mode-line)))
     (setq evil-normal-state-tag   (propertize " NORMAL " 'face `((:background ,(mycolor 'blue)    :foreground ,(face-background 'mode-line) :weight bold)))
@@ -700,7 +701,6 @@
       ;; (s-trim-right (evil-state-property evil-state :tag t))))
       (evil-state-property evil-state :tag t)))
 
-
   (doom-modeline-def-segment linum-colnum
     "Display current linum/colnum"
     (propertize (format " %4s/%s,%-3s"
@@ -708,6 +708,49 @@
                         (line-number-at-pos (point-max))
                         (format-mode-line "%c"))
                 'face '(:foreground (face-foreground mode-line) :weight bold)))
+
+  ;; mod
+  (defun doom-modeline-update-buffer-file-state-icon (&rest _)
+  "Update the buffer or file state in mode-line."
+  (setq doom-modeline--buffer-file-state-icon
+        (when doom-modeline-buffer-state-icon
+          (ignore-errors
+            (concat
+             (cond (buffer-read-only
+                    (doom-modeline-buffer-file-state-icon
+                     ;; "lock" "🔒" "%1*" `(:inherit doom-modeline-warning
+                     "lock" "🔒" "%1*" `(:inherit doom-modeline-buffer-modified
+                                         :weight ,(if doom-modeline-icon
+                                                      'normal
+                                                    'bold))))
+                   ((and buffer-file-name (buffer-modified-p)
+                         doom-modeline-buffer-modification-icon)
+                    (doom-modeline-buffer-file-state-icon
+                     "save" "💾" "%1*" `(:inherit doom-modeline-buffer-modified
+                                         :weight ,(if doom-modeline-icon
+                                                      'normal
+                                                    'bold))))
+                   ((and buffer-file-name
+                         (not (file-exists-p buffer-file-name)))
+                    (doom-modeline-buffer-file-state-icon
+                     "do_not_disturb_alt" "🚫" "!" 'doom-modeline-urgent))
+                   (t ""))
+             (when (or (buffer-narrowed-p)
+                       (and (bound-and-true-p fancy-narrow-mode)
+                            (fancy-narrow-active-p))
+                       (bound-and-true-p dired-narrow-mode))
+               (doom-modeline-buffer-file-state-icon
+                "vertical_align_center" "↕" "><" 'doom-modeline-warning)))))))
+
+  ;; mod
+  (doom-modeline-def-segment buffer-info
+  "Combined information about the current buffer, including the current working
+directory, the file name, and its state (modified, read-only or non-existent)."
+  (concat
+   (doom-modeline-spc)
+   (doom-modeline--buffer-mode-icon)
+   (doom-modeline--buffer-name)
+   (doom-modeline--buffer-state-icon)))
 
   ;; mod
   (doom-modeline-def-segment buffer-encoding
@@ -726,9 +769,10 @@
                  "UTF-8")
                 (t (upcase (symbol-name (plist-get sys :name))))))
         'face face
-        'mouse-face mouse-face
-        'help-echo 'mode-line-mule-info-help-echo
-        'local-map mode-line-coding-system-map)
+        ;; 'mouse-face mouse-face
+        ;; 'help-echo 'mode-line-mule-info-help-echo
+        ;; 'local-map mode-line-coding-system-map
+        )
 
        ;; eol type
        (let ((eol (coding-system-eol-type buffer-file-coding-system)))
@@ -739,16 +783,17 @@
             (2 "/CR")
             (_ ""))
           'face face
-          'mouse-face mouse-face
-          'help-echo (format "End-of-line style: %s\nmouse-1: Cycle"
-                             (pcase eol
-                               (0 "Unix-style LF")
-                               (1 "DOS-style CRLF")
-                               (2 "Mac-style CR")
-                               (_ "Undecided")))
-          'local-map (let ((map (make-sparse-keymap)))
-		               (define-key map [mode-line mouse-1] 'mode-line-change-eol)
-		               map)))
+          ;; 'mouse-face mouse-face
+          ;; 'help-echo (format "End-of-line style: %s\nmouse-1: Cycle"
+          ;;                    (pcase eol
+          ;;                      (0 "Unix-style LF")
+          ;;                      (1 "DOS-style CRLF")
+          ;;                      (2 "Mac-style CR")
+          ;;                      (_ "Undecided")))
+          ;; 'local-map (let ((map (make-sparse-keymap)))
+		  ;;              (define-key map [mode-line mouse-1] 'mode-line-change-eol)
+		  ;;              map)
+          ))
 
        ))))
 
