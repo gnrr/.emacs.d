@@ -129,6 +129,7 @@
 
   ) ;; setq-default
 
+;; ----------------------------------------------------------------------
  (fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
  (tool-bar-mode -1)
  (menu-bar-mode 0)                                 ; Disable the menu bar
@@ -182,7 +183,7 @@
 
  (set-face-background 'region (mycolor 'dark-blue))
 
- ;; ----------------------------------------------------------------------
+ ;; =====================================================================
  ;; key unbinding / binding
  (keyboard-translate ?\C-h ?\C-?)                        ; c-h
 
@@ -237,26 +238,6 @@
        which-func-format '(:propertize which-func-current face which-func))
 
  (which-function-mode 1)        ;; global
-;; ----------------------------------------------------------------------
-;; diminish
- (defmacro diminish-minor-mode (file mode &optional new-name)
-   "https://github.com/larstvei/dot-emacs/blob/master/init.org"
-   `(with-eval-after-load ,file
-      (diminish ,mode ,new-name)))
-
- (defmacro diminish-major-mode (hook new-name)
-   `(add-hook ,hook #'(lambda ()
-                        (setq mode-name ,new-name))))
-
- ;; minor mode
- (diminish-minor-mode "undo-tree" 'undo-tree-mode)
- (diminish-minor-mode "eldoc" 'eldoc-mode)
- (diminish-minor-mode "abbrev" 'abbrev-mode)
- (diminish-minor-mode "cwarn" 'cwarn-mode)
-
- ;; major mode
- (diminish-major-mode 'emacs-lisp-mode-hook "Elisp")
- (diminish-major-mode 'lisp-interaction-mode-hook "LispInt")
 
  ;; ----------------------------------------------------------------------
  (setq truncate-partial-width-windows nil)
@@ -339,15 +320,37 @@
  ;; startup message in mini-buffer
  (message "%s / %s" (replace-regexp-in-string "(.+)\\|of\\|[\n]" "" (emacs-version)) (emacs-init-time))
 
+ (lisp-interaction-mode)                            ;; workaround for scratch-log
 )) ;; emacs-startup-hook function ends here
 
-;; ----------------------------------------------------------------------
+;; ======================================================================
 ;; auto-insert
 (add-hook 'find-file-hook 'auto-insert)
 (setq auto-insert-directory "~/.emacs.d/templates")
 (defvar auto-insert-alist nil)
 (setq auto-insert-alist (append '(("\\.mq4" . "mq4"))
                                 auto-insert-alist))
+
+;; ----------------------------------------------------------------------
+;; diminish
+(defmacro diminish-minor-mode (file mode &optional new-name)
+  "https://github.com/larstvei/dot-emacs/blob/master/init.org"
+  `(with-eval-after-load ,file
+     (diminish ,mode ,new-name)))
+
+(defmacro diminish-major-mode (hook new-name)
+  `(add-hook ,hook #'(lambda ()
+                       (setq mode-name ,new-name))))
+
+;; minor mode
+(diminish-minor-mode "undo-tree" 'undo-tree-mode)
+(diminish-minor-mode "eldoc" 'eldoc-mode)
+(diminish-minor-mode "abbrev" 'abbrev-mode)
+(diminish-minor-mode "cwarn" 'cwarn-mode)
+
+;; major mode
+(diminish-major-mode 'emacs-lisp-mode-hook "Elisp")
+(diminish-major-mode 'lisp-interaction-mode-hook "LispInt")
 
 ;; ----------------------------------------------------------------------
 ;; utility for use-package
@@ -545,13 +548,9 @@
 ;; ----------------------------------------------------------------------
 (use-package evil-surround
   :disabled
-  :after evil
   ;; :diminish evil-surround-mode
   :config
   (global-evil-surround-mode 1)
-
-  :bind (:map evil-normal-state-map
-              ("=" . er/expand-region))
 )
 
 ;; ----------------------------------------------------------------------
@@ -685,7 +684,6 @@
   :config
   (set-face-attribute 'doom-modeline-project-dir nil :foreground (mycolor 'blue) :weight 'normal)
   (set-face-attribute 'doom-modeline-buffer-file nil :foreground (mycolor 'blue) :weight 'bold)
-  (set-face-foreground 'doom-modeline-warning (face-foreground 'doom-modeline-buffer-modified)) ;; for lock icon
 
   (let ((bg (face-background 'mode-line)))
     (setq evil-normal-state-tag   (propertize " NORMAL " 'face `((:background ,(mycolor 'blue)    :foreground ,(face-background 'mode-line) :weight bold)))
@@ -718,7 +716,7 @@
             (concat
              (cond (buffer-read-only
                     (doom-modeline-buffer-file-state-icon
-                     ;; "lock" "🔒" "%1*" `(:inherit doom-modeline-warning
+                  ;; "lock" "🔒" "%1*" `(:inherit doom-modeline-warning
                      "lock" "🔒" "%1*" `(:inherit doom-modeline-buffer-modified
                                          :weight ,(if doom-modeline-icon
                                                       'normal
@@ -757,7 +755,7 @@ directory, the file name, and its state (modified, read-only or non-existent)."
   "Displays the eol and the encoding style of the buffer the same way Atom does."
   (when doom-modeline-buffer-encoding
     (let ((face (if (doom-modeline--active) 'mode-line 'mode-line-inactive))
-          (mouse-face 'mode-line-highlight))
+          (eouse-face 'mode-line-highlight))
       (concat
        (doom-modeline-spc)
 
@@ -1509,17 +1507,6 @@ That is, a string used to represent it on the tab bar."
 (use-package scratch-log
   :ensure t
   :config
-  ;; (setq sl-scratch-log-file "~/.emacs.d/.scratch-log")  ;; default
-  ;; (setq sl-prev-scratch-string-file "~/.emacs.d/.scratch-log-prev")
-  (setq sl-restore-scratch-p t)                   ; 復元
-  (setq sl-prohibit-kill-scratch-buffer-p t)      ; 削除不能
-  ;; *scratch*とscratch-logのメジャーモードをorg-modeにする
-  ;; (setq initial-major-mode 'org-mode)
-  ;; (add-to-list 'auto-mode-alist '("scratch-log" . org-mode))
-  ;; 30秒ごとに自動保存
-  (setq sl-use-timer t)
-  ;; (setq sl-timer-interval 3)
-
   (add-to-list 'recentf-exclude "scratch-log-autoloads.el")
   )
 
@@ -1832,10 +1819,14 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package embrace
+  ;; :disabled
   ;; :after evil
   :ensure t
   :bind (:map evil-visual-state-map
-              ("s" . embrace-commander))
+              ("S" . embrace-commander))
+  :config
+  (set-face-attribute 'embrace-help-key-face  nil :foreground (mycolor 'blue) :weight 'normal)
+  (set-face-attribute 'embrace-help-pair-face nil :foreground (mycolor 'orange) :inverse-video nil)
   )
 
 ;; ----------------------------------------------------------------------

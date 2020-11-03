@@ -401,7 +401,7 @@ Becomes this:
 
 (evil-define-operator evil-Surround-region (beg end type char)
   "Call surround-region, toggling force-new-line"
-  (interactive "<R>c")
+  (interactive "Surround by:<R>c")
   (evil-surround-region beg end type char t))
 
 ;;;###autoload
