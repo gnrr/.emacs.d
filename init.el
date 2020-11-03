@@ -546,14 +546,6 @@
   )
 
 ;; ----------------------------------------------------------------------
-(use-package evil-surround
-  :disabled
-  ;; :diminish evil-surround-mode
-  :config
-  (global-evil-surround-mode 1)
-)
-
-;; ----------------------------------------------------------------------
 (use-package evil-lion
   :ensure t
   :after evil
