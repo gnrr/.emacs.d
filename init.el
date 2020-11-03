@@ -432,31 +432,32 @@
 ;;  (define-key evil-normal-state-map (kbd "p") #'my-evil-paste)
 
   (defun my-evil-search-from-region-next ()
-    "under the evil-visual-state, jump forward immediately after selecting region and pressing specified key."
+    "under the evil-visual-state, jump next immediately after selecting region and pressing specified key."
     (interactive)
-    (goto-char (second (my-evil-search-from-region-1)))
-    (evil-search-next 1))
+    (my-evil-search-from-region-1 t))
 
   (defun my-evil-search-from-region-prev ()
-    "under the evil-visual-state, jump backward immediately after selecting region and pressing specified key."
+    "under the evil-visual-state, jump previous immediately after selecting region and pressing specified key."
     (interactive)
-    (goto-char (first (my-evil-search-from-region-1)))
-    (evil-search-previous 1))
+    (my-evil-search-from-region-1 nil))
 
-  (defun my-evil-search-from-region-1 ()
-    "pull string from region as search string then return '(begin end) of region for jumping"
-    (when (use-region-p)
-      (let ((beg (region-beginning))
-            (end (region-end)))
-        (when (< beg end)
-          (delete-duplicates (push (buffer-substring-no-properties beg end)
-                                   (if evil-regexp-search regexp-search-ring search-ring))
-                             :test 'string= :from-end t))
-        (evil-normal-state nil)
-        (list beg end))))
+  (defun my-evil-search-from-region-1 (forward)
+    "pull string from region as search string then jump"
+    (if (use-region-p)
+        (let ((beg (region-beginning))
+              (end (region-end)))
+          (when (< beg end)
+            (let ((s (buffer-substring-no-properties beg end)))
+              (delete-duplicates (push s (if evil-regexp-search regexp-search-ring search-ring))
+                                 :test 'string= :from-end t)
+              (evil-normal-state nil)
+              (evil-search s forward))))))
 
-  (define-key evil-visual-state-map "n" #'my-evil-search-from-region-next)
-  (define-key evil-visual-state-map "N" #'my-evil-search-from-region-prev)
+  (define-key evil-visual-state-map (kbd "n") #'my-evil-search-from-region-next)
+  (define-key evil-normal-state-map (kbd "n") #'evil-search-previous)       ;; can't make sense
+
+  (define-key evil-visual-state-map (kbd "N") #'my-evil-search-from-region-prev)
+  (define-key evil-normal-state-map (kbd "N") #'evil-search-next)           ;; can't make sense
 
   (defun my-gg ()
     (interactive)
