@@ -13,7 +13,8 @@
 ;; @@ utility
 (defun nop ()
   "often use to disable parent key-bindings"
-  (interactive))
+  (interactive)
+  (message "no operation"))
 
 (defun my-get-cursor-color ()
   (car (cl-loop for ($k . $v) in (frame-parameters)
