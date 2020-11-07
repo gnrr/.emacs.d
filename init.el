@@ -198,9 +198,9 @@
  (global-unset-key [f12])                                ; "M-c"
 
  ;; (global-set-key "(" 'my-insert-paren)                   ; ()
- ;; (global-set-key "{" 'my-insert-brace)                   ; {}
- ;; (global-set-key "[" 'my-insert-bracket)                 ; []
- ;; ;; (global-set-key "<" 'my-insert-angle)                   ; <>
+ (global-set-key "{" 'my-insert-brace)                   ; {}
+ (global-set-key "[" 'my-insert-bracket)                 ; []
+ ;; (global-set-key "<" 'my-insert-angle)                   ; <>
  (global-set-key "'" 'my-insert-squote)                  ; ''
  (global-set-key "\"" 'my-insert-dquote)                 ; ""
 
@@ -381,6 +381,19 @@
   (define-key evil-insert-state-map [escape] #'evil-normal-state)
 
   ;; motion-state-map
+  (define-key evil-motion-state-map (kbd "!") #'nop)                            ; unmap
+  (define-key evil-motion-state-map (kbd "@") #'nop)                            ; unmap
+  (define-key evil-motion-state-map (kbd "#") #'nop)                            ; unmap
+  (define-key evil-motion-state-map (kbd "$") #'nop)                            ; unmap
+  (define-key evil-motion-state-map (kbd "%") #'nop)                            ; unmap
+  (define-key evil-motion-state-map (kbd "^") #'nop)                            ; unmap
+  (define-key evil-motion-state-map (kbd "&") #'nop)                            ; unmap
+  (define-key evil-motion-state-map (kbd "*") #'nop)                            ; unmap
+  (define-key evil-motion-state-map (kbd "(") #'nop)                            ; unmap
+  (define-key evil-motion-state-map (kbd ")") #'nop)                            ; unmap
+  (define-key evil-motion-state-map (kbd "3") #'evil-search-word-backward)      ; works as #
+  (define-key evil-motion-state-map (kbd "8") #'evil-search-word-forward)       ; works as *
+
   (define-key evil-motion-state-map (kbd "C-f") nil)
   (define-key evil-motion-state-map (kbd "C-b") nil)
   (define-key evil-motion-state-map (kbd "C-o") nil)		; evil-jump-backward
@@ -401,8 +414,8 @@
   (define-key evil-motion-state-map (kbd "4") #'evil-end-of-line)
   (define-key evil-motion-state-map (kbd "]") #'evil-jump-item)
   (define-key evil-motion-state-map (kbd "M-w") #'my-forward-word)
-  (define-key evil-motion-state-map (kbd ":") nil)          ; unmap :
-  (define-key evil-motion-state-map (kbd ";") #'evil-ex)     ; ; works as :
+  (define-key evil-motion-state-map (kbd ":") #'nop)        ; unmap :
+  (define-key evil-motion-state-map (kbd ";") #'evil-ex)    ; works as :
 
   ;; normal-state-map
   (define-key evil-normal-state-map (kbd "q") nil)
