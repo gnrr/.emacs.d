@@ -489,6 +489,45 @@
   (define-key evil-visual-state-map (kbd "n") #'my-evil-search-from-region-next)
   (define-key evil-visual-state-map (kbd "N") #'my-evil-search-from-region-prev)
 
+  (defvar my-evil-visual-surround-paired '((?\" . ?\") (?\' . ?\') (?\( . ?\)) (?\{ . ?\}) (?\[ . ?\]) (?\< . ?>)))
+  (defun my-evil-visual-surround-add (beg end)
+    (let* ((c (read-char "?"))
+           (pair (my-evil-visual-surround-get-pair c))
+           head tail)
+      (if pair
+          (setq head (car pair) tail (cdr pair))
+        (setq head c tail c))
+      (save-excursion
+        (goto-char end)
+        (insert (char-to-string tail))
+        (goto-char beg)
+        (insert (char-to-string head)))))
+
+  (defun my-evil-visual-surround-remove (beg end)
+    (save-excursion
+      (goto-char (1- end))
+      (delete-char 1)
+      (goto-char beg)
+      (delete-char 1)))
+
+  (defun my-evil-visual-surround-get-tail (head)
+    (cdr (assoc head my-evil-visual-surround-paired)))
+
+  (defun my-evil-visual-surround-get-pair (head-or-tail)
+    (or (assoc head-or-tail my-evil-visual-surround-paired)
+        (rassoc head-or-tail my-evil-visual-surround-paired)))
+
+  (defun my-evil-visual-surround (beg end)
+    (interactive "r")
+    (let* ((s (buffer-substring-no-properties beg end))
+           (head (aref s 0))
+           (tail (aref s (1- (length s)))))
+      (cond ((or (eq head tail) (eq tail (my-evil-visual-surround-get-tail head)))
+             (my-evil-visual-surround-remove beg end))
+            (t (my-evil-visual-surround-add beg end)))))
+
+  (define-key evil-visual-state-map "s" 'my-evil-visual-surround)
+
   (defun my-gg ()
     (interactive)
     (if (eq last-command this-command)
@@ -1820,18 +1859,6 @@ That is, a string used to represent it on the tab bar."
              ("C-c C-c" . slime-compile-and-load-file)
              ("C-c C-r" . slime-repl-send-region)
              ("C-c C-f" . slime-compile-defun))
-  )
-
-;; ----------------------------------------------------------------------
-(use-package embrace
-  ;; :disabled
-  ;; :after evil
-  :ensure t
-  :bind (:map evil-visual-state-map
-              ("S" . embrace-commander))
-  :config
-  (set-face-attribute 'embrace-help-key-face  nil :foreground (mycolor 'blue) :weight 'normal)
-  (set-face-attribute 'embrace-help-pair-face nil :foreground (mycolor 'orange) :inverse-video nil)
   )
 
 ;; ----------------------------------------------------------------------
