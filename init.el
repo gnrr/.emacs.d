@@ -748,8 +748,7 @@
     (propertize (format " %4s/%s,%-3s"
                         (format-mode-line "%l")
                         (line-number-at-pos (point-max))
-                        (format-mode-line "%c"))
-                'face '(:foreground (face-foreground mode-line) :weight bold)))
+                        (format-mode-line "%c"))))
 
   ;; mod
   (defun doom-modeline-update-buffer-file-state-icon (&rest _)
