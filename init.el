@@ -317,8 +317,11 @@
 
  (message "<-- startup-hook")
 
- ;; startup message in mini-buffer
- (message "%s / %s" (replace-regexp-in-string "(.+)\\|of\\|[\n]" "" (emacs-version)) (emacs-init-time))
+ ;; show emacs version and startup time in mini-buffer
+ (message "%s / %.3f sec"
+          ;; (replace-regexp-in-string "(.+)\\|of\\|[\n]" "" (emacs-version))
+          (substring (version) 0 14)
+          (float-time (time-subtract after-init-time before-init-time)))
 
  (lisp-interaction-mode)                            ;; workaround for scratch-log
 )) ;; emacs-startup-hook function ends here
@@ -577,6 +580,22 @@
    (kbd "N")       'evil-search-previous)
 
 )
+
+;; ----------------------------------------------------------------------
+(use-package evil-leader
+  :config
+  (setq evil-leader/in-all-states 1)
+  (global-evil-leader-mode)
+  (evil-leader/set-leader "SPC")
+
+  (evil-leader/set-key
+    "SPC"   'org-capture
+    "t"     'my-org-capture-add-todo
+    "m"     'my-org-capture-add-memo
+
+    ":"     'shell-command
+    )
+  )
 
 ;; ----------------------------------------------------------------------
 (use-package evil-collection
@@ -1858,6 +1877,31 @@ That is, a string used to represent it on the tab bar."
              ("C-c C-c" . slime-compile-and-load-file)
              ("C-c C-r" . slime-repl-send-region)
              ("C-c C-f" . slime-compile-defun))
+  )
+
+;; ----------------------------------------------------------------------
+(use-package org
+  :config
+  (setq org-directory "~/Dropbox/org")
+  (setq my-org-notes-file (expand-file-name (format "%s/%s" org-directory "memo.org")))
+  (setq my-org-todo-file  (expand-file-name (format "%s/%s" org-directory "todo.org")))
+  (setq org-capture-templates
+        '(("t" "task" checkitem (file my-org-todo-file) "" :unnarrowed t)
+          ("m" "memo" entry (file my-org-notes-file) "* " :unnarrowed t)))
+
+  (defun my-org-capture-add-1 (key text)
+    (unless (string= text "")
+      (org-capture nil key)
+      (insert text)
+      (org-capture-finalize)))
+
+  (defun my-org-capture-add-todo (text)
+    (interactive "sTODO: ")
+    (my-org-capture-add-1 "t" text))
+
+  (defun my-org-capture-add-memo (text)
+    (interactive "sMEMO: ")
+    (my-org-capture-add-1 "m" text))
   )
 
 ;; ----------------------------------------------------------------------

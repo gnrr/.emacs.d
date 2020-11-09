@@ -1316,6 +1316,12 @@ is already narrowed."
   "indicate mark-position at fringe."
   (fringe-indicator (point) 'right-triangle))
 
+;; ----------------------------------------------------------------------
+(defun my-eval-last-sexp ()
+  (interactive)
+  (kill-new (format "%S" (call-interactively 'eval-last-sexp))))
+
+(global-set-key (kbd "C-x C-e") #'my-eval-last-sexp)
 
 ;; ----------------------------------------------------------------------
 ;;;		    SOMEBODY WROTE. THANKS A LOT.		   
