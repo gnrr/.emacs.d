@@ -8,6 +8,13 @@
 (setq ad-redefinition-action 'accept)
 
 ;; ----------------------------------------------------------------------
+;; my-elisp
+(add-to-list 'load-path (locate-user-emacs-file "./elisp"))
+(require 'discrete)
+(require 'my-backup)
+(setq my-backup-directory "~/bak")
+
+;; ----------------------------------------------------------------------
 (defun mycolor (name)
   (let ((colors '((white       . "#f9f9f9")
                   (light-gray  . "#a4a2a2")
@@ -78,8 +85,6 @@
   ring-bell-function 'ignore
   parens-require-spaces nil
   transient-mark-mode nil
-  initial-scratch-message ""
-  indent-tabs-mode nil
   tab-width 4
   tab-stop-list  '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60)
   comment-column 60
@@ -288,14 +293,12 @@
  (defalias 'ind 'indent-region)
  (defalias 'calc 'quick-calc)
 
-
  ;; ----------------------------------------------------------------------
  ;; my-elisp
- (require 'discrete)
- (require 'my-backup)
- (setq my-backup-directory "~/bak")
+ ;; (require 'discrete)
+ ;; (require 'my-backup)
+ ;; (setq my-backup-directory "~/bak")
 
- ;; ----------------------------------------------------------------------
  ;; computer independent
  (load
   (cond ((eq system-type 'windows-nt) "~/.emacs.d/elisp/_windows.el")
@@ -431,6 +434,7 @@
   (define-key evil-normal-state-map (kbd "U") #'undo-tree-redo)
   (define-key evil-normal-state-map (kbd "M-p") #'evil-paste-pop-next)
   (define-key evil-normal-state-map (kbd "SPC") #'evil-force-normal-state)
+  (define-key evil-normal-state-map (kbd "g f") #'my-beginning-of-defun)
 
   ;; insert-state-map
   (define-key evil-insert-state-map (kbd "C-h") #'delete-backward-char)
@@ -583,6 +587,7 @@
 
 ;; ----------------------------------------------------------------------
 (use-package evil-leader
+  :disabled
   :config
   (setq evil-leader/in-all-states 1)
   (global-evil-leader-mode)
@@ -606,6 +611,20 @@
   )
 
 ;; ----------------------------------------------------------------------
+(use-package evil-org
+  :disabled
+  :after evil
+  :config
+  (add-hook 'org-mode-hook 'evil-org-mode)
+  (add-hook 'evil-org-mode-hook
+            (lambda ()
+              (evil-org-set-key-theme)))
+  ;; (require 'evil-org-agenda)
+  ;; (evil-org-agenda-set-keys)
+
+  )
+
+;; ----------------------------------------------------------------------
 (use-package evil-escape
   :after evil
   :diminish evil-escape-mode
@@ -622,14 +641,6 @@
   :after evil
   :config
   (evil-lion-mode)
-)
-
-;; ----------------------------------------------------------------------
-(use-package evil-org
-  :disabled
-  :after evil
-  ;; :diminish evil-org-mode
-  :config
 )
 
 ;; ----------------------------------------------------------------------
@@ -1009,8 +1020,7 @@ Return nil for blank/empty strings."
 
 ;; ----------------------------------------------------------------------
 (use-package hide-mode-line
-  :hook
-  ((neotree-mode) . hide-mode-line-mode)
+  :hook ((neotree-mode) . hide-mode-line-mode)
   )
 
 ;; ----------------------------------------------------------------------
@@ -1389,6 +1399,8 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
                       (cond
                        ;; Always include the current buffer.
                        ((eq (current-buffer) b) b)
+                       ;; ((string= (buffer-name b) (file-name-nondirectory org-default-notes-file)) nil)  ; hide org-capture
+                       ((string-match "^CAPTURE-[0-9]*-*.+\.org$" (buffer-name b)) nil)   ; hide org-capture
                        ((buffer-file-name b) b)
                        ((char-equal ?\  (aref (buffer-name b) 0)) nil)
                        ((equal "*scratch*" (buffer-name b)) b)              ; *scratch*バッファは表示する
@@ -1883,11 +1895,12 @@ That is, a string used to represent it on the tab bar."
 (use-package org
   :config
   (setq org-directory "~/Dropbox/org")
-  (setq my-org-notes-file (expand-file-name (format "%s/%s" org-directory "memo.org")))
-  (setq my-org-todo-file  (expand-file-name (format "%s/%s" org-directory "todo.org")))
+  (setq org-default-notes-file (expand-file-name (path-join org-directory "notes.org")))
+
   (setq org-capture-templates
-        '(("t" "task" checkitem (file my-org-todo-file) "" :unnarrowed t)
-          ("m" "memo" entry (file my-org-notes-file) "* " :unnarrowed t)))
+        '(("t" "Todo" checkitem (file org-default-notes-file) "" :unnarrowed t)
+          ("m" "Memo" entry     (file org-default-notes-file) "* %?" :unnarrowed t)))
+
 
   (defun my-org-capture-add-1 (key text)
     (unless (string= text "")
@@ -1902,6 +1915,39 @@ That is, a string used to represent it on the tab bar."
   (defun my-org-capture-add-memo (text)
     (interactive "sMEMO: ")
     (my-org-capture-add-1 "m" text))
+
+  (defun my-org-capture-open ()
+    (interactive)
+    (find-file org-default-notes-file))
+
+  (defun my-org-capture-close ()
+    (interactive)
+    (save-buffer)
+    (bury-buffer))
+    ;; (kill-buffer))
+
+  (defun my-org-toggle-checkbox ()
+    (interactive)
+      (org-toggle-checkbox))
+
+  (defun my-org-newline ()
+    (interactive))
+
+ 
+  (define-key evil-normal-state-map (kbd "t t") #'my-org-capture-add-todo)
+  (define-key evil-normal-state-map (kbd "t m") #'my-org-capture-add-memo)
+  (define-key evil-normal-state-map (kbd "t r") #'my-org-capture-open)          ; toggle org buffer
+  (evil-define-key 'normal org-mode-map (kbd "q")   #'my-org-capture-close)
+  (evil-define-key 'normal org-mode-map (kbd "t r") #'my-org-capture-close)     ; toggle org buffer
+  (evil-define-key 'normal org-mode-map (kbd "t t") #'nop)
+  (evil-define-key 'normal org-mode-map (kbd "t m") #'nop)
+  (evil-define-key 'normal org-mode-map (kbd "SPC") #'my-org-toggle-checkbox)
+  (evil-define-key 'normal org-mode-map (kbd "C-j") #'org-metadown)
+  (evil-define-key 'normal org-mode-map (kbd "C-k") #'org-metaup)
+
+  (add-hook 'org-mode-hook #'(lambda ()
+                               (org-defkey org-mode-map [(meta up)] nil)        ; unmap for tabbar
+                               (org-defkey org-mode-map [(meta down)] nil)))    ; unmap for tabbar
   )
 
 ;; ----------------------------------------------------------------------

@@ -309,7 +309,7 @@ double quotation characters \(\"\) from given string."
     (beginning-of-defun)
     ))
 
-(define-key evil-normal-state-map (kbd "g f") 'my-beginning-of-defun)
+;(define-key evil-normal-state-map (kbd "g f") 'my-beginning-of-defun)
 
 ;; ----------------------------------------------------------------------
 ;; @@ `my-comment-*'
@@ -1328,6 +1328,11 @@ is already narrowed."
 ;; ----------------------------------------------------------------------
 
 ;; ----------------------------------------------------------------------
+;; https://tototoshi.hatenablog.com/entry/20110520/1305906664
+(defun path-join (&rest paths)
+  (reduce #'(lambda (x y) (concat (file-name-as-directory x) y)) paths))
+
+;; ----------------------------------------------------------------------
 ;; @@ `my-calc'
 ;; http://d.hatena.ne.jp/uhiaha888/20110117/1295273922
 (defun my-calc (beg end)
@@ -1352,7 +1357,8 @@ is already narrowed."
 ;; dired-find-alternate-file の有効化
 (put 'dired-find-alternate-file 'disabled nil)
 ;; RET 標準の dired-find-file では dired バッファが複数作られるので dired-find-alternate-file を代わりに使う
-(define-key dired-mode-map (kbd "RET") 'dired-open-in-accordance-with-situation)
+
+;(define-key dired-mode-map (kbd "RET") 'dired-open-in-accordance-with-situation)
 
 ;; ----------------------------------------------------------------------
 ;;@@ `create tag-file automatically'
