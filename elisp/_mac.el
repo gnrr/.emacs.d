@@ -23,6 +23,12 @@
     (when font
       (set-default-font font)))
 
+;;;
+;;; external program
+;;;
+(add-to-list 'exec-path (expand-file-name "~/bin"))
+(setq my-counsel-rg-exe (expand-file-name "~/bin/rg"))
+
 ;; ;; アイコンやdockから起動したemacsのpathやexec-pathが正しく設定されてないのをなんとかする
 ;; ;; http://yukihr.github.com/blog/2012/03/02/emacs-path-settings/
 ;; ;; when opened from desktep entry, path won't be set to shell's value.
@@ -85,11 +91,6 @@
                       (mycolor 'white))))
  
 (add-hook 'mac-selected-keyboard-input-source-change-hook 'my-mac-selected-keyboard-input-source-change)
-
-;;
-;;
-;;
-(setq my-counsel-rg-exe "rg")
 
 ;;
 ;; fullscreen

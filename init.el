@@ -1113,7 +1113,7 @@ Return nil for blank/empty strings."
   (setq counsel-git-cmd "rg --files")
 
   (defun my-counsel-rg (&optional initial-input)
-    "counsel-at-point in specified directory"
+    "counsel-rg at point in the specified directory"
     (interactive)
     (let ((my-ivy-immediate-flag t))
       (ivy-read "rg dir: " 'read-file-name-internal
@@ -1870,6 +1870,16 @@ That is, a string used to represent it on the tab bar."
         '(("t" "Todo" checkitem (file org-default-notes-file) "" :unnarrowed t)
           ("m" "Memo" entry     (file org-default-notes-file) "* %?" :unnarrowed t)))
 
+  (setq org-todo-keywords
+      '((sequence "[ ]" "[!]" "|" "[X]" )))
+
+  (set-face-attribute 'org-level-2 nil :foreground (face-foreground 'default))
+
+  (set-face-attribute 'org-todo nil :foreground (mycolor 'pink) :background (face-background 'default) :weight 'ultra-bold)
+  (copy-face 'org-todo 'org-checkbox-statistics-todo)
+
+  (set-face-attribute 'org-done nil :foreground (mycolor 'green) :background (face-background 'default) :weight 'ultra-bold)
+  (copy-face 'org-done 'org-checkbox-statistics-done)
 
   (defun my-org-capture-add-1 (key text)
     (unless (string= text "")
@@ -1899,9 +1909,26 @@ That is, a string used to represent it on the tab bar."
     (interactive)
       (org-toggle-checkbox))
 
+  (setq my-org-sym-list '("^*+ \\[.\\] " "^* "))
   (defun my-org-newline ()
-    (interactive))
-
+    (interactive)
+    (let ((lst my-org-sym-list)
+          (beg (line-beginning-position))
+          (end (line-end-position))
+          (pt nil))
+      (save-excursion
+        (dolist (re lst)
+          (goto-char beg)
+          (setq pt (re-search-forward re end t))
+          (when pt (return))))        ; break
+      (unless (eq evil-state 'insert)
+        (goto-char end))
+      (newline)
+      (when pt
+        (insert (replace-regexp-in-string "\\[.\\]" "[ ]" (buffer-substring beg pt)))))
+    (unless (eq evil-state 'insert)
+      (evil-insert-state 1))
+    (org-update-parent-todo-statistics))
 
   (define-key evil-normal-state-map (kbd "t t") #'my-org-capture-add-todo)
   (define-key evil-normal-state-map (kbd "t m") #'my-org-capture-add-memo)
@@ -1913,6 +1940,10 @@ That is, a string used to represent it on the tab bar."
   (evil-define-key 'normal org-mode-map (kbd "SPC") #'my-org-toggle-checkbox)
   (evil-define-key 'normal org-mode-map (kbd "C-j") #'org-metadown)
   (evil-define-key 'normal org-mode-map (kbd "C-k") #'org-metaup)
+  (evil-define-key 'normal org-mode-map (kbd "RET") #'my-org-newline)
+  (evil-define-key 'insert org-mode-map (kbd "RET") #'my-org-newline)
+
+  ;; (evil-define-key 'normal org-mode-map (kbd "M-c") #'my-org-meta-ret)          ; M-RET
 
   (add-hook 'org-mode-hook #'(lambda ()
                                (org-defkey org-mode-map [(meta up)] nil)        ; unmap for tabbar
