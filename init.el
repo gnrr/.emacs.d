@@ -586,42 +586,11 @@
 )
 
 ;; ----------------------------------------------------------------------
-(use-package evil-leader
-  :disabled
-  :config
-  (setq evil-leader/in-all-states 1)
-  (global-evil-leader-mode)
-  (evil-leader/set-leader "SPC")
-
-  (evil-leader/set-key
-    "SPC"   'org-capture
-    "t"     'my-org-capture-add-todo
-    "m"     'my-org-capture-add-memo
-
-    ":"     'shell-command
-    )
-  )
-
-;; ----------------------------------------------------------------------
 (use-package evil-collection
   ;; :disabled
   :after evil
   :config
   (evil-collection-init '(edebug dired neotree slime help))
-  )
-
-;; ----------------------------------------------------------------------
-(use-package evil-org
-  :disabled
-  :after evil
-  :config
-  (add-hook 'org-mode-hook 'evil-org-mode)
-  (add-hook 'evil-org-mode-hook
-            (lambda ()
-              (evil-org-set-key-theme)))
-  ;; (require 'evil-org-agenda)
-  ;; (evil-org-agenda-set-keys)
-
   )
 
 ;; ----------------------------------------------------------------------
@@ -1933,7 +1902,7 @@ That is, a string used to represent it on the tab bar."
   (defun my-org-newline ()
     (interactive))
 
- 
+
   (define-key evil-normal-state-map (kbd "t t") #'my-org-capture-add-todo)
   (define-key evil-normal-state-map (kbd "t m") #'my-org-capture-add-memo)
   (define-key evil-normal-state-map (kbd "t r") #'my-org-capture-open)          ; toggle org buffer
