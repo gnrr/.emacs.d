@@ -1950,7 +1950,7 @@ That is, a string used to represent it on the tab bar."
 
   (defun my-org-cycle-todo-1 (reverse)
     (save-excursion
-      (goto-char (point-min))
+      (goto-char (line-beginning-position))
       (when (re-search-forward "\\(^*+ \\[\\)\\(.\\)\\(\\] \\)" (line-end-position) t)
         (let ((kw (match-string 2)))
           (let ((rpl (if reverse
