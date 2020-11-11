@@ -1906,9 +1906,21 @@ That is, a string used to represent it on the tab bar."
     (bury-buffer))
     ;; (kill-buffer))
 
-  (defun my-org-toggle-checkbox ()
+  (defun my-org-todo-goto-working-forward ()
     (interactive)
-      (org-toggle-checkbox))
+    (defun find () (re-search-forward  "^*+ \\[!\\] " nil 1))
+    (unless (funcall 'find)
+      (goto-char (point-min))
+      (funcall 'find)))
+
+  (defun my-org-todo-goto-working-backward ()
+    (interactive)
+    (defun find () (prog2 (goto-char (line-beginning-position))
+                       (re-search-backward "^*+ \\[!\\] " nil 1)
+                     (goto-char (+ (point) (- (match-end 0) (match-beginning 0))))))
+    (unless (funcall 'find)
+      (goto-char (point-max))
+      (funcall 'find)))
 
   (defun my-org-newline ()
     (interactive)
@@ -1938,7 +1950,7 @@ That is, a string used to represent it on the tab bar."
 
   (defun my-org-cycle-todo-1 (reverse)
     (save-excursion
-      (beginning-of-line)
+      (goto-char (point-min))
       (when (re-search-forward "\\(^*+ \\[\\)\\(.\\)\\(\\] \\)" (line-end-position) t)
         (let ((kw (match-string 2)))
           (let ((rpl (if reverse
@@ -1953,22 +1965,22 @@ That is, a string used to represent it on the tab bar."
               (my-org-todo-update-line)
               (org-update-parent-todo-statistics)))))))
 
-(defun my-org-todo-update-line ()
-  (let ((eol (line-end-position)))
+  (defun my-org-todo-update-line ()
+    (let ((eol (line-end-position)))
+      (save-excursion
+        (beginning-of-line)
+        (when (re-search-forward "\\(^*+ \\[\\)\\(.\\)\\(\\] \\)" eol t)
+          (let ((kw (match-string 2)))
+            (mapc #'delete-overlay (overlays-at (1- eol)))
+            (overlay-put (make-overlay (match-end 3) eol) 'face (cond ((string= kw "X") 'org-done)
+                                                                      ((string= kw "!") 'org-todo)
+                                                                      (t                'default))))))))
+  (defun my-org-todo-update-line-all ()
     (save-excursion
-      (beginning-of-line)
-      (when (re-search-forward "\\(^*+ \\[\\)\\(.\\)\\(\\] \\)" eol t)
-        (let ((kw (match-string 2)))
-          (mapc #'delete-overlay (overlays-at (1- eol)))
-          (overlay-put (make-overlay (match-end 3) eol) 'face (cond ((string= kw "X") 'org-done)
-                                                                    ((string= kw "!") 'org-todo)
-                                                                    (t                'default))))))))
-(defun my-org-todo-update-line-all ()
-  (save-excursion
-    (beginning-of-buffer)
-    (while (not (eobp))
-      (my-org-todo-update-line)
-      (next-line 1))))
+      (goto-char (point-min))
+      (while (not (eobp))
+        (my-org-todo-update-line)
+        (next-line 1))))
 
   (define-key evil-normal-state-map (kbd "t t") #'my-org-capture-add-todo)
   (define-key evil-normal-state-map (kbd "t m") #'my-org-capture-add-memo)
@@ -1983,6 +1995,9 @@ That is, a string used to represent it on the tab bar."
   (evil-define-key 'normal org-mode-map (kbd "C-k") #'org-metaup)
   (evil-define-key 'normal org-mode-map (kbd "RET") #'my-org-newline)
   (evil-define-key 'insert org-mode-map (kbd "RET") #'my-org-newline)
+  (evil-define-key 'normal org-mode-map (kbd "<M-down>") #'my-org-todo-goto-working-forward)
+  (evil-define-key 'normal org-mode-map (kbd "<M-up>")   #'my-org-todo-goto-working-backward)
+
 
 
   ;; (evil-define-key 'normal org-mode-map (kbd "M-c") #'my-org-meta-ret)          ; M-RET
