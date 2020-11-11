@@ -291,6 +291,7 @@
  (defalias 'com 'comment-or-uncomment-region)
  (defalias 'ind 'indent-region)
  (defalias 'calc 'quick-calc)
+ (defalias 'package-uninstall 'package-delete)
 
  ;; ----------------------------------------------------------------------
  ;; my-elisp
