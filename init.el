@@ -225,6 +225,10 @@
  (global-set-key (kbd "C-x C-t") 'toggle-truncate-lines)
  (global-set-key (kbd "C-x n f") 'narrow-to-defun)
 
+ (global-set-key (kbd "M-C-0") #'text-scale-adjust)
+ (global-set-key (kbd "M-C--") #'(lambda () (interactive) (text-scale-decrease 1)))
+ (global-set-key (kbd "M-C-=") #'(lambda () (interactive) (text-scale-increase 1)))
+
  (define-key undo-tree-map (kbd "C-?") 'nil)
  (define-key undo-tree-map (kbd "C-r") 'nil)    ;; undo-tree-redo      FIXME: not work
  (define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
