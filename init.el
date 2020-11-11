@@ -2008,6 +2008,11 @@ That is, a string used to represent it on the tab bar."
   )
 
 ;; ----------------------------------------------------------------------
+(use-package shell-script-mode
+  :mode (("zshrc" . shell-script-mode))
+  )
+
+;; ----------------------------------------------------------------------
 (message "<-- done    \"init.el\"")
 
 ;;
