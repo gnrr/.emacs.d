@@ -447,6 +447,8 @@
   (define-key evil-normal-state-map (kbd "M-p") #'evil-paste-pop-next)
   (define-key evil-normal-state-map (kbd "SPC") #'evil-force-normal-state)
   (define-key evil-normal-state-map (kbd "g f") #'my-beginning-of-defun)
+  (define-key evil-normal-state-map (kbd "A") #'nop)                 ; unmap A
+  (define-key evil-normal-state-map (kbd "a") #'evil-append-line)    ; works as A
 
   ;; insert-state-map
   (define-key evil-insert-state-map (kbd "C-h") #'delete-backward-char)
