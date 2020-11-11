@@ -1897,7 +1897,8 @@ That is, a string used to represent it on the tab bar."
 
   (defun my-org-capture-open ()
     (interactive)
-    (find-file org-default-notes-file))
+    (find-file org-default-notes-file)
+    (my-org-todo-update-line-all))
 
   (defun my-org-capture-close ()
     (interactive)
@@ -1949,7 +1950,25 @@ That is, a string used to represent it on the tab bar."
                              (t nil)))))
             (when rpl
               (replace-match (concat (match-string 1) rpl (match-string 3)))
+              (my-org-todo-update-line)
               (org-update-parent-todo-statistics)))))))
+
+(defun my-org-todo-update-line ()
+  (let ((eol (line-end-position)))
+    (save-excursion
+      (beginning-of-line)
+      (when (re-search-forward "\\(^*+ \\[\\)\\(.\\)\\(\\] \\)" eol t)
+        (let ((kw (match-string 2)))
+          (mapc #'delete-overlay (overlays-at (1- eol)))
+          (overlay-put (make-overlay (match-end 3) eol) 'face (cond ((string= kw "X") 'org-done)
+                                                                    ((string= kw "!") 'org-todo)
+                                                                    (t                'default))))))))
+(defun my-org-todo-update-line-all ()
+  (save-excursion
+    (beginning-of-buffer)
+    (while (not (eobp))
+      (my-org-todo-update-line)
+      (next-line 1))))
 
   (define-key evil-normal-state-map (kbd "t t") #'my-org-capture-add-todo)
   (define-key evil-normal-state-map (kbd "t m") #'my-org-capture-add-memo)
