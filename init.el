@@ -599,40 +599,6 @@
     (setq unread-command-events (listify-key-sequence (kbd "RET"))))
 
   ;; ----------
-
-  ;; (defvar my-evil-visual-state-symbol-overlay-p nil)
-  ;; (defun my-evil-visual-state-entry-hook-func ()
-  ;;   (setq my-evil-visual-state-symbol-overlay-p symbol-overlay-mode)
-  ;;   (symbol-overlay-remove-all)
-  ;;   (symbol-overlay-mode nil))
-  ;; (defun my-evil-visual-state-exit-hook-func ()
-  ;;   (symbol-overlay-mode my-evil-visual-state-symbol-overlay-p))
-
-  ;; (defvar my-evil-visual-state-symbol-overlay-p nil)
-  ;; (defun my-expand-region ()
-  ;;   (interactive)
-  ;;   (setq my-evil-visual-state-symbol-overlay-p symbol-overlay-mode)
-  ;;   (symbol-overlay-remove-all)
-  ;;   (symbol-overlay-mode nil)
-  ;;   (call-interactively 'er/expand-region))
-
-  ;; (defun my-contract-region ()
-  ;;   (interactive)
-  ;;   (symbol-overlay-mode my-evil-visual-state-symbol-overlay-p)
-  ;;   (call-interactively 'er/contract-region))
-
-  ;; (add-hook 'evil-visual-state-entry-hook #'my-evil-visual-state-entry-hook-func)
-  ;; (add-hook 'evil-visual-state-exit-hook #'my-evil-visual-state-exit-hook-func)
-;  :hook ((evil-visual-state-entry . my-evil-visual-state-entry-hook-func)
-;         (evil-visual-state-exit . my-evil-visual-state-exit-hook-func))
-
- ;; :bind (:map evil-normal-state-map
- ;;        ("=" . my-expand-region)
- ;;        ("-" . my-contract-region)
- ;;        :map evil-visual-state-map
- ;;        ("=" . my-expand-region)
- ;;        ("-" . my-contract-region))
-
 )
 
 ;; ----------------------------------------------------------------------
