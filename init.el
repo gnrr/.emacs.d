@@ -280,8 +280,7 @@
 
  ;; for elisp
  (defalias 'ev 'eval-defun)
- (eval-after-load "edebug"
-   '(defalias 'ede 'edebug-defun))
+ (defalias 'reb 're-builder)
 
  ;; apropos
  (when (featurep 'counsel)
@@ -1870,6 +1869,7 @@ That is, a string used to represent it on the tab bar."
         '(("t" "Todo" checkitem (file org-default-notes-file) "" :unnarrowed t)
           ("m" "Memo" entry     (file org-default-notes-file) "* %?" :unnarrowed t)))
 
+  ;; org-todo
   (setq org-todo-keywords
       '((sequence "[ ]" "[!]" "|" "[X]" )))
 
@@ -1909,15 +1909,13 @@ That is, a string used to represent it on the tab bar."
     (interactive)
       (org-toggle-checkbox))
 
-  (setq my-org-sym-list '("^*+ \\[.\\] " "^* "))
   (defun my-org-newline ()
     (interactive)
-    (let ((lst my-org-sym-list)
-          (beg (line-beginning-position))
+    (let ((beg (line-beginning-position))
           (end (line-end-position))
           (pt nil))
       (save-excursion
-        (dolist (re lst)
+        (dolist (re '("^*+ \\[.\\] " "^* "))
           (goto-char beg)
           (setq pt (re-search-forward re end t))
           (when pt (return))))        ; break
@@ -1930,6 +1928,29 @@ That is, a string used to represent it on the tab bar."
       (evil-insert-state 1))
     (org-update-parent-todo-statistics))
 
+  (defun my-org-cycle-todo-forward ()
+    (interactive)
+    (my-org-cycle-todo-1 nil))
+  (defun my-org-cycle-todo-backward ()
+    (interactive)
+    (my-org-cycle-todo-1 t))
+
+  (defun my-org-cycle-todo-1 (reverse)
+    (save-excursion
+      (beginning-of-line)
+      (when (re-search-forward "\\(^*+ \\[\\)\\(.\\)\\(\\] \\)" (line-end-position) t)
+        (let ((kw (match-string 2)))
+          (let ((rpl (if reverse
+                         (cond ((string= kw "X") "!")
+                               ((string= kw "!") " ")
+                               (t nil))
+                       (cond ((string= kw " ") "!")
+                             ((string= kw "!") "X")
+                             (t nil)))))
+            (when rpl
+              (replace-match (concat (match-string 1) rpl (match-string 3)))
+              (org-update-parent-todo-statistics)))))))
+
   (define-key evil-normal-state-map (kbd "t t") #'my-org-capture-add-todo)
   (define-key evil-normal-state-map (kbd "t m") #'my-org-capture-add-memo)
   (define-key evil-normal-state-map (kbd "t r") #'my-org-capture-open)          ; toggle org buffer
@@ -1937,11 +1958,13 @@ That is, a string used to represent it on the tab bar."
   (evil-define-key 'normal org-mode-map (kbd "t r") #'my-org-capture-close)     ; toggle org buffer
   (evil-define-key 'normal org-mode-map (kbd "t t") #'nop)
   (evil-define-key 'normal org-mode-map (kbd "t m") #'nop)
-  (evil-define-key 'normal org-mode-map (kbd "SPC") #'my-org-toggle-checkbox)
+  (evil-define-key 'normal org-mode-map (kbd "SPC")   #'my-org-cycle-todo-forward)
+  (evil-define-key 'normal org-mode-map (kbd "S-SPC") #'my-org-cycle-todo-backward)
   (evil-define-key 'normal org-mode-map (kbd "C-j") #'org-metadown)
   (evil-define-key 'normal org-mode-map (kbd "C-k") #'org-metaup)
   (evil-define-key 'normal org-mode-map (kbd "RET") #'my-org-newline)
   (evil-define-key 'insert org-mode-map (kbd "RET") #'my-org-newline)
+
 
   ;; (evil-define-key 'normal org-mode-map (kbd "M-c") #'my-org-meta-ret)          ; M-RET
 
