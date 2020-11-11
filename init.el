@@ -218,7 +218,6 @@
 
  (global-set-key (kbd "M-9") 'insert-parentheses)
  (global-set-key (kbd "M-g") 'goto-line)
- (global-set-key (kbd "M-v") 'new-empty-buffer-other-frame)
  (global-set-key (kbd "M-P") 'beginning-of-buffer)
  (global-set-key (kbd "M-N") 'end-of-buffer)
 
@@ -386,6 +385,12 @@
   (setcdr evil-insert-state-map nil)
   (define-key evil-insert-state-map [escape] #'evil-normal-state)
 
+  ;; for package-mode
+  (evil-add-hjkl-bindings package-menu-mode-map 'emacs
+    (kbd "/")       'evil-search-forward
+    (kbd "n")       'evil-search-next
+    (kbd "N")       'evil-search-previous)
+
   ;; motion-state-map
   (define-key evil-motion-state-map (kbd "!") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "@") #'nop)                            ; unmap
@@ -400,6 +405,9 @@
   (define-key evil-motion-state-map (kbd "3") #'evil-search-word-backward)      ; works as #
   (define-key evil-motion-state-map (kbd "8") #'evil-search-word-forward)       ; works as *
 
+  (define-key evil-motion-state-map (kbd "V")   #'nop)                          ; unmap
+  (define-key evil-motion-state-map (kbd "C-v") #'nop)                          ; unmap
+  (define-key evil-motion-state-map (kbd "M-v") #'nop)                          ; unmap
   (define-key evil-motion-state-map (kbd "C-f") nil)
   (define-key evil-motion-state-map (kbd "C-b") nil)
   (define-key evil-motion-state-map (kbd "C-o") nil)		; evil-jump-backward
@@ -441,12 +449,14 @@
   (define-key evil-insert-state-map (kbd "M-h") #'my-backward-kill-word)
   (define-key evil-insert-state-map (kbd "TAB") #'(lambda () (interactive) (insert-tab)))
 
+  ;; ----------
   (defun evil-return-insert-mode-after-save ()
     (when evil-insert-state-minor-mode
       (funcall (evil-escape--escape-normal-state))))
 
   (add-hook 'after-save-hook #'evil-return-insert-mode-after-save)
 
+  ;; ----------
   (defun my-evil-paste (&optional arg)
     (interactive  "P")
     (if (memq last-command '(evil-paste-before evil-paste-after))
@@ -454,6 +464,7 @@
       (call-interactively (if arg #'evil-paste-before #'evil-paste-after))))
 ;;  (define-key evil-normal-state-map (kbd "p") #'my-evil-paste)
 
+  ;; ----------
   (defun my-evil-search-dummy-func ()
     (remove-hook 'isearch-mode-hook #'my-evil-search-dummy-func)
     (setq unread-command-events (listify-key-sequence (kbd "RET"))))
@@ -496,6 +507,7 @@
   (define-key evil-visual-state-map (kbd "n") #'my-evil-search-from-region-next)
   (define-key evil-visual-state-map (kbd "N") #'my-evil-search-from-region-prev)
 
+  ;; ----------
   (defvar my-evil-visual-surround-paired '((?\" . ?\") (?\' . ?\') (?\( . ?\)) (?\{ . ?\}) (?\[ . ?\]) (?\< . ?>)))
   (defun my-evil-visual-surround-add (beg end)
     (let* ((c (read-char "?"))
@@ -535,14 +547,58 @@
 
   (define-key evil-visual-state-map "s" 'my-evil-visual-surround)
 
-  (defun my-gg ()
+  ;; ----------
+  (defun my-evil-beginning-of-buffer ()
     (interactive)
     (if (eq last-command this-command)
         (exchange-point-and-mark t)
       (push-mark (point) t)
       (goto-char (point-min))))
 
-  (define-key evil-motion-state-map (kbd "gg") #'my-gg)
+  (define-key evil-motion-state-map (kbd "g g") #'my-evil-beginning-of-buffer)
+
+  ;; ----------
+  (defvar my-evil-visual-cycle-rgn nil)
+  (defvar my-evil-visual-cycle-state nil)
+  (defvar my-evil-visual-cycle-state-old nil)
+
+  (defun my-evil-visual-cycle ()
+    "Cycle evil-visual like: V-CHAR -> V-LINE -> V-BLOCK -> V-CHAR ..."
+    (interactive)
+    (cond ((eq my-evil-visual-cycle-state nil)
+             (when (eq my-evil-visual-cycle-state-old 'line)
+                 (setq my-evil-visual-cycle-rgn (if (< (mark) (point)) (cons (mark) (1- (point))) (cons (mark) (point)))))
+             (evil-visual-char)
+             (when my-evil-visual-cycle-rgn
+               (evil-visual-make-region (car my-evil-visual-cycle-rgn) (cdr my-evil-visual-cycle-rgn)))
+             (setq my-evil-visual-cycle-state-old my-evil-visual-cycle-state)
+             (setq my-evil-visual-cycle-state 'char)
+             (message "VISUAL-CHAR"))
+          ((eq my-evil-visual-cycle-state 'char)
+             (setq my-evil-visual-cycle-rgn (if (< (mark) (point)) (cons (mark) (1- (point))) (cons (mark) (point))))
+             (evil-visual-line)
+             (goto-char (1- (cdr my-evil-visual-cycle-rgn)))
+             (setq my-evil-visual-cycle-state-old my-evil-visual-cycle-state)
+             (setq my-evil-visual-cycle-state 'line)
+             (message "VISUAL-LINE"))
+          (t
+             (evil-visual-make-region (car my-evil-visual-cycle-rgn) (cdr my-evil-visual-cycle-rgn))
+             (add-hook 'minibuffer-setup-hook #'my-evil-visual-cycle-block-launcher)
+             (let ((suggest-key-bindings nil))
+               (call-interactively 'execute-extended-command))
+             (setq my-evil-visual-cycle-state-old my-evil-visual-cycle-state)
+             (setq my-evil-visual-cycle-state 'nil)
+             (message "VISUAL-BLOCK"))))
+
+  (define-key evil-motion-state-map (kbd "v") #'my-evil-visual-cycle)
+  (add-hook 'evil-visual-state-exit-hook #'(lambda () (setq my-evil-visual-cycle-state nil
+                                                            my-evil-visual-cycle-rgn nil)))
+  (defun my-evil-visual-cycle-block-launcher ()
+    (remove-hook 'minibuffer-setup-hook #'my-evil-visual-cycle-block-launcher)
+    (insert "evil-visual-block")
+    (setq unread-command-events (listify-key-sequence (kbd "RET"))))
+
+  ;; ----------
 
   ;; (defvar my-evil-visual-state-symbol-overlay-p nil)
   ;; (defun my-evil-visual-state-entry-hook-func ()
@@ -576,12 +632,6 @@
  ;;        :map evil-visual-state-map
  ;;        ("=" . my-expand-region)
  ;;        ("-" . my-contract-region))
-  :config
-  ;; package-mode
- (evil-add-hjkl-bindings package-menu-mode-map 'emacs
-   (kbd "/")       'evil-search-forward
-   (kbd "n")       'evil-search-next
-   (kbd "N")       'evil-search-previous)
 
 )
 
@@ -1870,7 +1920,6 @@ That is, a string used to represent it on the tab bar."
         '(("t" "Todo" checkitem (file org-default-notes-file) "" :unnarrowed t)
           ("m" "Memo" entry     (file org-default-notes-file) "* %?" :unnarrowed t)))
 
-  ;; org-todo
   (setq org-todo-keywords
       '((sequence "[ ]" "[!]" "|" "[X]" )))
 
@@ -1882,6 +1931,7 @@ That is, a string used to represent it on the tab bar."
   (set-face-attribute 'org-done nil :foreground (mycolor 'green) :background (face-background 'default) :weight 'bold)
   (copy-face 'org-done 'org-checkbox-statistics-done)
 
+  ;; ----------
   (defun my-org-capture-add-1 (key text)
     (unless (string= text "")
       (org-capture nil key)
@@ -1907,6 +1957,7 @@ That is, a string used to represent it on the tab bar."
     (bury-buffer))
     ;; (kill-buffer))
 
+  ;; ----------
   (defun my-org-todo-goto-working-forward ()
     (interactive)
     (defun find () (re-search-forward  "^*+ \\[!\\] " nil 1))
@@ -1923,6 +1974,7 @@ That is, a string used to represent it on the tab bar."
       (goto-char (point-max))
       (funcall 'find)))
 
+  ;; ----------
   (defun my-org-newline ()
     (interactive)
     (let ((beg (line-beginning-position))
@@ -1942,6 +1994,7 @@ That is, a string used to represent it on the tab bar."
       (evil-insert-state 1))
     (org-update-parent-todo-statistics))
 
+  ;; ----------
   (defun my-org-cycle-todo-forward ()
     (interactive)
     (my-org-cycle-todo-1 nil))
@@ -1966,6 +2019,7 @@ That is, a string used to represent it on the tab bar."
               (my-org-todo-update-line)
               (org-update-parent-todo-statistics)))))))
 
+  ;; ----------
   (defun my-org-todo-update-line ()
     (let ((eol (line-end-position)))
       (save-excursion
@@ -1983,6 +2037,7 @@ That is, a string used to represent it on the tab bar."
         (my-org-todo-update-line)
         (next-line 1))))
 
+  ;; ----------
   (define-key evil-normal-state-map (kbd "t t") #'my-org-capture-add-todo)
   (define-key evil-normal-state-map (kbd "t m") #'my-org-capture-add-memo)
   (define-key evil-normal-state-map (kbd "t r") #'my-org-capture-open)          ; toggle org buffer
