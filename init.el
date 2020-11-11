@@ -239,7 +239,7 @@
 ;; ----------------------------------------------------------------------
 ;; which-func-mode
  (setq which-func-unknown "-"
-       ;; which-func-modes '(emacs-lisp-mode lisp-interaction-mode c-mode python-mode ruby-mode)
+       which-func-modes '(emacs-lisp-mode lisp-interaction-mode c-mode python-mode ruby-mode)
        which-func-format '(:propertize which-func-current face which-func))
 
  (which-function-mode 1)        ;; global
