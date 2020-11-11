@@ -1875,10 +1875,10 @@ That is, a string used to represent it on the tab bar."
 
   (set-face-attribute 'org-level-2 nil :foreground (face-foreground 'default))
 
-  (set-face-attribute 'org-todo nil :foreground (mycolor 'pink) :background (face-background 'default) :weight 'ultra-bold)
-  (copy-face 'org-todo 'org-checkbox-statistics-todo)
+  (set-face-attribute 'org-todo nil :foreground (mycolor 'pink) :background (face-background 'default) :weight 'bold)
+  (set-face-attribute 'org-checkbox-statistics-todo nil :foreground (face-foreground 'default) :background (face-background 'default) :weight 'normal)
 
-  (set-face-attribute 'org-done nil :foreground (mycolor 'green) :background (face-background 'default) :weight 'ultra-bold)
+  (set-face-attribute 'org-done nil :foreground (mycolor 'green) :background (face-background 'default) :weight 'bold)
   (copy-face 'org-done 'org-checkbox-statistics-done)
 
   (defun my-org-capture-add-1 (key text)
