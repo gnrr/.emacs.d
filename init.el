@@ -330,7 +330,14 @@
           (substring (version) 0 14)
           (float-time (time-subtract after-init-time before-init-time)))
 
+ (defun my-add-font-lock-keywords-elisp ()
+   (font-lock-add-keywords nil
+                          '(("(\\(lambda\\) " . font-lock-keyword-face))))
+ (add-hook 'emacs-lisp-mode-hook #'my-add-font-lock-keywords-elisp)
+ (add-hook 'lisp-interaction-mode-hook #'my-add-font-lock-keywords-elisp)
+
  (lisp-interaction-mode)                            ;; workaround for scratch-log
+
 )) ;; emacs-startup-hook function ends here
 
 ;; ======================================================================
@@ -737,8 +744,7 @@
   ;; :disabled
   :ensure t
   :after evil
-  :hook
-  (after-init . doom-modeline-mode)
+  :hook (after-init . doom-modeline-mode)
 
   :custom
   (doom-modeline-buffer-file-name-style 'truncate-with-project)
