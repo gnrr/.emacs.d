@@ -1,4 +1,4 @@
-;;; -*- coding:utf-8; mode:emacs-lisp -*-
+                                                                                ;;; -*- coding:utf-8; mode:emacs-lisp -*-
 ;;;
 ;;; discrete elisp
 ;;;
@@ -379,12 +379,14 @@ double quotation characters \(\"\) from given string."
            (comment-line 1))
           ((and (= icom-start-pos -1) (< (point) (- (line-end-position) 1)))
            (comment-line 1))
-          ((= icom-start-pos -1)
+          ((and (= icom-start-pos -1) (not (evil-insert-state-p)))      ;; eol?
+           (comment-line 1))
+          ((and (= icom-start-pos -1) (evil-insert-state-p))            ;; eol?
            (indent-for-comment)                                 ;; insert inline comment
            (unless (= (char-before) (string-to-char (substring comment-padding -1)))
              (insert comment-padding)))
-          ((<= icom-start-pos (point))
-           (my-comment-align-inline-comment icom-start-pos))    ;; align inline comment that is already existed
+       ;; ((<= icom-start-pos (point))
+       ;;  (my-comment-align-inline-comment icom-start-pos))    ;; align inline comment that is already existed
           (t (comment-line 1)))
     (set-window-start (selected-window) ws)))
 
@@ -446,7 +448,7 @@ double quotation characters \(\"\) from given string."
               (goto-char pos))))
       (message "No comment"))))
 
-(global-set-key (kbd "M-;") 'my-comment-dwim)
+(add-hook 'prog-mode-hook #'(lambda () (define-key prog-mode-map (kbd "M-;") 'my-comment-dwim)))
 (global-set-key (kbd "C-;") 'my-comment-set-column)
 
 ;; ----------------------------------------------------------------------
