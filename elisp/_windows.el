@@ -168,6 +168,9 @@
 (setq my-counsel-rg-dot-ignore-path "~/.ignore")
 (setq my-counsel-rg-dot-ignore-list '("*bak*" "#*#"))
 
+;; org-mode
+(setq org-directory "D:/Dropbox/org")
+
 
 (message "<-- done    \"_windows.el\"")
 
