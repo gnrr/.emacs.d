@@ -76,7 +76,7 @@
   left-margin-width 1 right-margin-width 1         ; Add left and right margins
   select-enable-clipboard t                        ; Merge system's and Emacs' clipboard
   sentence-end-double-space nil                    ; End a sentence after a dot and a space
-  show-trailing-whitespace nil                     ; Display trailing whitespaces
+  show-trailing-whitespace t                       ; Display trailing whitespaces
   uniquify-buffer-name-style 'forward              ; Uniquify buffer names
   window-combination-resize t                      ; Resize windows proportionally
 
@@ -146,6 +146,8 @@
  ;; margin
  (setq-default left-margin-width 0 right-margin-width 0) ; Define new widths.
  (set-window-buffer nil (current-buffer))                ; Use them now.
+
+ (set-face-background 'trailing-whitespace (mycolor 'red))
 
  ;; save-place
  (setq save-place-file "~/.emacs.d/.emacs-places")
