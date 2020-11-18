@@ -121,9 +121,7 @@
   auto-save-file-name-transforms '(("~/\\([^/]*/\\)*\\([^/]*\\)$" "~/.Trash/\\2" t))
                                         ;             '((".*" "~/.Trash" t))
 
-  ;; auto-save-default nil
-  auto-save-timeout 10     ;; 保存の間隔 秒   (デフォルト : 30)
-  auto-save-interval 100   ;;         打鍵  (デフォルト : 300)
+  auto-save-default nil                  ; disabled
 
   ;; backup to `~/.emacs.d/auto-save-list/.saves-xxxx'
   auto-save-list-file-prefix nil         ; disabled
@@ -2123,6 +2121,17 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
 
 ;; ----------------------------------------------------------------------
 (use-package posframe)
+
+;; ----------------------------------------------------------------------
+(use-package super-save
+  :config
+  (add-to-list 'super-save-triggers '(tabbar-forward-tab tabbar-backward-tab))
+
+  (setq super-save-auto-save-when-idle t
+        super-save-idle-duration 10)
+  (super-save-mode +1)
+  )
+
 
 ;; ----------------------------------------------------------------------
 (message "<-- done    \"init.el\"")

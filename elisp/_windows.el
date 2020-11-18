@@ -51,7 +51,7 @@
 ;; （wrap-function-to-control-ime コマンド内等で、ime-force-on や ime-force-off が単独で
 ;; 　呼ばれた際もカーソルカラーの変更が機能するように hook ではなく advice に変更した）
 (advice-add 'ime-force-on :before (lambda (&rest args)
-                      (set-cursor-color (mycolor 'white))))
+                      (set-cursor-color (mycolor 'red))))
 (advice-add 'ime-force-off :before (lambda (&rest args)
                       (set-cursor-color my-windows-cursor-color-bak)))
 

@@ -88,7 +88,7 @@
 (defun my-mac-selected-keyboard-input-source-change ()
   (set-cursor-color (if (string-match "\\.US$" (mac-input-source))
                         my-mac-selected-keyboard-input-source-change-bak
-                      (mycolor 'white))))
+                      (mycolor 'red))))
  
 (add-hook 'mac-selected-keyboard-input-source-change-hook 'my-mac-selected-keyboard-input-source-change)
 
