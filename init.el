@@ -280,7 +280,6 @@
 
  ;; ----------------------------------------------------------------------
  ;; command aliases
- (defalias 'ev 'eval-defun)
  (defalias 'reb 're-builder)
  (defalias 'a 'counsel-apropos)
 
@@ -291,8 +290,6 @@
 
  (defalias 'l 'display-line-numbers-mode)
  (defalias 'hl 'hl-line-mode)
- (defalias 'com 'comment-or-uncomment-region)
- (defalias 'ind 'indent-region)
  (defalias 'calc 'quick-calc)
  (defalias 'package-uninstall 'package-delete)
 
@@ -350,6 +347,25 @@
 (defvar auto-insert-alist nil)
 (setq auto-insert-alist (append '(("\\.mq4" . "mq4"))
                                 auto-insert-alist))
+
+;; ----------------------------------------------------------------------
+;; im-ctl
+;; (defun im-ctl (on) (do-depends-on-each-os))
+
+(defun im-on ()
+  (interactive)
+  (if (fboundp 'im-ctl)
+      (im-ctl t)
+    (message "Error: Not defined function \"im-ctl\"")))
+
+(defun im-off ()
+  (interactive)
+  (if (fboundp 'im-ctl)
+      (im-ctl nil)
+    (message "Error: Not defined function \"im-ctl\"")))
+
+(add-hook 'minibuffer-exit-hook #'im-off)
+(add-hook 'focus-out-hook #'im-off)
 
 ;; ----------------------------------------------------------------------
 ;; diminish
@@ -1975,6 +1991,8 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
     ("^*+ \\[!\\] \\(.+\\)$" . '(1 'org-todo))
     ;; "-" --> "•"
     ("^ *\\([-]\\) " (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))
+    ;; "* [ ]" --> "[ ]"
+    ("^\\(*+ \\)\\[.\\] " (0 (progn () (add-text-properties (match-beginning 1) (match-end 1) '(invisible t)))))
     ))
   ;; (org-set-font-lock-defaults)
   ;; (font-lock-fontify-buffer)
@@ -2124,8 +2142,10 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
 
 ;; ----------------------------------------------------------------------
 (use-package super-save
+  :ensure t
   :config
-  (add-to-list 'super-save-triggers '(tabbar-forward-tab tabbar-backward-tab))
+  (add-to-list 'super-save-triggers 'tabbar-forward-tab)
+  (add-to-list 'super-save-triggers 'tabbar-backward-tab)
 
   (setq super-save-auto-save-when-idle t
         super-save-idle-duration 10)
