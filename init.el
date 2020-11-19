@@ -307,7 +307,20 @@
   nil t)
 
  ;; ----------------------------------------------------------------------
- (defvar exclude-face-list '(mode-line-buffer-id
+ (defvar exclude-face-list '(rainbow-delimiters-base-face
+                             rainbow-delimiters-depth-1-face
+                             rainbow-delimiters-depth-2-face
+                             rainbow-delimiters-depth-3-face
+                             rainbow-delimiters-depth-4-face
+                             rainbow-delimiters-depth-5-face
+                             rainbow-delimiters-depth-6-face
+                             rainbow-delimiters-depth-7-face
+                             rainbow-delimiters-depth-8-face
+                             rainbow-delimiters-depth-9-face
+                             rainbow-delimiters-mismatched-face
+                             rainbow-delimiters-unmatched-face
+                             sp-show-pair-match-face
+                             mode-line-buffer-id
                              mode-line-emphasis
                              mode-line-highlight
                              mode-line-inactive
@@ -366,6 +379,7 @@
 
 (add-hook 'minibuffer-exit-hook #'im-off)
 (add-hook 'focus-out-hook #'im-off)
+(add-hook 'evil-normal-state-entry-hook #'im-off)
 
 ;; ----------------------------------------------------------------------
 ;; diminish
@@ -422,13 +436,25 @@
     (kbd "n")       'evil-search-next
     (kbd "N")       'evil-search-previous)
 
+  ;; currently not use
+  (defmacro define-key-evil-visual (vsel key cmd)
+    ;; FIXME giving (kbd "c") to arg key occurs not work
+    ;; FIXME giving function like (defun hoge (beg end) (interactive "r") ..) to arg cmd occurs not work
+    `(define-key evil-visual-state-map ,key
+       #'(lambda() (interactive)
+           (if (eq evil-visual-selection ,vsel)
+               (funcall ,cmd)
+             ;; (funcall ,(lookup-key evil-visual-state-map (kbd "c")))))))
+             (funcall ,(lookup-key evil-visual-state-map key))))))
+
+  ;; ----------
   ;; motion-state-map
   (define-key evil-motion-state-map (kbd "!") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "@") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "#") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "$") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "%") #'nop)                            ; unmap
-  (define-key evil-motion-state-map (kbd "^") #'nop)                            ; unmap
+  ;; (define-key evil-motion-state-map (kbd "^") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "&") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "*") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "(") #'nop)                            ; unmap
@@ -492,24 +518,45 @@
   (define-key evil-visual-state-map (kbd "c") #'my-evil-visual-comment-region)
   (define-key evil-visual-state-map (kbd "i") #'my-evil-visual-indent-region)
 
+  ;; ;; not work, fixme
+  ;; (add-hook 'macrostep-mode-hook #'(lambda ()
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "RET") 'macrostep-expand)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "=") 'macrostep-expand)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "e") 'macrostep-expand)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "DEL") 'macrostep-collapse)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "u") 'macrostep-collapse)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "c") 'macrostep-collapse)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "TAB") 'macrostep-next-macro)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "n") 'macrostep-next-macro)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "M-TAB") 'macrostep-prev-macro)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "p") 'macrostep-prev-macro)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "q") 'macrostep-collapse-all)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "C-c C-c") 'macrostep-collapse-all)))
+
   ;; ----------
   (defun my-evil-visual-eval-region (beg end)
     (interactive "r")
-    (when (eq evil-visual-selection 'line)
-      (message "eval-region: %s" (eval-region beg end))
-      (evil-exit-visual-state)))
+    (if (eq evil-visual-selection 'line)
+        (progn
+          (message "eval-region: %s" (eval-region beg end))
+          (evil-exit-visual-state))
+      (evil-forward-word-end)))
 
   (defun my-evil-visual-comment-region (beg end)
     (interactive "r")
-    (when (eq evil-visual-selection 'line)
-      (comment-or-uncomment-region beg end)
-      (evil-exit-visual-state)))
+    (if (eq evil-visual-selection 'line)
+        (progn
+          (comment-or-uncomment-region beg end)
+          (evil-exit-visual-state))
+      (evil-change beg end)))
 
   (defun my-evil-visual-indent-region (beg end)
     (interactive "r")
-    (when (eq evil-visual-selection 'line)
-      (indent-region beg end)
-      (evil-exit-visual-state)))
+    (if (eq evil-visual-selection 'line)
+        (progn
+          (indent-region beg end)
+          (evil-exit-visual-state))
+      (nop)))
 
   ;; ----------
   (defun evil-return-insert-mode-after-save ()
@@ -1565,7 +1612,7 @@ That is, a string used to represent it on the tab bar."
   (set-face-foreground 'rainbow-delimiters-depth-1-face "#f0f0f0")   ; swap 1 <--> 9
 
   (setq rainbow-delimiters-outermost-only-face-count 1)
-  (set-face-bold 'rainbow-delimiters-depth-1-face t)
+  ;; (set-face-bold 'rainbow-delimiters-depth-1-face t)
   )
 
 ;; ----------------------------------------------------------------------
@@ -2041,7 +2088,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
       (funcall 'find)))
 
   ;; ----------
-  (defun my-org-newline ()
+  (defun my-org-dup-heading ()
     (interactive)
     (let ((beg (line-beginning-position))
           (end (line-end-position))
@@ -2121,7 +2168,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (evil-define-key 'normal org-mode-map (kbd "S-SPC") #'my-org-cycle-todo-backward)
   (evil-define-key 'normal org-mode-map (kbd "C-j") #'org-metadown)
   (evil-define-key 'normal org-mode-map (kbd "C-k") #'org-metaup)
-  (evil-define-key 'normal org-mode-map (kbd "o") #'my-org-newline)
+  (evil-define-key 'normal org-mode-map (kbd "o") #'my-org-dup-heading)
   (evil-define-key 'normal org-mode-map (kbd "RET") #'my-org-ret)
   (evil-define-key 'normal org-mode-map (kbd "<M-down>") #'my-org-todo-goto-working-forward)
   (evil-define-key 'normal org-mode-map (kbd "<M-up>")   #'my-org-todo-goto-working-backward)

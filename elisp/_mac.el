@@ -19,9 +19,7 @@
 ;;;
 ;;; font
 ;;;
-  (let ((font (myfont 'default)))
-    (when font
-      (set-default-font font)))
+(set-default-font (myfont 'default))
 
 ;;;
 ;;; external program
