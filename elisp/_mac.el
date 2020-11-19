@@ -19,9 +19,7 @@
 ;;;
 ;;; font
 ;;;
-  (let ((font (myfont 'default)))
-    (when font
-      (set-default-font font)))
+(set-default-font (myfont 'default))
 
 ;;;
 ;;; external program
@@ -76,11 +74,17 @@
 ;;
 ;; for emacs mac port
 ;;
-;; Emacs Mac Port 用設定
-;; ミニバッファで入力する際に自動的にASCIIにする
-(when (fboundp 'mac-auto-ascii-mode)
-  (mac-auto-ascii-mode 1))
 
+;; ;; ミニバッファで入力する際に自動的にASCIIにする
+;; (when (fboundp 'mac-auto-ascii-mode)
+;;   (mac-auto-ascii-mode 1))
+
+;; for im-on/off
+(defun im-ctl (on)
+  (let ((code (if on 104 102)))
+    (call-process
+     "osascript" nil t nil "-e"
+     (format "tell application \"System Events\" to key code %d" code))))
 ;;
 ;; 入力モードが日本語の時はカーソルの色を変える
 ;;
@@ -88,8 +92,8 @@
 (defun my-mac-selected-keyboard-input-source-change ()
   (set-cursor-color (if (string-match "\\.US$" (mac-input-source))
                         my-mac-selected-keyboard-input-source-change-bak
-                      (mycolor 'white))))
- 
+                      (mycolor 'red))))
+
 (add-hook 'mac-selected-keyboard-input-source-change-hook 'my-mac-selected-keyboard-input-source-change)
 
 ;;

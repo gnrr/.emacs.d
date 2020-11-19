@@ -1,4 +1,4 @@
-                                                                                ;;; -*- coding:utf-8; mode:emacs-lisp -*-
+;;; -*- coding:utf-8; mode:emacs-lisp -*-
 ;;;
 ;;; discrete elisp
 ;;;
@@ -15,6 +15,14 @@
   "often use to disable parent key-bindings"
   (interactive)
   (message "no operation"))
+
+(defun show-overlay-and-prop-and-face-at ()
+  (interactive)
+  (kill-new
+   (message "overlay: %S\nprop: %S\nface: %S\n%S"
+            (overlays-at (point)) (text-properties-at (point)) (face-at-point nil t) (my-face-properties-at-point))))
+
+;; (define-key evil-normal-state-map (kbd "1 1") #'show-overlay-and-prop-and-face-at)
 
 (defun my-get-cursor-color ()
   (car (cl-loop for ($k . $v) in (frame-parameters)
@@ -40,22 +48,21 @@
       t
     nil))
 
-(defun show-face-at-point ()
-  "Show faces of character in minibuffer."
-  (interactive)
-  (let* ((s (buffer-substring (point) (1+ (point))))
-	 (faces (get-text-property 0 'face s))
-	 msg)
-    (if faces
-	(progn
-	  (unless (listp faces)
-	    (setq faces (list faces)))
-	  (while faces
-	    (setq msg (concat msg " \'" (symbol-name (car faces))))
-	    (setq faces (cdr faces)))
-	  (setq msg (substring msg 1 (length msg))))
-      (setq msg "no faces"))
-    (message msg)))
+;; (defun get-face-at-point (pt)
+;;   "Get faces of character in minibuffer."
+;;   (interactive)
+;;   (let* ((s (buffer-substring pt (1+ pt)))
+;; 	     (faces (get-text-property 0 'face s))
+;; 	     (msg nil))
+;;     (if faces
+;; 	    (progn
+;; 	      (unless (listp faces)
+;; 	        (setq faces (list faces)))
+;; 	      (while faces
+;; 	        (setq msg (concat msg " \'" (symbol-name (car faces))))
+;; 	        (setq faces (cdr faces)))
+;;           (setq msg (substring msg 1 (length msg)))))
+;;     msg))
 
 (defun get-word-in-string (s &optional offset)
   "Return word string in string."

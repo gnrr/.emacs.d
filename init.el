@@ -76,7 +76,7 @@
   left-margin-width 1 right-margin-width 1         ; Add left and right margins
   select-enable-clipboard t                        ; Merge system's and Emacs' clipboard
   sentence-end-double-space nil                    ; End a sentence after a dot and a space
-  show-trailing-whitespace nil                     ; Display trailing whitespaces
+  show-trailing-whitespace t                       ; Display trailing whitespaces
   uniquify-buffer-name-style 'forward              ; Uniquify buffer names
   window-combination-resize t                      ; Resize windows proportionally
 
@@ -118,13 +118,10 @@
   delete-old-versions t  ;;                   範囲外を削除
 
   ;; backup to `#hoge.txt#'
-  auto-save-file-name-transforms
-  '(("~/\\([^/]*/\\)*\\([^/]*\\)$" "~/.Trash/\\2" t))
+  auto-save-file-name-transforms '(("~/\\([^/]*/\\)*\\([^/]*\\)$" "~/.Trash/\\2" t))
                                         ;             '((".*" "~/.Trash" t))
 
-  ;; auto-save-default nil
-  auto-save-timeout 10     ;; 保存の間隔 秒   (デフォルト : 30)
-  auto-save-interval 100   ;;         打鍵  (デフォルト : 300)
+  auto-save-default nil                  ; disabled
 
   ;; backup to `~/.emacs.d/auto-save-list/.saves-xxxx'
   auto-save-list-file-prefix nil         ; disabled
@@ -147,6 +144,8 @@
  ;; margin
  (setq-default left-margin-width 0 right-margin-width 0) ; Define new widths.
  (set-window-buffer nil (current-buffer))                ; Use them now.
+
+ (set-face-background 'trailing-whitespace (mycolor 'red))
 
  ;; save-place
  (setq save-place-file "~/.emacs.d/.emacs-places")
@@ -281,19 +280,16 @@
 
  ;; ----------------------------------------------------------------------
  ;; command aliases
-
- ;; for elisp
- (defalias 'ev 'eval-defun)
  (defalias 'reb 're-builder)
+ (defalias 'a 'counsel-apropos)
 
- ;; apropos
- (when (featurep 'counsel)
-   (defalias 'a 'counsel-apropos))
+ (defalias 'dv 'describe-variable)
+ (defalias 'dfun 'describe-function)
+ (defalias 'dface 'describe-face)
+ (defalias 'dk 'describe-key)
 
  (defalias 'l 'display-line-numbers-mode)
  (defalias 'hl 'hl-line-mode)
- (defalias 'com 'comment-or-uncomment-region)
- (defalias 'ind 'indent-region)
  (defalias 'calc 'quick-calc)
  (defalias 'package-uninstall 'package-delete)
 
@@ -311,7 +307,20 @@
   nil t)
 
  ;; ----------------------------------------------------------------------
- (defvar exclude-face-list '(mode-line-buffer-id
+ (defvar exclude-face-list '(rainbow-delimiters-base-face
+                             rainbow-delimiters-depth-1-face
+                             rainbow-delimiters-depth-2-face
+                             rainbow-delimiters-depth-3-face
+                             rainbow-delimiters-depth-4-face
+                             rainbow-delimiters-depth-5-face
+                             rainbow-delimiters-depth-6-face
+                             rainbow-delimiters-depth-7-face
+                             rainbow-delimiters-depth-8-face
+                             rainbow-delimiters-depth-9-face
+                             rainbow-delimiters-mismatched-face
+                             rainbow-delimiters-unmatched-face
+                             sp-show-pair-match-face
+                             mode-line-buffer-id
                              mode-line-emphasis
                              mode-line-highlight
                              mode-line-inactive
@@ -330,11 +339,15 @@
           (substring (version) 0 14)
           (float-time (time-subtract after-init-time before-init-time)))
 
- (defun my-add-font-lock-keywords-elisp ()
+ (defun my-font-lock-add-keywords-elisp ()
    (font-lock-add-keywords nil
-                          '(("(\\(lambda\\) " . font-lock-keyword-face))))
- (add-hook 'emacs-lisp-mode-hook #'my-add-font-lock-keywords-elisp)
- (add-hook 'lisp-interaction-mode-hook #'my-add-font-lock-keywords-elisp)
+     '(("(\\(lambda\\|cons\\|car\\|cdr\\|nth\\|eq\\|equal\\|null\\|mapc\\|mapcar\\|fset\\|set
+\\|memq\\|member\\|delq\\|funcall\\|fboundp\\|list\\|add-to-list\\|concat\\|call-interactively
+\\|assoc\\|rassoc\\|add-hook\\|remove-hook\\|global-set-key\\|local-set-key\\|define-key
+\\|ad-activate\\|ad-enable-advice\\|ad-disable-advice\\|propertize\\)[ \t\n]" . font-lock-keyword-face))))
+
+ (add-hook 'emacs-lisp-mode-hook #'my-font-lock-add-keywords-elisp)
+ (add-hook 'lisp-interaction-mode-hook #'my-font-lock-add-keywords-elisp)
 
  (lisp-interaction-mode)                            ;; workaround for scratch-log
 
@@ -347,6 +360,26 @@
 (defvar auto-insert-alist nil)
 (setq auto-insert-alist (append '(("\\.mq4" . "mq4"))
                                 auto-insert-alist))
+
+;; ----------------------------------------------------------------------
+;; im-ctl
+;; (defun im-ctl (on) (do-depends-on-each-os))
+
+(defun im-on ()
+  (interactive)
+  (if (fboundp 'im-ctl)
+      (im-ctl t)
+    (message "Error: Not defined function \"im-ctl\"")))
+
+(defun im-off ()
+  (interactive)
+  (if (fboundp 'im-ctl)
+      (im-ctl nil)
+    (message "Error: Not defined function \"im-ctl\"")))
+
+(add-hook 'minibuffer-exit-hook #'im-off)
+(add-hook 'focus-out-hook #'im-off)
+(add-hook 'evil-normal-state-entry-hook #'im-off)
 
 ;; ----------------------------------------------------------------------
 ;; diminish
@@ -403,13 +436,25 @@
     (kbd "n")       'evil-search-next
     (kbd "N")       'evil-search-previous)
 
+  ;; currently not use
+  (defmacro define-key-evil-visual (vsel key cmd)
+    ;; FIXME giving (kbd "c") to arg key occurs not work
+    ;; FIXME giving function like (defun hoge (beg end) (interactive "r") ..) to arg cmd occurs not work
+    `(define-key evil-visual-state-map ,key
+       #'(lambda() (interactive)
+           (if (eq evil-visual-selection ,vsel)
+               (funcall ,cmd)
+             ;; (funcall ,(lookup-key evil-visual-state-map (kbd "c")))))))
+             (funcall ,(lookup-key evil-visual-state-map key))))))
+
+  ;; ----------
   ;; motion-state-map
   (define-key evil-motion-state-map (kbd "!") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "@") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "#") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "$") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "%") #'nop)                            ; unmap
-  (define-key evil-motion-state-map (kbd "^") #'nop)                            ; unmap
+  ;; (define-key evil-motion-state-map (kbd "^") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "&") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "*") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "(") #'nop)                            ; unmap
@@ -417,6 +462,7 @@
   (define-key evil-motion-state-map (kbd "3") #'evil-search-word-backward)      ; works as #
   (define-key evil-motion-state-map (kbd "8") #'evil-search-word-forward)       ; works as *
 
+  (define-key evil-motion-state-map (kbd "i")   #'nop)                          ; unmap
   (define-key evil-motion-state-map (kbd "V")   #'nop)                          ; unmap
   (define-key evil-motion-state-map (kbd "C-v") #'nop)                          ; unmap
   (define-key evil-motion-state-map (kbd "M-v") #'nop)                          ; unmap
@@ -440,6 +486,9 @@
   (define-key evil-motion-state-map (kbd "4") #'evil-end-of-line)
   (define-key evil-motion-state-map (kbd "]") #'evil-jump-item)
   (define-key evil-motion-state-map (kbd "M-w") #'my-forward-word)
+  (define-key evil-motion-state-map (kbd "g g") #'my-evil-beginning-of-buffer)
+  (define-key evil-motion-state-map (kbd "g e") #'my-evil-end-of-buffer)
+  (define-key evil-motion-state-map (kbd "Y") #'my-evil-yank-whole-buffer)
   (define-key evil-motion-state-map (kbd ":") #'nop)        ; unmap :
   (define-key evil-motion-state-map (kbd ";") #'evil-ex)    ; works as :
 
@@ -457,11 +506,57 @@
   (define-key evil-normal-state-map (kbd "g f") #'my-beginning-of-defun)
   (define-key evil-normal-state-map (kbd "A") #'nop)                 ; unmap A
   (define-key evil-normal-state-map (kbd "a") #'evil-append-line)    ; works as A
+  (define-key evil-normal-state-map (kbd "1 1") #'show-overlay-and-prop-and-face-at)
 
   ;; insert-state-map
   (define-key evil-insert-state-map (kbd "C-h") #'delete-backward-char)
   (define-key evil-insert-state-map (kbd "M-h") #'my-backward-kill-word)
   (define-key evil-insert-state-map (kbd "TAB") #'(lambda () (interactive) (insert-tab)))
+
+  ;; visual-state-map
+  (define-key evil-visual-state-map (kbd "e") #'my-evil-visual-eval-region)
+  (define-key evil-visual-state-map (kbd "c") #'my-evil-visual-comment-region)
+  (define-key evil-visual-state-map (kbd "i") #'my-evil-visual-indent-region)
+
+  ;; ;; not work, fixme
+  ;; (add-hook 'macrostep-mode-hook #'(lambda ()
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "RET") 'macrostep-expand)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "=") 'macrostep-expand)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "e") 'macrostep-expand)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "DEL") 'macrostep-collapse)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "u") 'macrostep-collapse)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "c") 'macrostep-collapse)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "TAB") 'macrostep-next-macro)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "n") 'macrostep-next-macro)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "M-TAB") 'macrostep-prev-macro)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "p") 'macrostep-prev-macro)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "q") 'macrostep-collapse-all)
+  ;;   (evil-define-key 'normal macrostep-keymap (kbd "C-c C-c") 'macrostep-collapse-all)))
+
+  ;; ----------
+  (defun my-evil-visual-eval-region (beg end)
+    (interactive "r")
+    (if (eq evil-visual-selection 'line)
+        (progn
+          (message "eval-region: %s" (eval-region beg end))
+          (evil-exit-visual-state))
+      (evil-forward-word-end)))
+
+  (defun my-evil-visual-comment-region (beg end)
+    (interactive "r")
+    (if (eq evil-visual-selection 'line)
+        (progn
+          (comment-or-uncomment-region beg end)
+          (evil-exit-visual-state))
+      (evil-change beg end)))
+
+  (defun my-evil-visual-indent-region (beg end)
+    (interactive "r")
+    (if (eq evil-visual-selection 'line)
+        (progn
+          (indent-region beg end)
+          (evil-exit-visual-state))
+      (nop)))
 
   ;; ----------
   (defun evil-return-insert-mode-after-save ()
@@ -569,7 +664,17 @@
       (push-mark (point) t)
       (goto-char (point-min))))
 
-  (define-key evil-motion-state-map (kbd "g g") #'my-evil-beginning-of-buffer)
+  (defun my-evil-end-of-buffer ()
+    (interactive)
+    (if (eq last-command this-command)
+        (exchange-point-and-mark t)
+      (push-mark (point) t)
+      (goto-char (point-max))))
+
+  (defun my-evil-yank-whole-buffer ()
+    (interactive)
+    (evil-yank-line (point-min) (point-max))
+    (message "Copied whole buffer"))
 
   ;; ----------
   (defvar my-evil-visual-cycle-rgn nil)
@@ -620,7 +725,11 @@
   ;; :disabled
   :after evil
   :config
+  ;; (evil-collection-init '(edebug dired neotree slime help re-builder)) ;; fixme
   (evil-collection-init '(edebug dired neotree slime help))
+
+  (evil-define-key 'normal help-mode-map (kbd "C-o") 'other-window)
+  (evil-define-key 'normal help-mode-map (kbd "C-0") 'delete-window)
   )
 
 ;; ----------------------------------------------------------------------
@@ -754,7 +863,7 @@
   (doom-modeline-height 18)
 
   :config
-  (set-face-attribute 'doom-modeline-project-dir nil :foreground (mycolor 'blue) :weight 'normal)
+  (set-face-attribute 'doom-modeline-project-dir nil :foreground (mycolor 'blue) :weight 'light)
   (set-face-attribute 'doom-modeline-buffer-file nil :foreground (mycolor 'blue) :weight 'bold)
 
   (let ((bg (face-background 'mode-line)))
@@ -1503,7 +1612,7 @@ That is, a string used to represent it on the tab bar."
   (set-face-foreground 'rainbow-delimiters-depth-1-face "#f0f0f0")   ; swap 1 <--> 9
 
   (setq rainbow-delimiters-outermost-only-face-count 1)
-  (set-face-bold 'rainbow-delimiters-depth-1-face t)
+  ;; (set-face-bold 'rainbow-delimiters-depth-1-face t)
   )
 
 ;; ----------------------------------------------------------------------
@@ -1895,12 +2004,12 @@ That is, a string used to represent it on the tab bar."
   ;; (setq org-directory "~/Dropbox/org")
   (setq org-default-notes-file (expand-file-name (path-join org-directory "notes.org")))
 
+  (setq org-hide-emphasis-markers t)
+  (setq org-todo-keywords '((sequence "[ ]" "[!]" "|" "[X]" )))
   (setq org-capture-templates
         '(("t" "Todo" checkitem (file org-default-notes-file) "" :unnarrowed t)
           ("m" "Memo" entry     (file org-default-notes-file) "* %?" :unnarrowed t)))
 
-  (setq org-todo-keywords
-      '((sequence "[ ]" "[!]" "|" "[X]" )))
 
   (set-face-attribute 'org-level-2 nil :foreground (face-foreground 'default))
 
@@ -1909,6 +2018,31 @@ That is, a string used to represent it on the tab bar."
 
   (set-face-attribute 'org-done nil :foreground (mycolor 'green) :background (face-background 'default) :weight 'bold)
   (copy-face 'org-done 'org-checkbox-statistics-done)
+
+  (defface my-org-done-date-face
+    `((t (:inhelit org-todo :foreground ,(face-background 'org-done) :background ,(face-foreground 'org-done) :weight bold))) "")
+
+  (defun font-lock-user-keywords (mode &optional keywords)
+    "Add user highlighting to KEYWORDS to MODE.
+See `font-lock-add-keywords' and `font-lock-defaults'."
+    (unless mode
+      (error "mode should be non-nil "))
+    (font-lock-remove-keywords mode (get mode 'font-lock-user-keywords))
+    (font-lock-add-keywords mode keywords)
+    (put mode 'font-lock-user-keywords keywords))
+
+  (font-lock-user-keywords 'org-mode '(
+    ;; todo
+    ("^*+ \\[X\\] \\( [0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} \\)\\(.+\\)$" . '(1 'my-org-done-date-face))
+    ("^*+ \\[X\\] \\( [0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} \\)\\(.+\\)$" . '(2 'org-done))
+    ("^*+ \\[!\\] \\(.+\\)$" . '(1 'org-todo))
+    ;; "-" --> "•"
+    ("^ *\\([-]\\) " (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))
+    ;; "* [ ]" --> "[ ]"
+    ("^\\(*+ \\)\\[.\\] " (0 (progn () (add-text-properties (match-beginning 1) (match-end 1) '(invisible t)))))
+    ))
+  ;; (org-set-font-lock-defaults)
+  ;; (font-lock-fontify-buffer)
 
   ;; ----------
   (defun my-org-capture-add-1 (key text)
@@ -1928,7 +2062,7 @@ That is, a string used to represent it on the tab bar."
   (defun my-org-capture-open ()
     (interactive)
     (find-file org-default-notes-file)
-    (my-org-todo-update-line-all))
+    )
 
   (defun my-org-capture-close ()
     (interactive)
@@ -1954,7 +2088,7 @@ That is, a string used to represent it on the tab bar."
       (funcall 'find)))
 
   ;; ----------
-  (defun my-org-newline ()
+  (defun my-org-dup-heading ()
     (interactive)
     (let ((beg (line-beginning-position))
           (end (line-end-position))
@@ -1972,6 +2106,11 @@ That is, a string used to represent it on the tab bar."
     (unless (eq evil-state 'insert)
       (evil-insert-state 1))
     (org-update-parent-todo-statistics))
+
+  (defun my-org-ret ()
+    (interactive)
+    (evil-append 1)
+    (newline))
 
   ;; ----------
   (defun my-org-cycle-todo-forward ()
@@ -1995,26 +2134,27 @@ That is, a string used to represent it on the tab bar."
                              (t nil)))))
             (when rpl
               (replace-match (concat (match-string 1) rpl (match-string 3)))
-              (my-org-todo-update-line)
+              (cond ((string= rpl "X") (my-org-todo-date-insert))
+                    (t                 (my-org-todo-date-remove)))
               (org-update-parent-todo-statistics)))))))
 
   ;; ----------
-  (defun my-org-todo-update-line ()
-    (let ((eol (line-end-position)))
+ (defun my-org-todo-date-insert ()
+    (let ((pt (point)))
       (save-excursion
-        (beginning-of-line)
-        (when (re-search-forward "\\(^*+ \\[\\)\\(.\\)\\(\\] \\)" eol t)
-          (let ((kw (match-string 2)))
-            (mapc #'delete-overlay (overlays-at (1- eol)))
-            (overlay-put (make-overlay (match-end 3) eol) 'face (cond ((string= kw "X") 'org-done)
-                                                                      ((string= kw "!") 'org-todo)
-                                                                      (t                'default))))))))
-  (defun my-org-todo-update-line-all ()
-    (save-excursion
-      (goto-char (point-min))
-      (while (not (eobp))
-        (my-org-todo-update-line)
-        (next-line 1))))
+        (goto-char (line-beginning-position))
+        (when (re-search-forward "\\(^*+ \\[X\\]\\) " (line-end-position) t)
+          (replace-match (concat "\\1" (format-time-string "  %Y-%m-%d  ")))))
+      (goto-char pt)))
+
+  (defun my-org-todo-date-remove ()
+    (let ((pt (point)))
+      (save-excursion
+        (goto-char (line-beginning-position))
+        (when (re-search-forward "\\(^*+ \\[.\\]\\)  [0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} "
+                                 (line-end-position) t)
+          (replace-match "\\1")))
+      (goto-char pt)))
 
   ;; ----------
   (define-key evil-normal-state-map (kbd "t t") #'my-org-capture-add-todo)
@@ -2028,13 +2168,10 @@ That is, a string used to represent it on the tab bar."
   (evil-define-key 'normal org-mode-map (kbd "S-SPC") #'my-org-cycle-todo-backward)
   (evil-define-key 'normal org-mode-map (kbd "C-j") #'org-metadown)
   (evil-define-key 'normal org-mode-map (kbd "C-k") #'org-metaup)
-  (evil-define-key 'normal org-mode-map (kbd "RET") #'my-org-newline)
-  (evil-define-key 'insert org-mode-map (kbd "RET") #'my-org-newline)
+  (evil-define-key 'normal org-mode-map (kbd "o") #'my-org-dup-heading)
+  (evil-define-key 'normal org-mode-map (kbd "RET") #'my-org-ret)
   (evil-define-key 'normal org-mode-map (kbd "<M-down>") #'my-org-todo-goto-working-forward)
   (evil-define-key 'normal org-mode-map (kbd "<M-up>")   #'my-org-todo-goto-working-backward)
-
-
-
   ;; (evil-define-key 'normal org-mode-map (kbd "M-c") #'my-org-meta-ret)          ; M-RET
 
   (add-hook 'org-mode-hook #'(lambda ()
@@ -2046,6 +2183,22 @@ That is, a string used to represent it on the tab bar."
 (use-package shell-script-mode
   :mode (("zshrc" . shell-script-mode))
   )
+
+;; ----------------------------------------------------------------------
+(use-package posframe)
+
+;; ----------------------------------------------------------------------
+(use-package super-save
+  :ensure t
+  :config
+  (add-to-list 'super-save-triggers 'tabbar-forward-tab)
+  (add-to-list 'super-save-triggers 'tabbar-backward-tab)
+
+  (setq super-save-auto-save-when-idle t
+        super-save-idle-duration 10)
+  (super-save-mode +1)
+  )
+
 
 ;; ----------------------------------------------------------------------
 (message "<-- done    \"init.el\"")
