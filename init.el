@@ -379,7 +379,7 @@
 
 (add-hook 'minibuffer-exit-hook #'im-off)
 (add-hook 'focus-out-hook #'im-off)
-(add-hook 'evil-normal-state-entry-hook #'im-off)
+(add-hook 'evil-insert-state-exit-hook #'im-off)
 
 ;; ----------------------------------------------------------------------
 ;; diminish
