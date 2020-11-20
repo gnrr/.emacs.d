@@ -2094,8 +2094,15 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
       (funcall 'find)))
 
   ;; ----------
-  (defun my-org-dup-heading ()
+  (defun my-org-dup-heading-up ()
     (interactive)
+    (my-org-dup-heading-1 t))
+
+  (defun my-org-dup-heading-down ()
+    (interactive)
+    (my-org-dup-heading-1 nil))
+
+  (defun my-org-dup-heading-1 (up)
     (let ((beg (line-beginning-position))
           (end (line-end-position))
           (pt nil))
@@ -2108,7 +2115,9 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
         (goto-char end))
       (newline)
       (when pt
-        (insert (replace-regexp-in-string "\\[.\\]" "[ ]" (buffer-substring beg pt)))))
+        (insert (replace-regexp-in-string "\\[.\\]" "[ ]" (buffer-substring beg pt)))
+        (when up
+          (org-metaup 1))))
     (unless (eq evil-state 'insert)
       (evil-insert-state 1))
     (org-update-parent-todo-statistics))
@@ -2174,7 +2183,8 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (evil-define-key 'normal org-mode-map (kbd "S-SPC") #'my-org-cycle-todo-backward)
   (evil-define-key 'normal org-mode-map (kbd "C-j") #'org-metadown)
   (evil-define-key 'normal org-mode-map (kbd "C-k") #'org-metaup)
-  (evil-define-key 'normal org-mode-map (kbd "o") #'my-org-dup-heading)
+  (evil-define-key 'normal org-mode-map (kbd "O") #'my-org-dup-heading-up)
+  (evil-define-key 'normal org-mode-map (kbd "o") #'my-org-dup-heading-down)
   (evil-define-key 'normal org-mode-map (kbd "RET") #'my-org-ret)
   (evil-define-key 'normal org-mode-map (kbd "<M-down>") #'my-org-todo-goto-working-forward)
   (evil-define-key 'normal org-mode-map (kbd "<M-up>")   #'my-org-todo-goto-working-backward)
