@@ -454,6 +454,13 @@
              (funcall ,(lookup-key evil-visual-state-map key))))))
 
   ;; ----------
+  (defun my-evil-change-adv-without-kill-new (orig-fn beg end &optional type _ &rest args)
+    "\"c\" (evil-change) without kill-new"
+    (apply orig-fn beg end type ?_ args))
+
+  (advice-add 'evil-change :around 'my-evil-change-adv-without-kill-new)
+
+  ;; ----------
   ;; motion-state-map
   (define-key evil-motion-state-map (kbd "!") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "@") #'nop)                            ; unmap
@@ -513,6 +520,8 @@
   (define-key evil-normal-state-map (kbd "A") #'nop)                 ; unmap A
   (define-key evil-normal-state-map (kbd "a") #'evil-append-line)    ; works as A
   (define-key evil-normal-state-map (kbd "1 1") #'show-overlay-and-prop-and-face-at)
+  (define-key evil-normal-state-map "x" 'delete-forward-char)       ; "x" command without kill-new
+  (define-key evil-normal-state-map "X" 'delete-backward-char)      ; "X" command without kill-new
 
   ;; insert-state-map
   (define-key evil-insert-state-map (kbd "C-h") #'delete-backward-char)
