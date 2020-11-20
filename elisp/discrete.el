@@ -9,12 +9,22 @@
 ;;;
 (message "--> loading \"discrete.el\"...")
 
+;; fixme cleanup unused (commented out) code
+
 ;; ----------------------------------------------------------------------
 ;; @@ utility
 (defun nop ()
   "often use to disable parent key-bindings"
   (interactive)
   (message "no operation"))
+
+(defun my-face-properties-at-point ()
+  (let ((faces (face-at-point nil t))
+        (s ""))
+    (dolist (f faces)
+      (setq s (concat s "Face: " (symbol-name f) "\n"))
+      (setq s (concat s (mapconcat #'(lambda (x) (format " %-20S%S" (car x) (cdr x))) (face-all-attributes f) "\n"))))
+    s))
 
 (defun show-overlay-and-prop-and-face-at ()
   (interactive)
@@ -1333,7 +1343,7 @@ is already narrowed."
 (global-set-key (kbd "C-x C-e") #'my-eval-last-sexp)
 
 ;; ----------------------------------------------------------------------
-;;;		    SOMEBODY WROTE. THANKS A LOT.		   
+;;		    SOMEBODY WROTE. THANKS A LOT.
 ;; ----------------------------------------------------------------------
 
 ;; ----------------------------------------------------------------------

@@ -14,6 +14,12 @@
 (require 'my-backup)
 (setq my-backup-directory "~/bak")
 
+(require 'check-emacs-setting)
+(setq check-emacs-setting-files '("~/.emacs.d/dot.emacs"
+                                  "~/.emacs.d/init.el"
+                                  "~/.emacs.d/elisp/discrete.el"
+                                  "~/.emacs.d/elisp/my-backup.el"))
+
 ;; ----------------------------------------------------------------------
 (defun mycolor (name)
   (let ((colors '((white       . "#f9f9f9")
@@ -2173,6 +2179,8 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (evil-define-key 'normal org-mode-map (kbd "<M-down>") #'my-org-todo-goto-working-forward)
   (evil-define-key 'normal org-mode-map (kbd "<M-up>")   #'my-org-todo-goto-working-backward)
   ;; (evil-define-key 'normal org-mode-map (kbd "M-c") #'my-org-meta-ret)          ; M-RET
+  ;; (evil-define-key 'normal org-mode-map (kbd ">")   #'my-org-do-demote)  ;; fixme
+  ;; (evil-define-key 'motion org-mode-map (kbd "<")   #'org-do-promote)    ;; fixme
 
   (add-hook 'org-mode-hook #'(lambda ()
                                (org-defkey org-mode-map [(meta up)] nil)        ; unmap for tabbar
@@ -2194,11 +2202,10 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (add-to-list 'super-save-triggers 'tabbar-forward-tab)
   (add-to-list 'super-save-triggers 'tabbar-backward-tab)
 
-  (setq super-save-auto-save-when-idle t
-        super-save-idle-duration 10)
+  ;; (setq super-save-auto-save-when-idle t
+  ;;       super-save-idle-duration 10)
   (super-save-mode +1)
   )
-
 
 ;; ----------------------------------------------------------------------
 (message "<-- done    \"init.el\"")

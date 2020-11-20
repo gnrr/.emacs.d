@@ -82,9 +82,12 @@
 ;; for im-on/off
 (defun im-ctl (on)
   (let ((code (if on 104 102)))
-    (call-process
-     "osascript" nil t nil "-e"
-     (format "tell application \"System Events\" to key code %d" code))))
+    (start-process "im-ctl" nil "osascript" "-e"
+        (format "tell application \"System Events\" to key code %d" code))))
+    ;; (call-process
+    ;;  "osascript" nil t nil "-e"
+    ;;  (format "tell application \"System Events\" to key code %d" code))))
+
 ;;
 ;; 入力モードが日本語の時はカーソルの色を変える
 ;;
@@ -100,6 +103,12 @@
 ;; fullscreen
 ;;
 (global-set-key (kbd "C-M-f") 'toggle-frame-fullscreen)
+
+;;
+;; check-emacs-setting
+;;
+(setq check-emacs-setting-diff-pgm "/Applications/Meld.app/Contents/MacOS/Meld")
+(setq check-emacs-setting-cmp-pgm "cmp")
 
 (message "<-- done    \"_mac.el\"")
 
