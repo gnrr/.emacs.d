@@ -2007,7 +2007,7 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package org
   :config
-  ;; (setq org-directory "~/Dropbox/org")
+  (setq org-directory "~/Dropbox/org")
   (setq org-default-notes-file (expand-file-name (path-join org-directory "notes.org")))
 
   (setq org-hide-emphasis-markers t)
@@ -2065,12 +2065,12 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
     (interactive "sMEMO: ")
     (my-org-capture-add-1 "m" text))
 
-  (defun my-org-capture-open ()
+  (defun my-org-notes-open ()
     (interactive)
     (find-file org-default-notes-file)
     )
 
-  (defun my-org-capture-close ()
+  (defun my-org-notes-close ()
     (interactive)
     (save-buffer)
     (bury-buffer))
@@ -2165,9 +2165,9 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   ;; ----------
   (define-key evil-normal-state-map (kbd "t t") #'my-org-capture-add-todo)
   (define-key evil-normal-state-map (kbd "t m") #'my-org-capture-add-memo)
-  (define-key evil-normal-state-map (kbd "t r") #'my-org-capture-open)          ; toggle org buffer
-  (evil-define-key 'normal org-mode-map (kbd "q")   #'my-org-capture-close)
-  (evil-define-key 'normal org-mode-map (kbd "t r") #'my-org-capture-close)     ; toggle org buffer
+  (define-key evil-normal-state-map (kbd "t r") #'my-org-notes-open)          ; toggle org buffer
+  (evil-define-key 'normal org-mode-map (kbd "q")   #'my-org-notes-close)
+  (evil-define-key 'normal org-mode-map (kbd "t r") #'my-org-notes-close)     ; toggle org buffer
   (evil-define-key 'normal org-mode-map (kbd "t t") #'nop)
   (evil-define-key 'normal org-mode-map (kbd "t m") #'nop)
   (evil-define-key 'normal org-mode-map (kbd "SPC")   #'my-org-cycle-todo-forward)
