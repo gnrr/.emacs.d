@@ -72,7 +72,7 @@
 
  (setq-default
   auto-window-vscroll nil                          ; Lighten vertical scroll
-  confirm-kill-emacs 'yes-or-no-p                  ; Confirm before exiting Emacs
+  ;; confirm-kill-emacs 'yes-or-no-p                  ; Confirm before exiting Emacs
   delete-by-moving-to-trash t                      ; Delete files to trash
   display-time-default-load-average nil            ; Don't display load average
   display-time-format "%H:%M"                      ; Format the time string
