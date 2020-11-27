@@ -25,4 +25,5 @@ packages/archives/melpa/archive-contents
 recentf
 kkcrc
 bookmarks
-last-load/*
+.check-emacs-setting/last-load/*
+.check-emacs-setting/log.txt
