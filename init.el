@@ -14,12 +14,9 @@
 (setq my-backup-directory "~/bak")
 
 ;; check-emacs-setting
-(unless (featurep 'check-emacs-setting)
- (require 'check-emacs-setting)
-  (setq check-emacs-setting-files '("~/.emacs.d/init.el"
-                                    "~/.emacs.d/elisp/discrete.el"
-                                    "~/.emacs.d/elisp/my-backup.el"))
-  )
+(require 'check-emacs-setting)
+(setq check-emacs-setting-files '("~/.emacs.d/init.el"
+                                  "~/.emacs.d/elisp/discrete.el"))
 
 ;; ----------------------------------------------------------------------
 (defun mycolor (name)
