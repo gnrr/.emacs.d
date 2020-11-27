@@ -2,23 +2,24 @@
 ;;;
 ;;; init.el
 ;;;
-(message "--> loading \"init.el\"...")
+(add-to-list 'load-path (locate-user-emacs-file "elisp"))
 
 ;; to hide message "ad-handle-definition: ‘vc-revert’ got redefined"
 (setq ad-redefinition-action 'accept)
 
 ;; ----------------------------------------------------------------------
 ;; my-elisp
-(add-to-list 'load-path (locate-user-emacs-file "./elisp"))
 (require 'discrete)
 (require 'my-backup)
 (setq my-backup-directory "~/bak")
 
-(require 'check-emacs-setting)
-(setq check-emacs-setting-files '("~/.emacs.d/dot.emacs"
-                                  "~/.emacs.d/init.el"
-                                  "~/.emacs.d/elisp/discrete.el"
-                                  "~/.emacs.d/elisp/my-backup.el"))
+;; check-emacs-setting
+(unless (featurep 'check-emacs-setting)
+ (require 'check-emacs-setting)
+  (setq check-emacs-setting-files '("~/.emacs.d/init.el"
+                                    "~/.emacs.d/elisp/discrete.el"
+                                    "~/.emacs.d/elisp/my-backup.el"))
+  )
 
 ;; ----------------------------------------------------------------------
 (defun mycolor (name)
@@ -26,17 +27,19 @@
                   (light-gray  . "#a4a2a2")
                   (gray        . "#7c7a7a")
                   (dark-gray   . "#555555")
+                  (dark-gray2  . "#3e3e3e")
                   (black       . "#000000")
                   (red         . "#ff6b7f")
                   (blue        . "#61afef")
                   (dark-blue2  . "#1684DF")
                   (dark-blue   . "#126EBA")
+                  (dark-blue3  . "#0F5895")
                   (green       . "#98be65")
                   (pink        . "#eb7bc0")
                   (purple      . "#c678dd")
                   (orange      . "#e3b23c")
                   ;; (charcoal . "#3d363e"))))
-                  ;; (charcoal    . "#362f37"))))
+                  ;; (charcoal . "#362f37"))))
                   (charcoal    . "#2b262c"))))
     (cdr (assoc name colors))))
 
@@ -57,9 +60,10 @@
           (progn
             (message (format "ERROR: Font not found: %s" name))
             nil))
-      (progn
-        (message "ERROR: Specifying font can only work under any window-system.")
-        nil))))
+      (unless noninteractive
+        ;; NOT occurs error in batch mode (= while checking)
+        (message "ERROR: Specifying font can only work under any window-system."))
+      nil)))
 
 ;; e.g. (myfont 'default) => "Source Han Code JP N"
 
@@ -191,7 +195,7 @@
                                    (:eval (or (replace-home-directory-string (buffer-file-name))
                                               (buffer-name)))))
 
- (set-face-background 'region (mycolor 'dark-blue))
+ (set-face-background 'region (mycolor 'dark-blue3))
 
  ;; =====================================================================
  ;; key unbinding / binding
@@ -235,8 +239,6 @@
  (global-set-key (kbd "M-C--") #'(lambda () (interactive) (text-scale-decrease 1)))
  (global-set-key (kbd "M-C-=") #'(lambda () (interactive) (text-scale-increase 1)))
 
- (define-key undo-tree-map (kbd "C-?") 'nil)
- (define-key undo-tree-map (kbd "C-r") 'nil)    ;; undo-tree-redo      FIXME: not work
  (define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
 
 ;; ----------------------------------------------------------------------
@@ -305,7 +307,7 @@
  ;; (require 'my-backup)
  ;; (setq my-backup-directory "~/bak")
 
- ;; computer independent
+ ;; host independent
  (load
   (cond ((eq system-type 'windows-nt) "~/.emacs.d/elisp/_windows.el")
         ((eq system-type 'gnu/linux)  "~/.emacs.d/elisp/_linux.el")
@@ -337,6 +339,19 @@
  ;; (zerodark-setup-modeline-format)
  (my-load-frame)
 
+ (defun my-font-lock-add-keywords-elisp ()
+   (font-lock-add-keywords nil
+     '(("(\\(lambda\\|cons\\|car\\|cdr\\|nth\\|eq\\|equal\\|null\\|remove\\|delete
+\\|mapc\\|mapcar\\|fset\\|set
+\\|memq\\|member\\|delq\\|funcall\\|fboundp\\|list\\|add-to-list\\|concat\\|call-interactively
+\\|assoc\\|rassoc\\|add-hook\\|remove-hook\\|define-key\\|global-set-key\\|local-set-key\\|define-key
+\\|ad-activate\\|ad-enable-advice\\|ad-disable-advice\\|propertize\\)[ \t\n]" . font-lock-keyword-face))))
+
+ (add-hook 'emacs-lisp-mode-hook #'my-font-lock-add-keywords-elisp)
+ (add-hook 'lisp-interaction-mode-hook #'my-font-lock-add-keywords-elisp)
+
+ (lisp-interaction-mode)                            ;; workaround for scratch-log
+
  (message "<-- startup-hook")
 
  ;; show emacs version and startup time in mini-buffer
@@ -344,18 +359,6 @@
           ;; (replace-regexp-in-string "(.+)\\|of\\|[\n]" "" (emacs-version))
           (substring (version) 0 14)
           (float-time (time-subtract after-init-time before-init-time)))
-
- (defun my-font-lock-add-keywords-elisp ()
-   (font-lock-add-keywords nil
-     '(("(\\(lambda\\|cons\\|car\\|cdr\\|nth\\|eq\\|equal\\|null\\|mapc\\|mapcar\\|fset\\|set
-\\|memq\\|member\\|delq\\|funcall\\|fboundp\\|list\\|add-to-list\\|concat\\|call-interactively
-\\|assoc\\|rassoc\\|add-hook\\|remove-hook\\|global-set-key\\|local-set-key\\|define-key
-\\|ad-activate\\|ad-enable-advice\\|ad-disable-advice\\|propertize\\)[ \t\n]" . font-lock-keyword-face))))
-
- (add-hook 'emacs-lisp-mode-hook #'my-font-lock-add-keywords-elisp)
- (add-hook 'lisp-interaction-mode-hook #'my-font-lock-add-keywords-elisp)
-
- (lisp-interaction-mode)                            ;; workaround for scratch-log
 
 )) ;; emacs-startup-hook function ends here
 
@@ -387,27 +390,7 @@
 (add-hook 'focus-out-hook #'im-off)
 (add-hook 'evil-insert-state-exit-hook #'im-off)
 
-;; ----------------------------------------------------------------------
-;; diminish
-(defmacro diminish-minor-mode (file mode &optional new-name)
-  "https://github.com/larstvei/dot-emacs/blob/master/init.org"
-  `(with-eval-after-load ,file
-     (diminish ,mode ,new-name)))
-
-(defmacro diminish-major-mode (hook new-name)
-  `(add-hook ,hook #'(lambda ()
-                       (setq mode-name ,new-name))))
-
-;; minor mode
-(diminish-minor-mode "undo-tree" 'undo-tree-mode)
-(diminish-minor-mode "eldoc" 'eldoc-mode)
-(diminish-minor-mode "abbrev" 'abbrev-mode)
-(diminish-minor-mode "cwarn" 'cwarn-mode)
-
-;; major mode
-(diminish-major-mode 'emacs-lisp-mode-hook "Elisp")
-(diminish-major-mode 'lisp-interaction-mode-hook "LispInt")
-
+;; fixme need this?
 ;; ----------------------------------------------------------------------
 ;; utility for use-package
 (defun my-font-exists-p ($font-name)
@@ -415,7 +398,49 @@
       nil t))
 
 ;; ----------------------------------------------------------------------
+;;
+;; package setting
+;;
+(require 'package)
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+(setq package-user-dir "~/.emacs.d/packages")
+(package-initialize)
+(unless (require 'use-package nil t)
+  (defmacro use-package (&rest args)))
+
+;; ----------------------------------------------------------------------
 (use-package cl)
+
+;; ----------------------------------------------------------------------
+(use-package diminish
+  :config
+  (defmacro diminish-minor-mode (file mode &optional new-name)
+    "https://github.com/larstvei/dot-emacs/blob/master/init.org"
+    `(with-eval-after-load ,file
+       (diminish ,mode ,new-name)))
+
+  (defmacro diminish-major-mode (hook new-name)
+    `(add-hook ,hook #'(lambda ()
+                         (setq mode-name ,new-name))))
+
+  ;; minor mode
+  (diminish-minor-mode "undo-tree" 'undo-tree-mode)
+  (diminish-minor-mode "eldoc" 'eldoc-mode)
+  (diminish-minor-mode "abbrev" 'abbrev-mode)
+  (diminish-minor-mode "cwarn" 'cwarn-mode)
+
+  ;; major mode
+  (diminish-major-mode 'emacs-lisp-mode-hook "Elisp")
+  (diminish-major-mode 'lisp-interaction-mode-hook "LispInt")
+)
+
+;; ----------------------------------------------------------------------
+(use-package undo-tree
+  :config
+  (define-key undo-tree-map (kbd "C-?") 'nil)
+  (define-key undo-tree-map (kbd "C-r") 'nil)    ;; undo-tree-redo      FIXME: not work
+  )
 
 ;; ----------------------------------------------------------------------
 (use-package evil
@@ -454,11 +479,11 @@
              (funcall ,(lookup-key evil-visual-state-map key))))))
 
   ;; ----------
-  (defun my-evil-change-adv-without-kill-new (orig-fn beg end &optional type _ &rest args)
+  (defun my-adv-evil-change--without-kill-new (orig-fn beg end &optional type _ &rest args)
     "\"c\" (evil-change) without kill-new"
     (apply orig-fn beg end type ?_ args))
 
-  (advice-add 'evil-change :around 'my-evil-change-adv-without-kill-new)
+  (advice-add 'evil-change :around 'my-adv-evil-change--without-kill-new)
 
   ;; ----------
   ;; motion-state-map
@@ -852,13 +877,13 @@
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
-  
+
   ;; Enable custom neotree theme (all-the-icons must be installed!)
   (doom-themes-neotree-config)
   ;; or for treemacs users
   (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
   (doom-themes-treemacs-config)
-  
+
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config)
   )
@@ -1521,7 +1546,7 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
                       (cond
                        ;; Always include the current buffer.
                        ((eq (current-buffer) b) b)
-                       ;; ((string= (buffer-name b) (file-name-nondirectory org-default-notes-file)) nil)  ; hide org-capture
+                       ((string= (buffer-name b) (file-name-nondirectory org-default-notes-file)) nil)  ; hide "notes.org"
                        ((string-match "^CAPTURE-[0-9]*-*.+\.org$" (buffer-name b)) nil)   ; hide org-capture
                        ((buffer-file-name b) b)
                        ((char-equal ?\  (aref (buffer-name b) 0)) nil)
@@ -1945,7 +1970,7 @@ That is, a string used to represent it on the tab bar."
   ;;   (set-face-background f (face-attribute 'telephone-line-accent-inactive :background)))
 
   )
- 
+
 ;; ----------------------------------------------------------------------
 (use-package arduino-mode
   :mode (("\\.pde$" . arduino-mode)
@@ -2181,12 +2206,12 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
       (goto-char pt)))
 
   ;; ----------
-  (define-key evil-normal-state-map (kbd "t t") #'my-org-capture-add-todo)
+  (define-key evil-normal-state-map (kbd "t d") #'my-org-capture-add-todo)
   (define-key evil-normal-state-map (kbd "t m") #'my-org-capture-add-memo)
-  (define-key evil-normal-state-map (kbd "t r") #'my-org-notes-open)          ; toggle org buffer
+  (define-key evil-normal-state-map (kbd "t t") #'my-org-notes-open)          ; toggle org buffer
   (evil-define-key 'normal org-mode-map (kbd "q")   #'my-org-notes-close)
-  (evil-define-key 'normal org-mode-map (kbd "t r") #'my-org-notes-close)     ; toggle org buffer
-  (evil-define-key 'normal org-mode-map (kbd "t t") #'nop)
+  (evil-define-key 'normal org-mode-map (kbd "t t") #'my-org-notes-close)     ; toggle org buffer
+  (evil-define-key 'normal org-mode-map (kbd "t d") #'nop)
   (evil-define-key 'normal org-mode-map (kbd "t m") #'nop)
   (evil-define-key 'normal org-mode-map (kbd "SPC")   #'my-org-cycle-todo-forward)
   (evil-define-key 'normal org-mode-map (kbd "S-SPC") #'my-org-cycle-todo-backward)
@@ -2224,10 +2249,12 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   ;; (setq super-save-auto-save-when-idle t
   ;;       super-save-idle-duration 10)
   (super-save-mode +1)
-  )
 
+  )
 ;; ----------------------------------------------------------------------
-(message "<-- done    \"init.el\"")
+;; customize setting
+(setq custom-file "~/.emacs.d/custom.el") ; write custom settings into external file instead of init.el
+(load custom-file nil t)
 
 ;;
 ;; init.el ends here

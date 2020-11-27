@@ -7,7 +7,6 @@
 ;;;
 ;;;	based: $Id: discrete.el,v 1.51 2006/02/16 05:13:34 gnrr Exp gnrr $
 ;;;
-(message "--> loading \"discrete.el\"...")
 
 ;; fixme cleanup unused (commented out) code
 
@@ -1349,7 +1348,8 @@ is already narrowed."
 ;; ----------------------------------------------------------------------
 ;; https://tototoshi.hatenablog.com/entry/20110520/1305906664
 (defun path-join (&rest paths)
-  (reduce #'(lambda (x y) (concat (file-name-as-directory x) y)) paths))
+  (cl-reduce #'(lambda (x y) (concat (file-name-as-directory x) y)) paths))
+;  (reduce #'(lambda (x y) (concat (file-name-as-directory x) y)) paths))
 
 ;; ----------------------------------------------------------------------
 ;; @@ `my-calc'
@@ -1448,12 +1448,8 @@ is already narrowed."
 ;; 		(local-set-key "\C-a" 'beginning-of-minibuffer)))))
 
 
-;;;
-;;; end
-;;;
 (provide 'discrete)
 
-(message "<-- done    \"discrete.el\"")
 ;;
 ;; discrete.el ends here
 ;;
