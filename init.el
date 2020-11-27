@@ -1611,7 +1611,7 @@ That is, a string used to represent it on the tab bar."
   (show-paren-mode 1)
 
   ;; depends on modes
-  (sp-with-modes '(lisp-mode lisp-interaction-mode)
+  (sp-with-modes '(lisp-mode lisp-interaction-mode emacs-lisp-mode)
    (sp-local-pair "'" nil :actions nil)
    (sp-local-pair "`" nil :actions nil))
 
