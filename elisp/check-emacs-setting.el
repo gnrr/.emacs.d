@@ -101,12 +101,12 @@ The return value is nil if no errors. Otherwise it is error message."
   (cl-flet ((create-empty-file (path) "Create new empty file whether it exists."
                                (write-region 1 1 path)))
     (create-empty-file check-emacs-setting-log-file))
-  (let ((cmd (format "%s --batch -l %s" (expand-file-name invocation-name invocation-directory)
-                     check-emacs-setting-script-file)))
+  (let ((cmd (format "%s --batch -l %s"
+               (expand-file-name invocation-name invocation-directory) ;; executable's path of currently running Emacs
+               check-emacs-setting-script-file)))
     (shell-command-to-string cmd))  ;; For Mac, Can not launch current Emacs executable in new process
                                     ;; with option '--batch' by `call-process' for some reason.
                                     ;; Thus using `shell-command-to-string'
-
   (with-temp-buffer
     (insert-file check-emacs-setting-log-file)
     (goto-char (point-max))

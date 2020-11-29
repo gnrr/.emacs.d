@@ -11,7 +11,7 @@
   (with-current-buffer check-emacs-setting-buf
     (insert (cond ((eq pos 'start) (format "(enter '%s)\t;; %s\n" target from))
                   ((eq pos 'end)   (format "(exit  '%s)\t;; %s\n" target from))
-                  (t (format ";; unknown loading %s" target))))))
+                  (t (format ";; unknown target (%s)\t;; %s\n" target from))))))
 
 (defadvice load (around check-emacs-setting-log-load activate)
   (let ((target-p (member (file-name-nondirectory file)
@@ -33,6 +33,18 @@
    (let ((err-msg (error-message-string err)))
      (with-current-buffer check-emacs-setting-buf
        (insert ";; " err-msg)
-       (write-file check-emacs-setting-log-file nil))
+
+       ;; ;; fixme: not work by flet, cl-flet, cl-letf
+       ;; (cl-letf (((message (&rest args) nil)))
+       ;;   (write-file check-emacs-setting-log-file nil)))
+
+       ;; ;; fixme: not work by func-swapping, is `message' wrong target???
+       ;; (fset 'orig-fun (symbol-function 'message))
+       ;; (defun message (&rest _) nil)
+       ;; (write-file check-emacs-setting-log-file nil)
+       ;; (fset 'message (symbol-function 'orig-fun))
+       ;; (fmakunbound 'orig-fun)))
+
+       (write-file check-emacs-setting-log-file nil)
      (error err-msg))))
 )

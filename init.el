@@ -345,7 +345,7 @@
 \\|mapc\\|mapcar\\|fset\\|set
 \\|memq\\|member\\|delq\\|funcall\\|fboundp\\|list\\|add-to-list\\|concat\\|call-interactively
 \\|assoc\\|rassoc\\|add-hook\\|remove-hook\\|define-key\\|global-set-key\\|local-set-key\\|define-key
-\\|ad-activate\\|ad-enable-advice\\|ad-disable-advice\\|propertize\\)[ \t\n]" . font-lock-keyword-face))))
+\\|ad-activate\\|ad-enable-advice\\|ad-disable-advice\\|propertize\\|run-hooks\\)[ \t\n]" . font-lock-keyword-face))))
 
  (add-hook 'emacs-lisp-mode-hook #'my-font-lock-add-keywords-elisp)
  (add-hook 'lisp-interaction-mode-hook #'my-font-lock-add-keywords-elisp)
@@ -367,7 +367,7 @@
 (add-hook 'find-file-hook 'auto-insert)
 (setq auto-insert-directory "~/.emacs.d/templates")
 (defvar auto-insert-alist nil)
-(setq auto-insert-alist (append '(("\\.mq4" . "mq4"))
+(setq auto-insert-alist (cons '("\\.mq4" . "mq4")
                                 auto-insert-alist))
 
 ;; ----------------------------------------------------------------------
@@ -541,7 +541,7 @@
   (define-key evil-normal-state-map (kbd "TAB") #'evil-indent-line)
   (define-key evil-normal-state-map (kbd "U") #'undo-tree-redo)
   (define-key evil-normal-state-map (kbd "M-p") #'evil-paste-pop-next)
-  (define-key evil-normal-state-map (kbd "SPC") #'evil-force-normal-state)
+  ;; (define-key evil-normal-state-map (kbd "SPC") #'evil-force-normal-state)
   (define-key evil-normal-state-map (kbd "g f") #'my-beginning-of-defun)
   (define-key evil-normal-state-map (kbd "A") #'nop)                 ; unmap A
   (define-key evil-normal-state-map (kbd "a") #'evil-append-line)    ; works as A
@@ -759,6 +759,8 @@
     (setq unread-command-events (listify-key-sequence (kbd "RET"))))
 
   ;; ----------
+  (add-hook 'evil-visual-state-entry-hook #'(lambda () (show-paren-mode -1)))
+  (add-hook 'evil-visual-state-exit-hook  #'(lambda () (show-paren-mode 1)))
 )
 
 ;; ----------------------------------------------------------------------
@@ -1894,6 +1896,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package flycheck
+  :disabled
   :hook ((c-mode . flycheck-c-mode-hook-func))
   :init
   (defun flycheck-c-mode-hook-func ()
@@ -2207,6 +2210,9 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
       (goto-char pt)))
 
   ;; ----------
+  (set-face-attribute 'org-link nil :foreground (face-foreground 'default) :underline t)
+
+  ;; ----------
   (define-key evil-normal-state-map (kbd "t d") #'my-org-capture-add-todo)
   (define-key evil-normal-state-map (kbd "t m") #'my-org-capture-add-memo)
   (define-key evil-normal-state-map (kbd "t t") #'my-org-notes-open)          ; toggle org buffer
@@ -2228,8 +2234,8 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   ;; (evil-define-key 'motion org-mode-map (kbd "<")   #'org-do-promote)    ;; fixme
 
   (add-hook 'org-mode-hook #'(lambda ()
-                               (org-defkey org-mode-map [(meta up)] nil)        ; unmap for tabbar
-                               (org-defkey org-mode-map [(meta down)] nil)))    ; unmap for tabbar
+          (org-defkey org-mode-map [(meta up)] nil)        ; unmap for tabbar
+          (org-defkey org-mode-map [(meta down)] nil)))    ; unmap for tabbar
   )
 
 ;; ----------------------------------------------------------------------
@@ -2247,11 +2253,34 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (add-to-list 'super-save-triggers 'tabbar-forward-tab)
   (add-to-list 'super-save-triggers 'tabbar-backward-tab)
 
+  ;; ;; fixme not work by letf, cl-flet, cl-letf
+  ;; (defun my-adv-super-save-command--disable-message (orig-fun)
+  ;;   (cl-flet ((message (&rest _) nil)
+  ;;             (files--message (&rest _) nil))
+  ;;     (funcall orig-fun)
+  ;;     (message "")))
+  ;; (advice-add 'super-save-command :around #'my-adv-super-save-command--disable-message)
+
   ;; (setq super-save-auto-save-when-idle t
   ;;       super-save-idle-duration 10)
   (super-save-mode +1)
-
   )
+
+;; ----------------------------------------------------------------------
+(use-package dot-editor
+  :after evil
+  :config
+  (add-hook 'dot-editor-mode-hook #'(lambda ()
+    (evil-define-key 'motion dot-editor-mode-map (kbd "C-c C-e") 'dot-editor-encode-region)
+    (evil-define-key 'motion dot-editor-mode-map (kbd "C-c C-d") 'dot-editor-decode-region)
+    (evil-define-key 'motion dot-editor-mode-map (kbd "C-c C-c") 'dot-editor-insert-canvas)
+    (evil-define-key 'motion dot-editor-mode-map (kbd "C-c C-p") 'create-pbm-from-hex)
+    (evil-define-key 'motion dot-editor-mode-map (kbd "C-c C-r") 'dot-editor-reverse-region)
+    (define-key evil-normal-state-map (kbd "SPC") #'evil-force-normal-state)
+    (define-key evil-motion-state-map (kbd "SPC")    'dot-editor-reverse-square)))
+    ;; (evil-define-key 'normal dot-editor-mode-map (kbd "SPC")    'dot-editor-reverse-square)))
+  )
+
 ;; ----------------------------------------------------------------------
 ;; customize setting
 (setq custom-file "~/.emacs.d/custom.el") ; write custom settings into external file instead of init.el
