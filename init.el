@@ -156,6 +156,9 @@
  (set-window-buffer nil (current-buffer))                ; Use them now.
 
  (set-face-background 'trailing-whitespace (mycolor 'red))
+ ;; disable show-trailing-whitespace in minibuffer
+ (add-hook 'minibuffer-setup-hook
+           (lambda () (setq-local show-trailing-whitespace nil)))
 
  ;; save-place
  (setq save-place-file "~/.emacs.d/.emacs-places")
