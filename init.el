@@ -1239,7 +1239,7 @@ Return nil for blank/empty strings."
         ivy-extra-directories nil                                ;; '("../")
         ivy-re-builders-alist '((t . ivy--regex-ignore-order))   ;; configure regexp engine. allow input not in order
         avy-timeout-seconds 0.4
-        counsel-find-file-ignore-regexp "\\.elc\\'"
+        counsel-find-file-ignore-regexp "\\.elc\\'\\|\\.DS_Store\\|^#.+#$"
         ;; ivy-display-style t
   )
 
