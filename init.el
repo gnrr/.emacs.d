@@ -2146,22 +2146,18 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (defun my-org-dup-heading-1 (up)
     (let ((beg (line-beginning-position))
           (end (line-end-position))
-          (pt nil))
-      (save-excursion
-        (dolist (re '("^*+ \\[.\\] " "^* "))
-          (goto-char beg)
-          (setq pt (re-search-forward re end t))
-          (when pt (return))))        ; break
-      (unless (eq evil-state 'insert)
-        (goto-char end))
-      (newline)
-      (when pt
-        (insert (replace-regexp-in-string "\\[.\\]" "[ ]" (buffer-substring beg pt)))
-        (when up
-          (org-metaup 1))))
-    (unless (eq evil-state 'insert)
-      (evil-insert-state 1))
-    (org-update-parent-todo-statistics))
+          (pt (point)))
+      (goto-char beg)
+      (if (re-search-forward "^*+ \\[.\\] \\|^* " end t)
+          (let ((s (buffer-substring beg (point))))
+            (if up
+                (evil-open-above 1)
+              (evil-open-below 1))
+            (insert s)
+            (unless (eq evil-state 'insert)
+              (evil-insert-state 1))
+            (org-update-parent-todo-statistics))
+        (goto-char pt))))
 
   (defun my-org-ret ()
     (interactive)
