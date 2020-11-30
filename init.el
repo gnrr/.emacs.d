@@ -2240,6 +2240,8 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (evil-define-key 'normal org-mode-map (kbd "RET") #'my-org-ret)
   (evil-define-key 'normal org-mode-map (kbd "<M-down>") #'my-org-todo-goto-working-forward)
   (evil-define-key 'normal org-mode-map (kbd "<M-up>")   #'my-org-todo-goto-working-backward)
+  (evil-define-key 'normal org-mode-map (kbd "<S-left>")  #'nop)
+  (evil-define-key 'normal org-mode-map (kbd "<S-right>") #'nop)
   (evil-define-key 'normal org-mode-map (kbd "0")   #'my-org-beginning-of-content)
   (evil-define-key 'insert org-mode-map (kbd "C-a") #'my-org-beginning-of-content)
 
