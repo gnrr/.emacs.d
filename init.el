@@ -2165,6 +2165,18 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
     (newline))
 
   ;; ----------
+  (defun my-org-beginning-of-content ()
+    (interactive)
+    (let ((beg (line-beginning-position))
+          (end (line-end-position))
+          (pt (point)))
+      (goto-char beg)
+      (if (re-search-forward "^*+ \\[.\\] \\|^* " end t)
+          (when (= (point) pt)
+            (beginning-of-line))
+        (goto-char pt))))
+
+  ;; ----------
   (defun my-org-cycle-todo-forward ()
     (interactive)
     (my-org-cycle-todo-1 nil))
@@ -2228,6 +2240,9 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (evil-define-key 'normal org-mode-map (kbd "RET") #'my-org-ret)
   (evil-define-key 'normal org-mode-map (kbd "<M-down>") #'my-org-todo-goto-working-forward)
   (evil-define-key 'normal org-mode-map (kbd "<M-up>")   #'my-org-todo-goto-working-backward)
+  (evil-define-key 'normal org-mode-map (kbd "0")   #'my-org-beginning-of-content)
+  (evil-define-key 'insert org-mode-map (kbd "C-a") #'my-org-beginning-of-content)
+
   ;; (evil-define-key 'normal org-mode-map (kbd "M-c") #'my-org-meta-ret)          ; M-RET
   ;; (evil-define-key 'normal org-mode-map (kbd ">")   #'my-org-do-demote)  ;; fixme
   ;; (evil-define-key 'motion org-mode-map (kbd "<")   #'org-do-promote)    ;; fixme
