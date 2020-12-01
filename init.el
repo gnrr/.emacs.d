@@ -1991,7 +1991,8 @@ That is, a string used to represent it on the tab bar."
                              (flycheck-mode -1)
                              (counsel-gtags-mode -1)
                              (symbol-overlay-mode t)
-                             ))
+                             (setq-local show-trailing-whitespace nil)
+                             (setq tab-width 3)))
   )
 
 ;; ----------------------------------------------------------------------
@@ -2087,9 +2088,64 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
     ("^ *\\([-]\\) " (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))
     ;; "* [ ]" --> "[ ]"
     ("^\\(*+ \\)\\[.\\] " (0 (progn () (add-text-properties (match-beginning 1) (match-end 1) '(invisible t)))))
+    ;; "https://..." --> ""
+    ;; ("\\(http[s]*://.+\\)[ \n]" (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) ""))))
     ))
   ;; (org-set-font-lock-defaults)
   ;; (font-lock-fontify-buffer)
+
+  ;; ----------
+(defun my-org-get-todo-content ()
+    "Return string as todo content if current line has todo content. Otherwise return nil"
+    (save-excursion
+      (beginning-of-line)
+      (if (re-search-forward "^*+ \\[ \\] \\(.+\\)" (line-end-position) t)
+          (match-string 1)
+        nil)))
+
+(defun my-org-get-todo-title ()
+    "Return string as todo title if it found. Otherwise return nil"
+    (save-excursion
+      (beginning-of-line)
+      (if (re-search-forward "^*+ \\[ \\] \\(.+\\)" (line-end-position) t)
+          (if (re-search-backward "^*+ \\([^[]+\\)" nil t)
+              (string-trim (match-string 1))
+            nil)
+        nil)))
+
+(defun my-org-kill-whole-line (&optional point)
+  (when point
+    (goto-char point)
+    (beginning-of-line))
+    (org-kill-line)
+    (org-kill-line))
+
+(defun my-org-move-to-undone ()
+    (interactive)
+    (let ((title "やらないことリスト")
+          (pt (save-excursion (my-org-beginning-of-content) (point)))
+          (title-orig (my-org-get-todo-title))
+          (content (my-org-get-todo-content)))
+      (when (and title-orig content)
+        (let ((reason-default "ダルいので")
+              (reason (read-from-minibuffer "Reason: ")))
+        (condition-case err
+            (progn
+              (goto-char (point-min))
+              (re-search-forward (concat "^* " title))
+              (evil-open-below 1)
+              (beginning-of-line)
+              (org-kill-line)
+              (insert (format "** [ ] :%s: %s ← %s\n" title-orig content
+                              (if (string= reason "") reason-default reason)))
+              (forward-line -1)
+              (my-org-beginning-of-content)
+              (my-org-kill-whole-line pt)
+              (unless (eq evil-state 'evil-normal-state)
+                (evil-normal-state 1))
+              (goto-char pt))
+          (error (progn (goto-char pt)
+                        (format "Not found: %s" title))))))))
 
   ;; ----------
   (defun my-org-capture-add-1 (key text)
@@ -2120,6 +2176,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   ;; ----------
   (defun my-org-todo-goto-working-forward ()
     (interactive)
+    ;; fixme use cl-flet
     (defun find () (re-search-forward  "^*+ \\[!\\] " nil 1))
     (unless (funcall 'find)
       (goto-char (point-min))
@@ -2127,6 +2184,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
 
   (defun my-org-todo-goto-working-backward ()
     (interactive)
+    ;; fixme use cl-flet
     (defun find () (prog2 (goto-char (line-beginning-position))
                        (re-search-backward "^*+ \\[!\\] " nil 1)
                      (goto-char (+ (point) (- (match-end 0) (match-beginning 0))))))
