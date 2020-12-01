@@ -2232,7 +2232,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
       (if (re-search-forward "^*+ \\[.\\] \\|^* " end t)
           (when (= (point) pt)
             (beginning-of-line))
-        (goto-char pt))))
+        (beginning-of-line))))
 
   ;; ----------
   (defun my-org-cycle-todo-forward ()
