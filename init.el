@@ -2195,11 +2195,13 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   ;; ----------
   (defun my-org-dup-heading-up ()
     (interactive)
-    (my-org-dup-heading-1 t))
+    (unless (my-org-dup-heading-1 t)
+      (evil-open-above 1)))
 
   (defun my-org-dup-heading-down ()
     (interactive)
-    (my-org-dup-heading-1 nil))
+    (unless (my-org-dup-heading-1 nil)
+      (evil-open-below 1)))
 
   (defun my-org-dup-heading-1 (up)
     (let ((beg (line-beginning-position))
@@ -2214,8 +2216,10 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
             (insert s)
             (unless (eq evil-state 'insert)
               (evil-insert-state 1))
-            (org-update-parent-todo-statistics))
-        (goto-char pt))))
+            (org-update-parent-todo-statistics)
+            t)
+        (goto-char pt)
+        nil)))
 
   (defun my-org-ret ()
     (interactive)
