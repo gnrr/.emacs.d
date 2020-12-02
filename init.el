@@ -2148,19 +2148,39 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
                         (format "Not found: %s" title))))))))
 
   ;; ----------
-  (defun my-org-capture-add-1 (key text)
-    (unless (string= text "")
-      (org-capture nil key)
-      (insert text)
-      (org-capture-finalize)))
+(defun my-org-capture-add-1 (type text)
+    (interactive)
+    (let ((buf (current-buffer))
+          (pt (point))
+          (title (cond ((eq type 'todo) "目安箱")
+                       ((eq type 'memo) "memo")
+                       (t nil)))
+          (fmt (cond ((eq type 'todo) "** [ ] %s\n")
+                     ((eq type 'memo) "** %s\n"))))
+      (when (and (not (string= text "")) title)
+        (find-file org-default-notes-file)
+        (goto-char (point-min))
+        (if (re-search-forward (concat "^* " title))
+            (progn
+              (evil-open-below 1)
+              (beginning-of-line)
+              (org-kill-line)
+              (insert (format fmt text)))
+          (message (format "Not found: %s" title)))
+        (if (eq (current-buffer) buf)
+            (progn
+              (unless (eq evil-state 'evil-normal-state)
+                (evil-normal-state 1))
+              (goto-char pt))
+          (bury-buffer)))))
 
   (defun my-org-capture-add-todo (text)
     (interactive "sTODO: ")
-    (my-org-capture-add-1 "t" text))
+    (my-org-capture-add-1 'todo text))
 
   (defun my-org-capture-add-memo (text)
     (interactive "sMEMO: ")
-    (my-org-capture-add-1 "m" text))
+    (my-org-capture-add-1 'memo text))
 
   (defun my-org-notes-open ()
     (interactive)
@@ -2291,8 +2311,8 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (define-key evil-normal-state-map (kbd "t t") #'my-org-notes-open)          ; toggle org buffer
   (evil-define-key 'normal org-mode-map (kbd "q")   #'my-org-notes-close)
   (evil-define-key 'normal org-mode-map (kbd "t t") #'my-org-notes-close)     ; toggle org buffer
-  (evil-define-key 'normal org-mode-map (kbd "t d") #'nop)
-  (evil-define-key 'normal org-mode-map (kbd "t m") #'nop)
+  (evil-define-key 'normal org-mode-map (kbd "t d") #'my-org-capture-add-todo)
+  (evil-define-key 'normal org-mode-map (kbd "t m") #'my-org-capture-add-memo)
   (evil-define-key 'normal org-mode-map (kbd "SPC")   #'my-org-cycle-todo-forward)
   (evil-define-key 'normal org-mode-map (kbd "S-SPC") #'my-org-cycle-todo-backward)
   (evil-define-key 'normal org-mode-map (kbd "C-j") #'org-metadown)
