@@ -2184,14 +2184,12 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
 
   (defun my-org-notes-open ()
     (interactive)
-    (find-file org-default-notes-file)
-    )
+    (find-file org-default-notes-file))
 
   (defun my-org-notes-close ()
     (interactive)
     (save-buffer)
     (bury-buffer))
-    ;; (kill-buffer))
 
   ;; ----------
   (defun my-org-todo-goto-working-forward ()
