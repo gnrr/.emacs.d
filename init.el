@@ -2253,10 +2253,25 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
       (goto-char beg)
       (if (re-search-forward "^*+ \\[.\\] \\|^* " end t)
           (when (= (point) pt)
-            (beginning-of-line))
-        (beginning-of-line))))
+            (org-beginning-of-line))
+        (org-beginning-of-line))))
 
   ;; ----------
+  (defun my-org-title-line-p (re)
+    (save-excursion (goto-char (line-beginning-position))
+                    (re-search-forward re (line-end-position) t)))
+
+  (defun my-org-cycle ()
+    (interactive)
+    (cond ((my-org-title-line-p "^*+ \\[.\\] ") (my-org-cycle-todo-forward))
+          ((my-org-title-line-p "^*+ ")         (my-org-cycle-title))
+          (t nil)))
+
+  (defun my-org-cycle-title ()
+  (if (outline-invisible-p (line-end-position))
+      (outline-show-subtree)
+    (outline-hide-subtree)))
+
   (defun my-org-cycle-todo-forward ()
     (interactive)
     (my-org-cycle-todo-1 nil))
@@ -2311,7 +2326,8 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (evil-define-key 'normal org-mode-map (kbd "t t") #'my-org-notes-close)     ; toggle org buffer
   (evil-define-key 'normal org-mode-map (kbd "t d") #'my-org-capture-add-todo)
   (evil-define-key 'normal org-mode-map (kbd "t m") #'my-org-capture-add-memo)
-  (evil-define-key 'normal org-mode-map (kbd "SPC")   #'my-org-cycle-todo-forward)
+  (evil-define-key 'normal org-mode-map (kbd "<tab>") #'nop)                  ; temporary disabled
+  (evil-define-key 'normal org-mode-map (kbd "SPC")   #'my-org-cycle)
   (evil-define-key 'normal org-mode-map (kbd "S-SPC") #'my-org-cycle-todo-backward)
   (evil-define-key 'normal org-mode-map (kbd "C-j") #'org-metadown)
   (evil-define-key 'normal org-mode-map (kbd "C-k") #'org-metaup)
