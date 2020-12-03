@@ -2365,13 +2365,10 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (add-to-list 'super-save-triggers 'tabbar-forward-tab)
   (add-to-list 'super-save-triggers 'tabbar-backward-tab)
 
-  ;; ;; fixme not work by letf, cl-flet, cl-letf
-  ;; (defun my-adv-super-save-command--disable-message (orig-fun)
-  ;;   (cl-flet ((message (&rest _) nil)
-  ;;             (files--message (&rest _) nil))
-  ;;     (funcall orig-fun)
-  ;;     (message "")))
-  ;; (advice-add 'super-save-command :around #'my-adv-super-save-command--disable-message)
+  (defun my-adv-super-save-command--disable-message (orig-fun)
+    (let ((inhibit-message t))
+      (funcall orig-fun)))
+  (advice-add 'super-save-command :around #'my-adv-super-save-command--disable-message)
 
   ;; (setq super-save-auto-save-when-idle t
   ;;       super-save-idle-duration 10)
