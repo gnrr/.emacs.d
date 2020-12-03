@@ -596,11 +596,9 @@
 
   (defun my-evil-visual-indent-region (beg end)
     (interactive "r")
-    (if (eq evil-visual-selection 'line)
-        (progn
-          (indent-region beg end)
-          (evil-exit-visual-state))
-      (nop)))
+    (when (eq evil-visual-selection 'line)
+      (indent-region beg end)
+      (evil-exit-visual-state)))
 
   ;; ----------
   (defun evil-return-insert-mode-after-save ()
@@ -2337,6 +2335,19 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
       (goto-char pt)))
 
   ;; ----------
+  (evil-define-command my-org-evil-normal-do-demote () "" (org-demote))
+  (evil-define-command my-org-evil-normal-do-promote () "" (org-promote))
+
+  (evil-define-operator my-org-evil-visual-do-demote (beg end) "" :type 'line
+    (interactive "<r>")
+    (org-map-region #'org-demote beg end)
+    (org-fix-position-after-promote))
+  (evil-define-operator my-org-evil-visual-do-promote (beg end) "" :type 'line
+    (interactive "<r>")
+    (org-map-region #'org-promote beg end)
+    (org-fix-position-after-promote))
+
+  ;; ----------
   (set-face-attribute 'org-link nil :foreground (face-foreground 'default) :underline t)
 
   ;; ----------
@@ -2347,7 +2358,8 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (evil-define-key 'normal org-mode-map (kbd "t t") #'my-org-notes-close)     ; toggle org buffer
   (evil-define-key 'normal org-mode-map (kbd "t d") #'my-org-capture-add-todo)
   (evil-define-key 'normal org-mode-map (kbd "t m") #'my-org-capture-add-memo)
-  (evil-define-key 'normal org-mode-map (kbd "<tab>") #'nop)                  ; temporary disabled
+  (evil-define-key 'normal org-mode-map (kbd "<tab>")   #'my-org-evil-normal-do-demote)
+  (evil-define-key 'normal org-mode-map (kbd "S-<tab>") #'my-org-evil-normal-do-promote)
   (evil-define-key 'normal org-mode-map (kbd "SPC")   #'my-org-cycle)
   (evil-define-key 'normal org-mode-map (kbd "S-SPC") #'my-org-cycle-todo-backward)
   (evil-define-key 'normal org-mode-map (kbd "C-j") #'org-metadown)
@@ -2363,10 +2375,12 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (evil-define-key 'normal org-mode-map (kbd "<up>")   #'my-org-goto-title-prev)
   (evil-define-key 'normal org-mode-map (kbd "M-0") #'my-org-move-to-undone)
   (evil-define-key 'normal org-mode-map (kbd "0")   #'my-org-beginning-of-content)
+
   (evil-define-key 'insert org-mode-map (kbd "C-a") #'my-org-beginning-of-content)
+
+  (evil-define-key 'visual org-mode-map (kbd "<tab>")   #'my-org-evil-visual-do-demote)
+  (evil-define-key 'visual org-mode-map (kbd "S-<tab>") #'my-org-evil-visual-do-promote)
   ;; (evil-define-key 'normal org-mode-map (kbd "M-c") #'my-org-meta-ret)          ; M-RET
-  ;; (evil-define-key 'normal org-mode-map (kbd ">")   #'my-org-do-demote)  ;; fixme
-  ;; (evil-define-key 'motion org-mode-map (kbd "<")   #'org-do-promote)    ;; fixme
 
   (add-hook 'org-mode-hook #'(lambda ()
           (org-defkey org-mode-map [(meta up)] nil)        ; unmap for tabbar
