@@ -2231,7 +2231,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
             (if up
                 (evil-open-above 1)
               (evil-open-below 1))
-            (insert s)
+            (insert (replace-regexp-in-string "\\[.\\]" "[ ]" s))
             (unless (eq evil-state 'insert)
               (evil-insert-state 1))
             (org-update-parent-todo-statistics)
