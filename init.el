@@ -2254,7 +2254,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
           (end (line-end-position))
           (pt (point)))
       (goto-char beg)
-      (if (re-search-forward "^*+ \\[.\\] \\|^* " end t)
+      (if (re-search-forward "^*+ \\[.\\] \\|^*+ " end t)
           (let ((s (buffer-substring beg (point))))
             (if up
                 (evil-open-above 1)
@@ -2266,11 +2266,6 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
             t)
         (goto-char pt)
         nil)))
-
-  (defun my-org-ret ()
-    (interactive)
-    (evil-append 1)
-    (newline))
 
   ;; ----------
   (defun my-org-beginning-of-content ()
@@ -2361,7 +2356,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (evil-define-key 'normal org-mode-map (kbd "C-k") #'org-metaup)
   (evil-define-key 'normal org-mode-map (kbd "O") #'my-org-dup-heading-up)
   (evil-define-key 'normal org-mode-map (kbd "o") #'my-org-dup-heading-down)
-  (evil-define-key 'normal org-mode-map (kbd "RET") #'my-org-ret)
+  (evil-define-key 'normal org-mode-map (kbd "RET") #'my-org-dup-heading-down)
   (evil-define-key 'normal org-mode-map (kbd "<M-down>") #'my-org-todo-goto-working-forward)
   (evil-define-key 'normal org-mode-map (kbd "<M-up>")   #'my-org-todo-goto-working-backward)
   (evil-define-key 'normal org-mode-map (kbd "<S-left>")  #'nop)
