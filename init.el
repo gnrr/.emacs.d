@@ -2192,6 +2192,34 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
     (bury-buffer))
 
   ;; ----------
+  (defun my-org-goto-title-next ()
+    (interactive)
+    (my-org-goto-title-next-1 nil))
+
+  (defun my-org-goto-title-prev ()
+    (interactive)
+    (my-org-goto-title-next-1 t))
+
+(defun my-org-goto-title-next-1 (backward-p)
+    (let ((pt (point))
+          (re "^* [^[].+$"))
+      (if backward-p
+          (if (progn (beginning-of-line) (re-search-backward re nil t))
+              (my-org-beginning-of-content)
+            (goto-char (point-max))
+            (if (re-search-backward re nil t)
+                (my-org-beginning-of-content)
+              (goto-char pt)
+              (message "No previous title")))
+        (if (progn (end-of-line) (re-search-forward re nil t))
+            (my-org-beginning-of-content)
+          (goto-char (point-min))
+          (if (re-search-forward re nil t)
+              (my-org-beginning-of-content)
+            (goto-char pt)
+            (message "No next title"))))))
+
+  ;; ----------
   (defun my-org-todo-goto-working-forward ()
     (interactive)
     ;; fixme use cl-flet
@@ -2338,6 +2366,8 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (evil-define-key 'normal org-mode-map (kbd "<M-up>")   #'my-org-todo-goto-working-backward)
   (evil-define-key 'normal org-mode-map (kbd "<S-left>")  #'nop)
   (evil-define-key 'normal org-mode-map (kbd "<S-right>") #'nop)
+  (evil-define-key 'normal org-mode-map (kbd "<down>") #'my-org-goto-title-next)
+  (evil-define-key 'normal org-mode-map (kbd "<up>")   #'my-org-goto-title-prev)
   (evil-define-key 'normal org-mode-map (kbd "M-0") #'my-org-move-to-undone)
   (evil-define-key 'normal org-mode-map (kbd "0")   #'my-org-beginning-of-content)
   (evil-define-key 'insert org-mode-map (kbd "C-a") #'my-org-beginning-of-content)
