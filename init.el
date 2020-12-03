@@ -2180,9 +2180,15 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
     (interactive "sMEMO: ")
     (my-org-capture-add-1 'memo text))
 
-  (defun my-org-notes-open ()
+(defun my-org-notes-open ()
     (interactive)
-    (find-file org-default-notes-file))
+    (if (member org-default-notes-file (org-files-list))
+        (let* ((buf-org (get-file-buffer org-default-notes-file))
+               (win-org (get-buffer-window buf-org)))
+          (if (and buf-org win-org)          ;; org-file is already shown in any windows
+              (delete-windows-on buf-org)
+            (find-file org-default-notes-file)))
+      (find-file org-default-notes-file)))
 
   (defun my-org-notes-close ()
     (interactive)
@@ -2354,7 +2360,6 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (define-key evil-normal-state-map (kbd "t d") #'my-org-capture-add-todo)
   (define-key evil-normal-state-map (kbd "t m") #'my-org-capture-add-memo)
   (define-key evil-normal-state-map (kbd "t t") #'my-org-notes-open)          ; toggle org buffer
-  (evil-define-key 'normal org-mode-map (kbd "q")   #'my-org-notes-close)
   (evil-define-key 'normal org-mode-map (kbd "t t") #'my-org-notes-close)     ; toggle org buffer
   (evil-define-key 'normal org-mode-map (kbd "t d") #'my-org-capture-add-todo)
   (evil-define-key 'normal org-mode-map (kbd "t m") #'my-org-capture-add-memo)
