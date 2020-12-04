@@ -1746,7 +1746,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package hiwin
-  ;; :disabled
+  :disabled
   :ensure t
   :diminish hiwin-mode
   :config
@@ -2430,6 +2430,34 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
     (define-key evil-normal-state-map (kbd "SPC") #'evil-force-normal-state)
     (define-key evil-motion-state-map (kbd "SPC")    'dot-editor-reverse-square)))
     ;; (evil-define-key 'normal dot-editor-mode-map (kbd "SPC")    'dot-editor-reverse-square)))
+  )
+
+(use-package dimmer
+  :defer 1
+  :config
+  (setq dimmer-exclusion-predicates '(window-minibuffer-p)
+        dimmer-exclusion-regexp-list '("^\\*Minibuf-[0-9]+\\*" "^*Messages*")
+        dimmer-fraction 0.35)
+
+  (dimmer-configure-which-key)
+  (dimmer-configure-org)
+  (dimmer-configure-posframe)
+  ;; (dimmer-configure-hydra)
+
+  (defun dimmer-off ()
+    (dimmer-process-all)
+    (dimmer-mode -1))
+
+  (defun dimmer-on ()
+    (dimmer-mode 1)
+    (dimmer-process-all))
+
+  (add-hook 'focus-out-hook #'dimmer-off)
+  (add-hook 'focus-in-hook  #'dimmer-on)
+  (add-hook 'minibuffer-setup-hook #'dimmer-off)
+  (add-hook 'minibuffer-exit-hook  #'dimmer-on)
+
+  (dimmer-mode t)
   )
 
 ;; ----------------------------------------------------------------------
