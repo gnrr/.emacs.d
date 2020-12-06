@@ -2106,7 +2106,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
     (save-excursion
       (beginning-of-line)
       (if (re-search-forward "^*+ \\[ \\] \\(.+\\)" (line-end-position) t)
-          (if (re-search-backward "^*+ \\([^[]+\\)$" nil t)
+          (if (re-search-backward "^*+ \\([^[]+\\)\\( \\[.+\\]\\)?$" nil t)
               (string-trim (match-string 1))
             nil)
         nil)))
