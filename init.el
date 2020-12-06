@@ -2097,16 +2097,16 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
     "Return string as todo content if current line has todo content. Otherwise return nil"
     (save-excursion
       (beginning-of-line)
-      (if (re-search-forward "^*+ \\[ \\] \\(.+\\)" (line-end-position) t)
+      (if (re-search-forward "^*+ \\[ \\] +\\(.+\\)" (line-end-position) t)
           (match-string 1)
         nil)))
 
-(defun my-org-get-todo-title ()
+(defun my-org-todo-get-title ()
     "Return string as todo title if it found. Otherwise return nil"
     (save-excursion
       (beginning-of-line)
       (if (re-search-forward "^*+ \\[ \\] \\(.+\\)" (line-end-position) t)
-          (if (re-search-backward "^*+ \\([^[]+\\)" nil t)
+          (if (re-search-backward "^*+ \\([^[]+\\)$" nil t)
               (string-trim (match-string 1))
             nil)
         nil)))
@@ -2118,32 +2118,20 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
     (org-kill-line)
     (org-kill-line))
 
-(defun my-org-move-to-undone ()
-    (interactive)
-    (let ((title "やらないことリスト")
+(defvar my-org-move-to-never-do-dest-title "やらないことリスト")
+(defun my-org-move-to-never-do (reason title-orig)
+    (let ((title my-org-move-to-never-do-dest-title)
           (pt (save-excursion (my-org-beginning-of-content) (point)))
-          (title-orig (my-org-get-todo-title))
           (content (my-org-get-todo-content)))
-      (when (and title-orig content)
-        (let ((reason-default "ダルいので")
-              (reason (read-from-minibuffer "Reason: ")))
+      (when content
         (condition-case err
-            (progn
+            (save-excursion
               (goto-char (point-min))
               (re-search-forward (concat "^* " title))
-              (evil-open-below 1)
-              (beginning-of-line)
-              (org-kill-line)
-              (insert (format "** [ ] :%s: %s ← %s\n" title-orig content
-                              (if (string= reason "") reason-default reason)))
-              (forward-line -1)
-              (my-org-beginning-of-content)
-              (my-org-kill-whole-line pt)
-              (unless (eq evil-state 'evil-normal-state)
-                (evil-normal-state 1))
-              (goto-char pt))
+              (forward-line 1)
+              (insert (format "** [ ] :%s: %s ← %s\n" title-orig content reason)))
           (error (progn (goto-char pt)
-                        (format "Not found: %s" title))))))))
+                        (format "Not found: %s" title)))))))
 
   ;; ----------
 (defun my-org-capture-add-1 (type text)
@@ -2323,7 +2311,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
               (org-update-parent-todo-statistics)))))))
 
   ;; ----------
- (defun my-org-todo-date-insert ()
+  (defun my-org-todo-date-insert ()
     (let ((pt (point)))
       (save-excursion
         (goto-char (line-beginning-position))
@@ -2354,6 +2342,100 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
     (org-fix-position-after-promote))
 
   ;; ----------
+  (defun my-org-get-links-in-line (&optional beg)
+    (interactive)
+    (let ((links '())
+          (eol (line-end-position)))
+      (save-excursion
+        (when beg (goto-char beg))
+        (while (< (goto-char (next-single-property-change (point) 'htmlize-link nil eol)) eol)
+          (let ((lk (get-text-property (point) 'htmlize-link)))
+            (when lk
+              (setq links (cons (second lk) links))))))
+      links))
+
+  (defvar my-org-todo-publish-cemetery-accept-titles '("Emacs" "keyboard" "ウェブ投票システムをつくる"))
+  (defvar my-org-todo-publish-cemetery-reason-default-list '(
+    "やる気ないので"　"やる気ねえけん" "やる気なかけん" "やる気ねえかぃ" "やっ気なかで" "やる気ないけん" "やる気ないき"
+     "やる気あらへんさかいに" "やる気にゃーで" "やる気ねえすけ" "やる気ねぁがら" "やる気ねはんで" "やる気ねーんくとぅ"
+     "ダルいので" "ダルさんくとぅ" "ダルぇはんで" "ダルぇがら" "ダリぃけん" "ダリで" "ダルいけぇ" "ダルいき"
+     "しんどいさかいに" "ダやいがで" "ダルいで" "ダリぃすけ" "ダルぇがら" "ダルぇはんで" "ダルさんくとぅ")
+    "thx to https://www.8toch.net/translate/")
+  (defvar my-org-todo-publish-cemetery-hugo-dir "~/git-clone/cemetery")
+  (defvar my-org-todo-publish-cemetery-front-matter-fmt
+"#+TITLE: %s
+#+DATE: %s
+#+DRAFT: false
+#+TAGS[]: %s
+")
+
+  (defun my-org-todo-publish-cemetery-get-reason ()
+    "Return string as reason from user input.
+if the input is empty, the return value is randomly determined."
+    (let ((s (read-string "Reason: ")))
+      (cond ((string-empty-p s)
+             (let ((n (length my-org-todo-publish-cemetery-reason-default-list)))
+               (nth (random n) my-org-todo-publish-cemetery-reason-default-list)))
+            (t s))))
+
+  (defun my-org-todo-publish-cemetery-git-push (path)
+    "Execute git commands add, commit then push in order to deploy
+new post to netlify/hugo. Commands add and push run synchronously,
+but command push takes more time so that runs asynchronously."
+    (let* ((process-connection-type nil)
+           (default-directory (path-join my-org-todo-publish-cemetery-hugo-dir))
+           (path (file-relative-name path default-directory)))
+      (condition-case err
+          (progn
+            (unless (= (call-process "git" nil nil nil "add" path) 0)
+              (error "error at 'git add'"))
+            (unless (= (call-process "git" nil nil nil "commit" "-m" "add post") 0)
+              (error "error at 'git commit'"))
+            (start-process "" nil "git" "push"))
+        (error (error-message-string err)))))
+
+  (defun my-org-todo-publish-cemetery-or-move-to-never-do ()
+    "Publish the current todo line to cemetery or move to 'never-do' list,
+according to `my-org-todo-publish-cemetery-accept-titles'."
+    (interactive)
+    (cl-flet ((ask-reason 'my-org-todo-publish-cemetery-get-reason)
+              (kill-current-line () (let ((pt (point))) (my-org-kill-whole-line pt) (goto-char pt))))
+      (let ((title (my-org-todo-get-title)))
+        (cond ((and (my-org-title-line-p "^*+ \\[ \\] ")
+                    (member title my-org-todo-publish-cemetery-accept-titles))
+               (my-org-todo-publish-cemetery (ask-reason) title)
+               (kill-current-line)
+               (message "Published to TODO墓場"))
+              ((my-org-title-line-p "^*+ \\[ \\] ")
+               (my-org-move-to-never-do (ask-reason) title)
+               (kill-current-line)
+               (message "Moved to %s" my-org-move-to-never-do-dest-title))
+              ((my-org-title-line-p "^*+ \\[.\\] ") (message "This todo item has any status."))
+              (t nil)))))
+
+  (defun my-org-todo-publish-cemetery (reason tag)
+    (let ((content (string-trim (save-excursion
+                                  (goto-char (line-beginning-position))
+                                  (buffer-substring-no-properties
+                                   (re-search-forward "^*+ \\[ \\] +" (line-end-position) t)
+                                   (next-single-property-change (point) 'htmlize-link nil (line-end-position))))))
+          (links (my-org-get-links-in-line (line-beginning-position)))
+          (path (path-join my-org-todo-publish-cemetery-hugo-dir "content/post"
+                           (format-time-string "%Y%m%d-%H%m%S.org"))))
+      (with-temp-buffer
+        (insert (format my-org-todo-publish-cemetery-front-matter-fmt
+                        content
+                        (format-time-string "%Y-%m-%dT%H:%m:%S+09:00")
+                        tag)
+                "* やらなかった理由\n"
+                reason "\n")
+        (when links
+          (insert "* Link\n")
+          (mapc #'(lambda (x) (insert (format "- %s\n" x))) links))
+        (write-file path))
+      (my-org-todo-publish-cemetery-git-push path)))
+
+  ;; ----------
   (set-face-attribute 'org-link nil :foreground (face-foreground 'default) :underline t)
 
   ;; ----------
@@ -2378,7 +2460,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (evil-define-key 'normal org-mode-map (kbd "<S-right>") #'nop)
   (evil-define-key 'normal org-mode-map (kbd "<down>") #'my-org-goto-title-next)
   (evil-define-key 'normal org-mode-map (kbd "<up>")   #'my-org-goto-title-prev)
-  (evil-define-key 'normal org-mode-map (kbd "M-0") #'my-org-move-to-undone)
+  (evil-define-key 'normal org-mode-map (kbd "M-0") #'my-org-todo-publish-cemetery-or-move-to-never-do)
   (evil-define-key 'normal org-mode-map (kbd "0")   #'my-org-beginning-of-content)
 
   (evil-define-key 'insert org-mode-map (kbd "C-a") #'my-org-beginning-of-content)
