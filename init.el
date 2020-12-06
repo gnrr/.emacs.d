@@ -2093,7 +2093,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   ;; (font-lock-fontify-buffer)
 
   ;; ----------
-(defun my-org-get-todo-content ()
+  (defun my-org-get-todo-content ()
     "Return string as todo content if current line has todo content. Otherwise return nil"
     (save-excursion
       (beginning-of-line)
@@ -2101,7 +2101,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
           (match-string 1)
         nil)))
 
-(defun my-org-todo-get-title ()
+  (defun my-org-todo-get-title ()
     "Return string as todo title if it found. Otherwise return nil"
     (save-excursion
       (beginning-of-line)
@@ -2111,15 +2111,15 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
             nil)
         nil)))
 
-(defun my-org-kill-whole-line (&optional point)
-  (when point
-    (goto-char point)
-    (beginning-of-line))
+  (defun my-org-kill-whole-line (&optional point)
+    (when point
+      (goto-char point)
+      (beginning-of-line))
     (org-kill-line)
     (org-kill-line))
 
-(defvar my-org-move-to-never-do-dest-title "やらないことリスト")
-(defun my-org-move-to-never-do (reason title-orig)
+  (defvar my-org-move-to-never-do-dest-title "やらないことリスト")
+  (defun my-org-move-to-never-do (reason title-orig)
     (let ((title my-org-move-to-never-do-dest-title)
           (pt (save-excursion (my-org-beginning-of-content) (point)))
           (content (my-org-get-todo-content)))
@@ -2134,7 +2134,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
                         (format "Not found: %s" title)))))))
 
   ;; ----------
-(defun my-org-capture-add-1 (type text)
+  (defun my-org-capture-add-1 (type text)
     (interactive)
     (let ((buf (current-buffer))
           (pt (point))
@@ -2168,7 +2168,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
     (interactive "sMEMO: ")
     (my-org-capture-add-1 'memo text))
 
-(defun my-org-notes-open ()
+  (defun my-org-notes-open ()
     (interactive)
     (if (member org-default-notes-file (org-files-list))
         (let* ((buf-org (get-file-buffer org-default-notes-file))
@@ -2192,7 +2192,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
     (interactive)
     (my-org-goto-title-next-1 t))
 
-(defun my-org-goto-title-next-1 (backward-p)
+  (defun my-org-goto-title-next-1 (backward-p)
     (let ((pt (point))
           (re "^* [^[].+$"))
       (if backward-p
