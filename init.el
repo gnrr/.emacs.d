@@ -2230,19 +2230,19 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   ;; ----------
   (defun my-org-todo-goto-working-forward ()
     (interactive)
-    (cl-flet ((find () (re-search-forward  "^*+ \\[!\\] " nil 1)))
+    (cl-flet ((find (re-search-forward  "^*+ \\[!\\] " nil 1)))
       (unless (funcall 'find)
         (goto-char (point-min))
-        (funcall 'find))))
+        (funcall #'find))))
 
   (defun my-org-todo-goto-working-backward ()
     (interactive)
-    (cl-flet ((find () (prog2 (goto-char (line-beginning-position))
-                        (re-search-backward "^*+ \\[!\\] " nil 1)
-                        (goto-char (+ (point) (- (match-end 0) (match-beginning 0)))))))
+    (cl-flet ((find (prog2 (goto-char (line-beginning-position))
+                           (re-search-backward "^*+ \\[!\\] " nil 1)
+                           (goto-char (+ (point) (- (match-end 0) (match-beginning 0)))))))
       (unless (funcall 'find)
         (goto-char (point-max))
-        (funcall 'find))))
+        (funcall #'find))))
 
   ;; ----------
   (defun my-org-dup-heading-up ()
@@ -2286,14 +2286,67 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
         (org-beginning-of-line))))
 
   ;; ----------
+  (setq my-org-global-fold-cycle-state 'user)
+  (defun my-org-global-fold-cycle ()
+    (interactive)
+    (cond ((eq my-org-global-fold-cycle-state 'close)     ;; close -> user
+           (my-org-global-fold-cycle-folding-restore)
+           (setq my-org-global-fold-cycle-state 'user))
+          ((eq my-org-global-fold-cycle-state 'user)      ;; user -> open
+           (my-org-global-fold-cycle-folding-backup)
+           (outline-show-all)
+           (setq my-org-global-fold-cycle-state 'open))
+          ((eq my-org-global-fold-cycle-state 'open)      ;; open -> close
+           (outline-hide-body)
+           (setq my-org-global-fold-cycle-state 'close))
+          (t (error "invalid folding state"))))
+
+  (evil-define-key 'normal org-mode-map (kbd "M-SPC") #'my-org-global-fold-cycle)
+
+  (defvar my-org-global-fold-cycle-folding-list nil)
+  (defun my-org-global-fold-cycle-folding-backup ()
+    "Get folding states of org-mode to file for current buffer"
+    (save-excursion
+      (goto-char (point-min))
+      (let (foldstates)
+        (unless (looking-at outline-regexp)
+          (outline-next-visible-heading 1))
+        (while (not (eobp))
+          (push (if (some (lambda (o) (overlay-get o 'invisible))
+                          (overlays-at (line-end-position)))
+                    t)
+                foldstates)
+          (outline-next-visible-heading 1))
+        (setq my-org-global-fold-cycle-folding-list (nreverse foldstates)))))
+
+  (defun my-org-global-fold-cycle-folding-restore ()
+    "Restore folding states of org-mode from file for current buffer"
+    (save-excursion
+      (goto-char (point-min))
+      (let ((foldstates my-org-global-fold-cycle-folding-list))
+        (when foldstates
+          (show-all)
+          (goto-char (point-min))
+          (unless (looking-at outline-regexp)
+            (outline-next-visible-heading 1))
+          (while (and foldstates (not (eobp)))
+            (if (pop foldstates)
+                (hide-subtree))
+            (outline-next-visible-heading 1))))))
+
+  ;; ----------
   (defun my-org-title-line-p (re)
     (save-excursion (goto-char (line-beginning-position))
                     (re-search-forward re (line-end-position) t)))
 
   (defun my-org-cycle ()
     (interactive)
-    (cond ((my-org-title-line-p "^*+ \\[.\\] ") (my-org-cycle-todo-forward))
-          ((my-org-title-line-p "^*+ ")         (my-org-cycle-title))
+    (cond ((my-org-title-line-p "^*+ \\[.\\] ")
+           (my-org-cycle-todo-forward)
+           (setq my-org-global-fold-cycle-state 'user))
+          ((my-org-title-line-p "^*+ ")
+           (my-org-cycle-title)
+           (setq my-org-global-fold-cycle-state 'user))
           (t nil)))
 
   (defun my-org-cycle-title ()
@@ -2416,7 +2469,7 @@ but command push takes more time so that runs asynchronously."
 according to `my-org-todo-publish-cemetery-accept-titles'."
     (interactive)
     (cl-flet ((ask-reason 'my-org-todo-publish-cemetery-get-reason)
-              (kill-current-line () (let ((pt (point))) (my-org-kill-whole-line pt) (goto-char pt))))
+              (kill-current-line (let ((pt (point))) (my-org-kill-whole-line pt) (goto-char pt))))
       (let ((title (my-org-todo-get-title)))
         (cond ((and (my-org-title-line-p "^*+ \\[ \\] ")
                     (member title my-org-todo-publish-cemetery-accept-titles))
