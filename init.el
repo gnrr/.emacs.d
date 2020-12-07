@@ -1483,11 +1483,12 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
 
 ;; ----------------------------------------------------------------------
 (use-package recentf
-  :after ivy
+  ;; :after ivy
   :config
   (setq recentf-max-saved-items 5000) ;; 履歴保存の数
-  ;; (setq recentf-auto-cleanup 'never)  ;; 存在しないファイルは消さない
-  (setq recentf-exclude '("/recentf" ".recentf" ".my-save-frame"))
+  ;; (setq recentf-auto-cleanup 'never)  ;; 存在しないファイルは消さない network経由のときに有効にする
+  (setq recentf-exclude '(
+     "/recentf" ".recentf" ".my-save-frame" "batch-script.el" "notes.org"))
   ;; (setq recentf-auto-save-timer (run-with-idle-timer 30 t 'recentf-save-list))
 
   ;; (recentf-mode 1)
