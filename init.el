@@ -2456,6 +2456,7 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
   (set-face-attribute 'org-link nil :foreground (face-foreground 'default) :underline t)
 
   ;; ----------
+  (define-key evil-normal-state-map (kbd "M-c") #'find-file-at-point)         ; M-RET ffap
   (define-key evil-normal-state-map (kbd "t d") #'my-org-capture-add-todo)
   (define-key evil-normal-state-map (kbd "t m") #'my-org-capture-add-memo)
   (define-key evil-normal-state-map (kbd "t t") #'my-org-notes-open)          ; toggle org buffer
