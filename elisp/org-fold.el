@@ -69,11 +69,18 @@
 
 (defun org-fold-activate ()
   (org-fold-restore)
-  (add-hook 'kill-buffer-hook 'org-fold-kill-buffer nil t))
+  (add-hook 'kill-buffer-hook 'org-fold-kill-buffer nil t)
+  (add-hook 'kill-emacs-hook  'org-fold-kill-emacs))
 
 (defun org-fold-kill-buffer ()
   ;; don't save folding info for unsaved buffers
   ;; (unless (buffer-modified-p)
     (org-fold-save))
+
+(defun org-fold-kill-emacs ()
+  (dolist (buf (buffer-list))
+    (with-current-buffer buf
+      (when (eq major-mode 'org-mode)
+      (org-fold-save)))))
 
 (provide 'org-fold)
