@@ -2233,14 +2233,14 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   ;; ----------
   (defun my-org-todo-goto-working-forward ()
     (interactive)
-    (flet ((find () (re-search-forward  "^*+ \\[!\\] " nil 1)))
+    (cl-flet ((find () (re-search-forward  "^*+ \\[!\\] " nil 1)))
       (unless (funcall 'find)
         (goto-char (point-min))
         (funcall 'find))))
 
   (defun my-org-todo-goto-working-backward ()
     (interactive)
-    (flet ((find () (prog2 (goto-char (line-beginning-position))
+    (cl-flet ((find () (prog2 (goto-char (line-beginning-position))
                         (re-search-backward "^*+ \\[!\\] " nil 1)
                         (goto-char (+ (point) (- (match-end 0) (match-beginning 0)))))))
       (unless (funcall 'find)
