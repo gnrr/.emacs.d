@@ -601,6 +601,34 @@
       (evil-exit-visual-state)))
 
   ;; ----------
+  (defun my-evil-visual-narrow-to-region (beg end)
+    "Narrow to region from BEG END."
+    (when (or (eq evil-visual-selection 'char)
+              (eq evil-visual-selection 'line))
+      (narrow-to-region beg end)
+      (my-evil-operator-narrow-to-region-mode 1)
+      (evil-exit-visual-state)
+      (goto-line (point-min))))                                             ;; fixme not work
+
+  ;; minor-mode for evil-visual-narrow-to-region
+  (defgroup my-evil-operator-narrow-to-region nil
+    "Narrow-to-region operator for Evil"
+    :prefix "my-evil-operator-narrow-to-region-"
+    :group 'evil)
+  (define-minor-mode my-evil-operator-narrow-to-region-mode
+    "Buffer local minor mode of narrow-to-region operator for Evil."
+    :lighter ""
+    :keymap (make-sparse-keymap)
+    :group 'my-evil-operator-narrow-to-region
+    (evil-normalize-keymaps)
+    (defun my-evil-visual-narrow-to-region-exit ()
+      (interactive)
+      (widen)
+      (my-evil-operator-narrow-to-region-mode 0))
+    (evil-define-key 'normal my-evil-operator-narrow-to-region-mode-map
+                             "q" #'my-evil-visual-narrow-to-region-exit))
+
+  ;; ----------
   (defun evil-return-insert-mode-after-save ()
     (when evil-insert-state-minor-mode
       (funcall (evil-escape--escape-normal-state))))
@@ -627,35 +655,37 @@
 
   (defvar my-evil-search-first-time t)
 
-  (defun my-evil-search-from-region-next ()
+  (defun my-evil-search-from-region-next (beg end)
     "under the evil-visual-state, jump next immediately after selecting region and pressing specified key."
-    (interactive)
     (when my-evil-search-first-time
       (my-evil-search-dummy)
       (setq my-evil-search-first-time nil))
-    (my-evil-search-from-region-1 t))
+    (my-evil-search-from-region-1 beg end t))
 
-  (defun my-evil-search-from-region-prev ()
+  (defun my-evil-search-from-region-prev (beg end)
     "under the evil-visual-state, jump previous immediately after selecting region and pressing specified key."
-    (interactive)
-    (when my-evil-search-first-time
-      (my-evil-search-dummy)
-      (setq my-evil-search-first-time nil))
-    (my-evil-search-from-region-1 nil))
+    (interactive "r")
+    (unless (save-excursion (goto-char beg) (search-forward "\n" end t))
+      (when my-evil-search-first-time
+        (my-evil-search-dummy)
+        (setq my-evil-search-first-time nil))
+      (my-evil-search-from-region-1 beg end nil)))
 
-  (defun my-evil-search-from-region-1 (forward)
+  (defun my-evil-search-from-region-1 (beg end forward-p)
     "pull string from region as search string then jump"
-    (if (use-region-p)
-        (let ((beg (region-beginning))
-              (end (region-end)))
-          (when (< beg end)
-            (let ((s (buffer-substring-no-properties beg end)))
-              (delete-duplicates (push s (if evil-regexp-search regexp-search-ring search-ring))
-                                 :test 'string= :from-end t)
-              (evil-normal-state nil)
-              (evil-search s forward))))))
+    (let ((s (buffer-substring-no-properties beg end)))
+      (delete-duplicates (push s (if evil-regexp-search regexp-search-ring search-ring))
+                         :test 'string= :from-end t)
+      (evil-normal-state nil)
+      (evil-search s forward-p)))
 
-  (define-key evil-visual-state-map (kbd "n") #'my-evil-search-from-region-next)
+  (defun my-evil-visual-narrow-or-jump (beg end)
+    (interactive "r")
+    (if (save-excursion (goto-char beg) (search-forward "\n" end t)) ;; multiple lines?
+        (my-evil-visual-narrow-to-region beg end)
+      (my-evil-search-from-region-next beg end)))
+
+  (define-key evil-visual-state-map (kbd "n") #'my-evil-visual-narrow-or-jump)
   (define-key evil-visual-state-map (kbd "N") #'my-evil-search-from-region-prev)
 
   ;; ----------
@@ -2359,7 +2389,8 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
     "やる気ないので"　"やる気ねえけん" "やる気なかけん" "やる気ねえかぃ" "やっ気なかで" "やる気ないけん" "やる気ないき"
      "やる気あらへんさかいに" "やる気にゃーで" "やる気ねえすけ" "やる気ねぁがら" "やる気ねはんで" "やる気ねーんくとぅ"
      "ダルいので" "ダルさんくとぅ" "ダルぇはんで" "ダルぇがら" "ダリぃけん" "ダリで" "ダルいけぇ" "ダルいき"
-     "しんどいさかいに" "ダやいがで" "ダルいで" "ダリぃすけ" "ダルぇがら" "ダルぇはんで" "ダルさんくとぅ")
+     "しんどいさかいに" "ダやいがで" "ダルいで" "ダリぃすけ" "ダルぇがら" "ダルぇはんで" "ダルさんくとぅ"
+     "急用がありますので")
     "thx to https://www.8toch.net/translate/")
   (defvar my-org-todo-publish-cemetery-hugo-dir "~/git-clone/cemetery")
   (defvar my-org-todo-publish-cemetery-front-matter-fmt
@@ -2371,7 +2402,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
 
   (defun my-org-todo-publish-cemetery-get-reason ()
     "Return string as reason from user input.
-if the input is empty, the return value is randomly determined."
+If the input is empty, the return value is randomly determined."
     (let ((s (read-string "Reason: ")))
       (cond ((string-empty-p s)
              (let ((n (length my-org-todo-publish-cemetery-reason-default-list)))
