@@ -606,27 +606,22 @@
     (when (or (eq evil-visual-selection 'char)
               (eq evil-visual-selection 'line))
       (narrow-to-region beg end)
-      (my-evil-operator-narrow-to-region-mode 1)
       (evil-exit-visual-state)
-      (goto-line (point-min))))                                             ;; fixme not work
+      (my-evil-operator-narrow-to-region-mode 1)))
 
-  ;; minor-mode for evil-visual-narrow-to-region
-  (defgroup my-evil-operator-narrow-to-region nil
-    "Narrow-to-region operator for Evil"
-    :prefix "my-evil-operator-narrow-to-region-"
-    :group 'evil)
   (define-minor-mode my-evil-operator-narrow-to-region-mode
     "Buffer local minor mode of narrow-to-region operator for Evil."
     :lighter ""
     :keymap (make-sparse-keymap)
-    :group 'my-evil-operator-narrow-to-region
+    :after-hook (when my-evil-operator-narrow-to-region-mode (goto-char (point-min)))
     (evil-normalize-keymaps)
     (defun my-evil-visual-narrow-to-region-exit ()
       (interactive)
       (widen)
-      (my-evil-operator-narrow-to-region-mode 0))
+      (my-evil-operator-narrow-to-region-mode 0)))
+
     (evil-define-key 'normal my-evil-operator-narrow-to-region-mode-map
-                             "q" #'my-evil-visual-narrow-to-region-exit))
+                             "q" #'my-evil-visual-narrow-to-region-exit)
 
   ;; ----------
   (defun evil-return-insert-mode-after-save ()
@@ -1767,7 +1762,6 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package quick-back
-  :after evil
   :load-path "elisp"
   :bind (:map evil-normal-state-map
               ("q SPC" . quick-back-mark)
