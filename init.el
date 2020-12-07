@@ -2495,6 +2495,11 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
   )
 
 ;; ----------------------------------------------------------------------
+(use-package org-fold
+  :load-path "~/.emacs.d/elisp"
+  )
+
+;; ----------------------------------------------------------------------
 (use-package shell-script-mode
   :mode (("zshrc" . shell-script-mode))
   )
