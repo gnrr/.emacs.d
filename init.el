@@ -2225,18 +2225,10 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
       (if backward-p
           (if (progn (beginning-of-line) (re-search-backward re nil t))
               (my-org-beginning-of-content)
-            (goto-char (point-max))
-            (if (re-search-backward re nil t)
-                (my-org-beginning-of-content)
-              (goto-char pt)
-              (message "No previous title")))
+            (goto-char pt))
         (if (progn (end-of-line) (re-search-forward re nil t))
             (my-org-beginning-of-content)
-          (goto-char (point-min))
-          (if (re-search-forward re nil t)
-              (my-org-beginning-of-content)
-            (goto-char pt)
-            (message "No next title"))))))
+          (goto-char pt)))))
 
   ;; ----------
   (defun my-org-todo-goto-working-forward ()
