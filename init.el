@@ -982,12 +982,19 @@
                     (doom-modeline-buffer-file-state-icon
                      "do_not_disturb_alt" "🚫" "!" 'doom-modeline-urgent))
                    (t ""))
+             ;; add
+             (when (eq major-mode 'org-mode)
+               (doom-modeline-icon 'material
+                (cond ((eq my-org-global-fold-cycle-state 'hide-all) "more_horiz")
+                      ((eq my-org-global-fold-cycle-state 'show-all) "format_align_left")
+                      (t "person"))
+                   "↕" "><" :face 'doom-modeline-warning :height  1.1 :v-adjust -0.3))
              (when (or (buffer-narrowed-p)
                        (and (bound-and-true-p fancy-narrow-mode)
                             (fancy-narrow-active-p))
                        (bound-and-true-p dired-narrow-mode))
                (doom-modeline-buffer-file-state-icon
-                "vertical_align_center" "↕" "><" 'doom-modeline-warning)))))))
+                "unfold_less" "↕" "><" 'doom-modeline-warning)))))))
 
   ;; mod
   (doom-modeline-def-segment buffer-info
@@ -2196,8 +2203,12 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
 
   (defun my-org-notes-close ()
     (interactive)
-    (save-buffer)
-    (bury-buffer))
+    (if (string= (buffer-file-name) org-default-notes-file)
+        (progn
+          (my-org-global-fold-cycle-folding-store)
+          (save-buffer)
+          (bury-buffer))
+      (my-org-notes-open)))
 
   ;; ----------
   (defun my-org-goto-title-next ()
@@ -2286,26 +2297,27 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
         (org-beginning-of-line))))
 
   ;; ----------
-  (setq my-org-global-fold-cycle-state 'user)
   (defun my-org-global-fold-cycle ()
     (interactive)
-    (cond ((eq my-org-global-fold-cycle-state 'close)     ;; close -> user
-           (my-org-global-fold-cycle-folding-restore)
-           (setq my-org-global-fold-cycle-state 'user))
-          ((eq my-org-global-fold-cycle-state 'user)      ;; user -> open
-           (my-org-global-fold-cycle-folding-backup)
-           (outline-show-all)
-           (setq my-org-global-fold-cycle-state 'open))
-          ((eq my-org-global-fold-cycle-state 'open)      ;; open -> close
-           (outline-hide-body)
-           (setq my-org-global-fold-cycle-state 'close))
-          (t (error "invalid folding state"))))
+    (cl-flet ((= (current-state) (eq my-org-global-fold-cycle-state current-state))
+              (set-state (current-state) (setq my-org-global-fold-cycle-state current-state))
+              (fold-restore 'my-org-global-fold-cycle-folding-restore)
+              (fold-backup  'my-org-global-fold-cycle-folding-store)
+              (message-state (current-state) (message "Folding: %s" current-state)))
+              ;; (message-state (current-state) nil))
+      (cond ((= 'user)                                ;; user -> hide-all
+             (fold-backup) (outline-hide-sublevels 1) (set-state 'hide-all) (message-state 'hide-all))
+            ((= 'hide-all)                            ;; hide-all -> show-all
+             (outline-show-all) (set-state 'show-all) (message-state 'show-all))
+            ((= 'show-all)                            ;; show-all -> user
+             (fold-restore) (set-state 'user) (message-state 'user))
+            (t (error (format "Invalid current folding state: %S" my-org-global-fold-cycle-state))))))
 
   (evil-define-key 'normal org-mode-map (kbd "M-SPC") #'my-org-global-fold-cycle)
 
-  (defvar my-org-global-fold-cycle-folding-list nil)
-  (defun my-org-global-fold-cycle-folding-backup ()
-    "Get folding states of org-mode to file for current buffer"
+  ;; from org-fold.el
+  (defun my-org-global-fold-cycle-folding-store ()
+    "Store folding states of org-mode to file for current buffer to `my-org-global-fold-cycle-folding-states'"
     (save-excursion
       (goto-char (point-min))
       (let (foldstates)
@@ -2317,13 +2329,13 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
                     t)
                 foldstates)
           (outline-next-visible-heading 1))
-        (setq my-org-global-fold-cycle-folding-list (nreverse foldstates)))))
+        (setq my-org-global-fold-cycle-folding-states (nreverse foldstates)))))
 
   (defun my-org-global-fold-cycle-folding-restore ()
     "Restore folding states of org-mode from file for current buffer"
     (save-excursion
       (goto-char (point-min))
-      (let ((foldstates my-org-global-fold-cycle-folding-list))
+      (let ((foldstates my-org-global-fold-cycle-folding-states))
         (when foldstates
           (show-all)
           (goto-char (point-min))
@@ -2334,6 +2346,44 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
                 (hide-subtree))
             (outline-next-visible-heading 1))))))
 
+  (defun my-org-fold-get-fold-info-file-name ()
+    (concat (buffer-file-name) ".fold"))
+
+  (defun my-org-fold-save-to-file ()
+    "Save list of folding states about current buffer to fold file."
+    (let ((foldstates my-org-global-fold-cycle-folding-states))
+      (with-temp-file (my-org-fold-get-fold-info-file-name)
+        (prin1 foldstates (current-buffer)))))
+
+  (defun my-org-fold-load-from-file ()
+    "Return list of folding states about current buffer from fold file."
+    (let ((foldfile (my-org-fold-get-fold-info-file-name)))
+      (if (file-readable-p foldfile)
+          (with-temp-buffer
+            (insert-file-contents foldfile)
+            (read (current-buffer)))
+        (error (format "Can not load fold file: %s" foldfile)))))
+
+  (add-hook 'org-mode-hook 'org-fold-activate)
+
+  (defun org-fold-activate ()
+    (defvar-local my-org-global-fold-cycle-state 'user "cycle state of current org buffer")
+    (defvar-local my-org-global-fold-cycle-folding-states nil "A list of user folding states of current org buffer")
+    (setq-local my-org-global-fold-cycle-folding-states (my-org-fold-load-from-file))
+
+    (my-org-global-fold-cycle-folding-restore)
+    (add-hook 'kill-buffer-hook 'org-fold-kill-buffer nil t)
+    (add-hook 'kill-emacs-hook  'org-fold-kill-emacs))
+
+  (defun org-fold-kill-buffer ()
+    (my-org-fold-save-to-file))
+
+  (defun org-fold-kill-emacs ()
+    (dolist (buf (buffer-list))
+      (with-current-buffer buf
+        (when (eq major-mode 'org-mode)
+          (my-org-fold-save-to-file)))))
+
   ;; ----------
   (defun my-org-title-line-p (re)
     (save-excursion (goto-char (line-beginning-position))
@@ -2341,18 +2391,18 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
 
   (defun my-org-cycle ()
     (interactive)
-    (cond ((my-org-title-line-p "^*+ \\[.\\] ")
-           (my-org-cycle-todo-forward)
-           (setq my-org-global-fold-cycle-state 'user))
-          ((my-org-title-line-p "^*+ ")
-           (my-org-cycle-title)
-           (setq my-org-global-fold-cycle-state 'user))
+    (cond ((my-org-title-line-p "^*+ \\[.\\] ")     ;; todo line?
+           (my-org-cycle-todo-forward))
+          ((my-org-title-line-p "^*+ ")             ;; title line?
+           (my-org-cycle-fold-title)
+           (when (eq my-org-global-fold-cycle-state 'user)
+             (my-org-global-fold-cycle-folding-store)))
           (t nil)))
 
-  (defun my-org-cycle-title ()
-  (if (outline-invisible-p (line-end-position))
-      (outline-show-subtree)
-    (outline-hide-subtree)))
+  (defun my-org-cycle-fold-title ()
+    (if (outline-invisible-p (line-end-position))
+        (outline-show-subtree)
+      (outline-hide-subtree)))
 
   (defun my-org-cycle-todo-forward ()
     (interactive)
@@ -2549,6 +2599,7 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
 
 ;; ----------------------------------------------------------------------
 (use-package org-fold
+  :disabled
   :load-path "~/.emacs.d/elisp"
   )
 
