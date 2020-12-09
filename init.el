@@ -791,13 +791,15 @@
     "Enable search by regexp when C-u, otherwise by fixed string."
     (interactive "P")
     (let ((evil-regexp-search re-p))
-      (call-interactively #'evil-search-forward)))
+      (call-interactively #'evil-search-forward))
+    (setq last-command 'evil-search-forward))
 
   (defun my-evil-search-backward (&optional re-p)
     "Enable search by regexp when C-u, otherwise by fixed string."
     (interactive "P")
     (let ((evil-regexp-search re-p))
-      (call-interactively #'evil-search-backward)))
+      (call-interactively #'evil-search-backward))
+    (setq last-command 'evil-search-backward))
 
   ;; ----------
   (add-hook 'evil-visual-state-entry-hook #'(lambda () (show-paren-mode -1)))
@@ -2557,7 +2559,7 @@ but command push takes more time so that runs asynchronously."
 according to `my-org-todo-publish-cemetery-accept-titles'."
     (interactive)
     (cl-flet ((ask-reason 'my-org-todo-publish-cemetery-get-reason)
-              (kill-current-line (let ((pt (point))) (my-org-kill-whole-line pt) (goto-char pt))))
+              (kill-current-line () (let ((pt (point))) (my-org-kill-whole-line pt) (goto-char pt))))
       (let ((title (my-org-todo-get-title)))
         (cond ((and (my-org-title-line-p "^*+ \\[ \\] ")
                     (member title my-org-todo-publish-cemetery-accept-titles))
@@ -2727,6 +2729,7 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
   (setq migemo-coding-system 'utf-8-unix)
   (migemo-init)
 
+  (setq evil-regexp-search nil)
   (defun my-adv-evil-search-function--migemo (&rest _)
     "Enable migemo when evil-search by / or ?.
 Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
