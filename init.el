@@ -531,6 +531,8 @@
   (define-key evil-motion-state-map (kbd "g g") #'my-evil-beginning-of-buffer)
   (define-key evil-motion-state-map (kbd "g e") #'my-evil-end-of-buffer)
   (define-key evil-motion-state-map (kbd "Y") #'my-evil-yank-whole-buffer)
+  (define-key evil-motion-state-map "/" #'my-evil-search-forward)
+  (define-key evil-motion-state-map "?" #'my-evil-search-backward)
   (define-key evil-motion-state-map (kbd ":") #'nop)        ; unmap :
   (define-key evil-motion-state-map (kbd ";") #'evil-ex)    ; works as :
 
@@ -783,6 +785,19 @@
     (remove-hook 'minibuffer-setup-hook #'my-evil-visual-cycle-block-launcher)
     (insert "evil-visual-block")
     (setq unread-command-events (listify-key-sequence (kbd "RET"))))
+
+  ;; ----------
+  (defun my-evil-search-forward (&optional re-p)
+    "Enable search by regexp when C-u, otherwise by fixed string."
+    (interactive "P")
+    (let ((evil-regexp-search re-p))
+      (call-interactively #'evil-search-forward)))
+
+  (defun my-evil-search-backward (&optional re-p)
+    "Enable search by regexp when C-u, otherwise by fixed string."
+    (interactive "P")
+    (let ((evil-regexp-search re-p))
+      (call-interactively #'evil-search-backward)))
 
   ;; ----------
   (add-hook 'evil-visual-state-entry-hook #'(lambda () (show-paren-mode -1)))
@@ -2670,6 +2685,7 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
     ;; (evil-define-key 'normal dot-editor-mode-map (kbd "SPC")    'dot-editor-reverse-square)))
   )
 
+;; ----------------------------------------------------------------------
 (use-package dimmer
   :defer 1
   :config
@@ -2696,6 +2712,28 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
   (add-hook 'minibuffer-exit-hook  #'dimmer-on)
 
   (dimmer-mode t)
+  )
+
+;; ----------------------------------------------------------------------
+(use-package migemo
+  :config
+  ;; fixme not work in _mac.el
+  (setq migemo-command "/usr/local/bin/cmigemo")
+  (setq migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
+
+  (setq migemo-options '("-q" "--emacs"))
+  (setq migemo-user-dictionary nil)
+  (setq migemo-regex-dictionary nil)
+  (setq migemo-coding-system 'utf-8-unix)
+  (migemo-init)
+
+  (defun my-adv-evil-search-function--migemo (&rest _)
+    "Enable migemo when evil-search by / or ?.
+Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
+    (cl-flet ((search-forward 'migemo-forward)
+              (search-backward 'migemo-backward))))
+
+  (advice-add 'evil-search-function :before #'my-adv-evil-search-function--migemo)
   )
 
 ;; ----------------------------------------------------------------------

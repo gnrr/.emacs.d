@@ -27,6 +27,15 @@
 (add-to-list 'exec-path (expand-file-name "~/bin"))
 (setq my-counsel-rg-exe (expand-file-name "~/bin/rg"))
 
+;; migemo
+  ;; fixme not work
+  (setq migemo-command "/usr/local/bin/cmigemo")
+  (setq migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
+
+;; (add-hook 'after-init-hook 'mac-change-language-to-us)          ;; emacs 起動時は英数モードから始める
+;; (add-hook 'minibuffer-setup-hook 'mac-change-language-to-us)    ;; minibuffer 内は英数モードにする
+;; (add-hook 'isearch-mode-hook 'mac-change-language-to-us)        ;; [migemo]isearch のとき IME を英数モードにする
+
 ;; ;; アイコンやdockから起動したemacsのpathやexec-pathが正しく設定されてないのをなんとかする
 ;; ;; http://yukihr.github.com/blog/2012/03/02/emacs-path-settings/
 ;; ;; when opened from desktep entry, path won't be set to shell's value.
