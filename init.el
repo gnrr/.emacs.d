@@ -156,9 +156,9 @@
  (set-window-buffer nil (current-buffer))                ; Use them now.
 
  (set-face-background 'trailing-whitespace (mycolor 'red))
- ;; disable show-trailing-whitespace in minibuffer
- (add-hook 'minibuffer-setup-hook
-           (lambda () (setq-local show-trailing-whitespace nil)))
+ ;; disable show-trailing-whitespace in any case
+ (add-hook 'minibuffer-setup-hook (lambda () (setq-local show-trailing-whitespace nil)))
+ (add-hook 'counsel-mode-hook (lambda () (setq-local show-trailing-whitespace nil)))
 
  ;; save-place
  (setq save-place-file "~/.emacs.d/.emacs-places")
@@ -1383,6 +1383,18 @@ Return nil for blank/empty strings."
       (require 'dired-aux)
       (dired-rename-file name new-name 1)))
 
+  ;--------------
+  (defun my-counsel-ibuffer-kill-buffer (x)
+    (let ((buf-name (cdr x)))
+      (condition-case err
+          (kill-buffer buf-name)
+        (error (error "Can not kill buffer: %s" buf-name)))))
+
+  (ivy-set-actions
+   'counsel-ibuffer
+   '(("d" my-counsel-ibuffer-kill-buffer "kill buffer")))
+
+  ;--------------
   :bind (("M-z"     . ivy-resume)
          ("M-r"     . counsel-recentf)
          ("M-o"     . my-counsel-rg)
