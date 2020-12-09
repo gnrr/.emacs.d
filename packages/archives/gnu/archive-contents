@@ -91,8 +91,8 @@
        ((:url . "http://elpa.gnu.org/packages/all.html")
 	(:keywords "matching")
 	(:authors
-	 ("Per Abrahamsen" . "abraham@dina.kvl.dk"))
-	(:maintainer "Per Abrahamsen" . "abraham@dina.kvl.dk"))])
+	 ("Per Abrahamsen" . "per.abrahamsen@gmail.com"))
+	(:maintainer "Per Abrahamsen" . "per.abrahamsen@gmail.com"))])
  (ampc .
        [(0 2)
 	nil "Asynchronous Music Player Controller" single
@@ -422,7 +422,7 @@
 	   ("Gary D. Foster" . "Gary.Foster@Corp.Sun.COM"))
 	  (:maintainer "Luke Lee" . "luke.yx.lee@gmail.com"))])
  (csv-mode .
-	   [(1 12)
+	   [(1 13)
 	    ((emacs
 	      (24 1))
 	     (cl-lib
@@ -470,7 +470,7 @@
 		  ("Daiki Ueno" . "ueno@gnu.org"))
 		 (:maintainer nil . "emacs-devel@gnu.org"))])
  (debbugs .
-	  [(0 26)
+	  [(0 27)
 	   ((emacs
 	     (25 1))
 	    (soap-client
