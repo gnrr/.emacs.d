@@ -1292,8 +1292,29 @@ Return nil for blank/empty strings."
   (copy-face 'ivy-minibuffer-match-face-1 'ivy-minibuffer-match-face-3)
   (copy-face 'ivy-minibuffer-match-face-1 'ivy-minibuffer-match-face-4)
 
-  ;; (copy-face 'ivy-highlight-face 'ivy-minibuffer-match-highlight)
-  (set-face-attribute 'ivy-minibuffer-match-highlight nil :foreground nil :background nil)  ; disable
+  ;; disable mouse hover in minibuffer
+  ;; mod
+  (defun ivy--format-minibuffer-line (str)
+  "Format line STR for use in minibuffer."
+  (let* ((str (ivy-cleanup-string str))
+         (str (if (eq ivy-display-style 'fancy)
+                  (funcall ivy--highlight-function (copy-sequence str))
+                (copy-sequence str))))
+    ;; (add-text-properties
+    ;;  0 (length str)
+    ;;  '(mouse-face
+    ;;    ivy-minibuffer-match-highlight
+    ;;    help-echo
+    ;;    (format
+    ;;     (if tooltip-mode
+    ;;         "mouse-1: %s\nmouse-3: %s"
+    ;;       "mouse-1: %s   mouse-3: %s")
+    ;;     ivy-mouse-1-tooltip ivy-mouse-3-tooltip))
+    ;;  str)
+    (let ((annotation-function (plist-get completion-extra-properties :annotation-function)))
+      (if annotation-function
+          (concat str (funcall annotation-function str))
+        str))))
 
   (copy-face 'ivy-current-match 'ivy-prompt-match)
   (set-face-background 'ivy-modified-buffer "#008800")
