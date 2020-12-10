@@ -2748,6 +2748,17 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   )
 
 ;; ----------------------------------------------------------------------
+(use-package org-tree-slide
+  :bind (:map org-tree-slide-mode-map
+         ("<right>"  . org-tree-slide-move-next-tree)
+         ("<left>" . org-tree-slide-move-previous-tree)
+         ("<next>"  . org-tree-slide-move-next-tree)
+         ("<prior>" . org-tree-slide-move-previous-tree)
+         ("C-g" . org-tree-slide-mode))
+  :config
+
+  )
+;; ----------------------------------------------------------------------
 ;; customize setting
 (setq custom-file "~/.emacs.d/custom.el") ; write custom settings into external file instead of init.el
 (load custom-file nil t)
