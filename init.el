@@ -843,14 +843,6 @@
   )
 
 ;; ----------------------------------------------------------------------
-(use-package atom-one-dark-theme
-  :disabled
-  :if window-system
-  :config
-  (load-theme 'atom-one-dark t)
-  )
-
-;; ----------------------------------------------------------------------
 (use-package zerodark-theme
   ;; :disabled
   :load-path "~/.emacs.d/elisp/zerodark-theme"
@@ -906,28 +898,6 @@
       (set-face-attribute 'line-number              nil :family font)
       (set-face-attribute 'line-number-current-line nil :family font)))
 
-  )
-
-;; ----------------------------------------------------------------------
-(use-package doom-themes
-  :disabled
-  :config
-  ;; Global settings (defaults)
-  (setq doom-themes-enable-bold nil    ; if nil, bold is universally disabled
-        doom-themes-enable-italic nil) ; if nil, italics is universally disabled
-  (load-theme 'doom-one t)
-
-  ;; Enable flashing mode-line on errors
-  (doom-themes-visual-bell-config)
-
-  ;; Enable custom neotree theme (all-the-icons must be installed!)
-  (doom-themes-neotree-config)
-  ;; or for treemacs users
-  (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
-  (doom-themes-treemacs-config)
-
-  ;; Corrects (and improves) org-mode's native fontification.
-  (doom-themes-org-config)
   )
 
 ;; ----------------------------------------------------------------------
@@ -1074,143 +1044,6 @@ directory, the file name, and its state (modified, read-only or non-existent)."
     (interactive)
     (setq doom-modeline-minor-modes (if doom-modeline-minor-modes nil t)))
   ;; (remove-text-properties )
-
-  )
-
-;; ----------------------------------------------------------------------
-(use-package telephone-line
-  :disabled
-  :after evil zerodark-theme all-the-icons
-  :if window-system
-  :config
-
-  ;; (set-face-attribute 'telephone-line-accent-active nil
-                      ;; :background "#7e7e7e" :foreground "#f9f9f9")
-  ;; (set-face-attribute 'telephone-line-accent-inactive nil
-                      ;; :background "#4e4e4e" :foreground (face-attribute 'mode-line-inactive :foreground))
-
-  ;; (defface telephone-line-accent2-active
-  ;;   ;; '((t (:background "#5e5e5e" :inherit telephone-line-accent-active))) "")
-  ;;   '((t (:inherit telephone-line-accent-active))) "")
-
-  ;; (defface telephone-line-accent2-inactive
-  ;;   ;; '((t (:background "#3a3a3a" :inherit telephone-line-accent-inactive))) "")
-  ;;   '((t (:inherit telephone-line-accent-inactive))) "")
-
-  ;; (add-to-list 'telephone-line-faces
-  ;;              '(accent2 . (telephone-line-accent2-active . telephone-line-accent2-inactive)))
-
-;   (setq telephone-line-lhs
-;         '((evil   . (telephone-line-evil-tag-segment))
-;           (accent . (telephone-line-vc-segment
-;                      telephone-line-process-segment))
-;           (accent2 . (telephone-line-buffer-info-segment))
-;           (nil    . (telephone-line-buffer-segment))))
-  (setq telephone-line-lhs
-        '((evil . (telephone-line-evil-tag-segment))
-          (nil  . (telephone-line-vc-segment))
-          ;; (nil  . (telephone-line-buffer-info-segment))
-          (nil  . (telephone-line-buffer-segment
-                     telephone-line-process-segment))))
-
-  (setq telephone-line-rhs
-        '((nil . (telephone-line-position-segment))
-          (nil . (telephone-line-mode-segment))))
-          ;; (nil . (telephone-line-misc-info-segment
-          ;;         ;; telephone-line-minor-mode-segment
-          ;;         telephone-line-mode-segment))))
-
-  (telephone-line-defsegment* telephone-line-vc-segment ()
-    `(""
-      ,zerodark-modeline-vc
-      " "
-      ))
-
-  (telephone-line-defsegment* telephone-line-mode-segment ()
-    `("|"
-      minor-mode-alist
-      " | "
-      mode-name
-      " |"))
-  (telephone-line-defsegment* telephone-line-buffer-segment ()
-    `(,mode-line-mule-info
-      ;; mode-line-modified
-      ;; mode-line-client
-      ;; mode-line-remote
-      ,zerodark-modeline-ro
-      ,zerodark-modeline-modified
-      " "
-      ,(telephone-line-raw mode-line-frame-identification t)
-      ""
-      ,(telephone-line-raw mode-line-buffer-identification t)))
-
-  (telephone-line-defsegment* telephone-line-position-segment ()
-    ;; (telephone-line-raw-mod
-    (telephone-line-raw
-     (if (eq major-mode 'paradox-menu-mode)
-         ;;Paradox fills this with position info.
-         mode-line-front-space
-       mode-line-position) t))
-
-  ;; (setq telephone-line-primary-left-separator 'telephone-line-identity-left
-  ;;       telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
-  ;;       telephone-line-primary-right-separator 'telephone-line-identity-left
-  ;;       telephone-line-secondary-right-separator 'telephone-line-identity-hollow-left)
-
-  (setq telephone-line-primary-left-separator 'telephone-line-flat)
-        ;; telephone-line-secondary-left-separator 'telephone-line-flat
-        ;; telephone-line-primary-right-separator 'telephone-line-flat
-        ;; telephone-line-secondary-right-separator 'telephone-line-flat)
-
-  (setq telephone-line-primary-right-separator 'telephone-line-flat)
-        ;; telephone-line-secondary-left-separator 'telephone-line-flat
-        ;; telephone-line-primary-right-separator 'telephone-line-flat
-        ;; telephone-line-secondary-right-separator 'telephone-line-flat)
-
-  (setq telephone-line-height 16
-        telephone-line-evil-use-short-tag nil)
-
-  (telephone-line-mode 1)
-
-  (set-face-background 'telephone-line-evil-insert   (mycolor 'red))
-  (set-face-background 'telephone-line-evil-normal   (mycolor 'blue))
-  (set-face-background 'telephone-line-evil-visual   (mycolor 'green))
-  (set-face-background 'telephone-line-evil-operator (mycolor 'pink))
-  (set-face-background 'telephone-line-evil-motion   (mycolor 'purple))
-  (set-face-background 'telephone-line-evil-replace  (mycolor 'gray))
-  (set-face-background 'telephone-line-evil-emacs    (mycolor 'orange))
-
-  (dolist (f '(telephone-line-evil-insert
-               telephone-line-evil-normal
-               telephone-line-evil-visual
-               telephone-line-evil-operator
-               telephone-line-evil-motion
-               telephone-line-evil-replace
-               telephone-line-evil-emacs))
-    (set-face-foreground f "#061826"))
-
-  (defun telephone-line-raw-mod (str &optional preformatted)
-    "Conditionally render STR as mode-line data, or just verify output if not PREFORMATTED.
-Return nil for blank/empty strings."
-    (let ((fmt (format-mode-line str)))
-      (unless (seq-empty-p fmt)
-        (if preformatted
-                                        ; format-mode-line will condense all escaped %s, so we need
-                                        ; to re-escape them.
-            (replace-regexp-in-string "%" "%%" fmt)
-          str))))
-
-  ;; mod
-  (defun telephone-line-raw (str &optional preformatted)
-    "Conditionally render STR as mode-line data, or just verify output if not PREFORMATTED.
-Return nil for blank/empty strings."
-    (let ((trimmed-str (string-trim (format-mode-line str))))
-      (unless (seq-empty-p trimmed-str)
-        (if preformatted
-                                        ; format-mode-line will condense all escaped %s, so we need
-                                        ; to re-escape them.
-            (replace-regexp-in-string "%" "%%" trimmed-str)
-          str))))
 
   )
 
@@ -1814,17 +1647,6 @@ That is, a string used to represent it on the tab bar."
   :bind (:map evil-normal-state-map
               ("q SPC" . quick-back-mark)
               ("q q"   . quick-back-jump))
-  )
-
-;; ----------------------------------------------------------------------
-(use-package hiwin
-  :disabled
-  :ensure t
-  :diminish hiwin-mode
-  :config
-  (set-face-background 'hiwin-face (mycolor 'charcoal))
-  ;; (set-face-foreground 'hiwin-face (mycolor 'light-gray))
-  (hiwin-mode t)
   )
 
 ;; ----------------------------------------------------------------------
