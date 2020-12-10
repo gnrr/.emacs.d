@@ -7,13 +7,12 @@
 ;;;
 ;;; window size and position
 ;;;
-(setq initial-frame-alist (append '(
+(setq initial-frame-alist '(
 				    (top    . 0)
 				    (left   . 529)      ;; Macbook Pro 13"
 				    ;; (left   . 71)
 				    (height . 64)
-				    (width  . 110))
-				  initial-frame-alist))
+				    (width  . 110)))
 (setq default-frame-alist initial-frame-alist)
 
 ;;;

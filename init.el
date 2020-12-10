@@ -238,10 +238,6 @@
  (global-set-key (kbd "C-x C-t") 'toggle-truncate-lines)
  (global-set-key (kbd "C-x n f") 'narrow-to-defun)
 
- (global-set-key (kbd "M-C-0") #'text-scale-adjust)
- (global-set-key (kbd "M-C--") #'(lambda () (interactive) (text-scale-decrease 1)))
- (global-set-key (kbd "M-C-=") #'(lambda () (interactive) (text-scale-increase 1)))
-
  (define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
 
 ;; ----------------------------------------------------------------------
@@ -2737,6 +2733,18 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
               (search-backward 'migemo-backward))))
 
   (advice-add 'evil-search-function :before #'my-adv-evil-search-function--migemo)
+  )
+
+;; ----------------------------------------------------------------------
+(use-package default-text-scale
+  :config
+  (setq default-text-scale-amount 30)
+  (default-text-scale-mode 1)
+
+  (defun my-adv-default-text-scale--reset-frame (&rest _)
+    (modify-frame-parameters nil initial-frame-alist))
+
+  (advice-add 'default-text-scale-reset :after #'my-adv-default-text-scale--reset-frame)
   )
 
 ;; ----------------------------------------------------------------------
