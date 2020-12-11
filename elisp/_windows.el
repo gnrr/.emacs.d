@@ -7,13 +7,12 @@
 ;;;
 ;;; window size and position
 ;;;
-(setq initial-frame-alist (append '(
+(setq initial-frame-alist '(
 				    (top    . 0)
-				    (left   . 2358)
+				    (left   . 2358)     ;; for 4K display
 				    ;; (left   . 71)
 				    (height . 85)
-				    (width  . 119))
-				  initial-frame-alist))
+				    (width  . 119)))
 (setq default-frame-alist initial-frame-alist)
 
 ;;;
@@ -27,6 +26,22 @@
 (set-face-attribute 'default nil :height 122)
 (set-face-attribute 'mode-line nil :height 105)
 (set-face-attribute 'minibuffer-prompt nil :height 105)
+
+;;;
+;;; external program
+;;;
+;; (add-to-list 'exec-path (expand-file-name "~/bin"))
+;; (setq my-counsel-rg-exe (expand-file-name "~/bin/rg"))
+
+;; migemo
+  ;; fixme not work
+  ;; (setq migemo-command "/usr/local/bin/cmigemo")
+  ;; (setq migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
+
+;;;
+;;; appearance adjust
+;;;
+(setq my-face-adj-line-number-height 1.0)
 
 ;;;
 ;;; IME settings
@@ -174,6 +189,5 @@
 
 (message "<-- done    \"_windows.el\"")
 
-;;
+(provide '_windows)
 ;; _windows.el ends here
-;;

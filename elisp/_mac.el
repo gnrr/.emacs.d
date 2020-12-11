@@ -31,6 +31,11 @@
   (setq migemo-command "/usr/local/bin/cmigemo")
   (setq migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
 
+;;;
+;;; appearance adjust
+;;;
+(setq my-face-adj-line-number-height 1.1)
+
 ;; (add-hook 'after-init-hook 'mac-change-language-to-us)          ;; emacs 起動時は英数モードから始める
 ;; (add-hook 'minibuffer-setup-hook 'mac-change-language-to-us)    ;; minibuffer 内は英数モードにする
 ;; (add-hook 'isearch-mode-hook 'mac-change-language-to-us)        ;; [migemo]isearch のとき IME を英数モードにする
@@ -120,6 +125,6 @@
 
 (message "<-- done    \"_mac.el\"")
 
-;;
+(provide '_mac)
 ;; _mac.el ends here
-;;
+

@@ -3,6 +3,7 @@
 ;;; init.el
 ;;;
 (add-to-list 'load-path (locate-user-emacs-file "elisp"))
+(setq custom-theme-directory (locate-user-emacs-file "themes"))
 
 ;; to hide message "ad-handle-definition: ‘vc-revert’ got redefined"
 (setq ad-redefinition-action 'accept)
@@ -66,6 +67,26 @@
       nil)))
 
 ;; e.g. (myfont 'default) => "Source Han Code JP N"
+
+;; ----------------------------------------------------------------------
+;; host independent
+(require
+ (cond ((eq system-type 'windows-nt) '_windows)
+       ((eq system-type 'gnu/linux)  '_linux)
+       ((eq system-type 'darwin)     '_mac)
+       (t (error "Unknown system-type: %s" system-type))))
+
+(defun my-adv-load-theme--font-change (&rest _)
+ (let ((font (myfont 'ui)))
+   (when font
+     (set-face-attribute 'mode-line          nil :family font)
+     (set-face-attribute 'mode-line-inactive nil :family font)
+     (set-face-attribute 'minibuffer-prompt  nil :family font)
+
+     (set-face-attribute 'line-number              nil :family font :height my-face-adj-line-number-height)
+     (set-face-attribute 'line-number-current-line nil :family font :height my-face-adj-line-number-height))))
+
+(advice-add 'load-theme :after #'my-adv-load-theme--font-change)
 
 ;; ----------------------------------------------------------------------
 ;; defaults
@@ -299,19 +320,6 @@
  (defalias 'hl 'hl-line-mode)
  (defalias 'calc 'quick-calc)
  (defalias 'package-uninstall 'package-delete)
-
- ;; ----------------------------------------------------------------------
- ;; my-elisp
- ;; (require 'discrete)
- ;; (require 'my-backup)
- ;; (setq my-backup-directory "~/bak")
-
- ;; host independent
- (load
-  (cond ((eq system-type 'windows-nt) "~/.emacs.d/elisp/_windows.el")
-        ((eq system-type 'gnu/linux)  "~/.emacs.d/elisp/_linux.el")
-        (t                            "~/.emacs.d/elisp/_mac.el"))
-  nil t)
 
  ;; ----------------------------------------------------------------------
  (defvar exclude-face-list '(rainbow-delimiters-base-face
@@ -843,61 +851,10 @@
   )
 
 ;; ----------------------------------------------------------------------
-(use-package zerodark-theme
-  ;; :disabled
-  :load-path "~/.emacs.d/elisp/zerodark-theme"
-  :if window-system
+(use-package my-zerodark-theme
+  :load-path "~/.emacs.d/themes"
   :config
-  (setq zerodark-use-paddings-in-mode-line nil)
-  (load-theme 'zerodark t)
-
-  ;; mod
-  (setq zerodark-modeline-vc '(vc-mode (""
-     (:eval (all-the-icons-faicon "code-fork"
-                                  ;; :height 0.9
-                                  :v-adjust 0
-                                  :face (when (zerodark--active-window-p)
-                                          (zerodark-git-face))))
-     (:eval (when (eq zerodark-theme-display-vc-status 'full)
-              ;; (propertize (truncate-string-to-width vc-mode 25 nil nil "...")
-              (propertize (truncate-string-to-width (replace-regexp-in-string "^.+:" " " vc-mode) 25 nil nil "...")
-                          'face (when (zerodark--active-window-p)
-                                  (zerodark-git-face))))))))
-
-  (set-face-attribute 'cursor nil
-                      :background (mycolor 'blue)
-                      :foreground "#000000"
-                      :weight 'bold)
-
-  (set-face-attribute 'font-lock-builtin-face nil :weight 'light)
-  (set-face-attribute 'font-lock-comment-face nil :weight 'light)
-  (set-face-attribute 'font-lock-constant-face nil :weight 'light)
-  (set-face-attribute 'font-lock-function-name-face nil :weight 'light)
-  (set-face-attribute 'font-lock-keyword-face nil :weight 'light)
-  (set-face-attribute 'font-lock-string-face nil :weight 'light)
-  (set-face-attribute 'font-lock-doc-face nil :weight 'light)
-  (set-face-attribute 'font-lock-type-face nil :weight 'light)
-  ;; (set-face-attribute 'fant-lock-variable-name-face nil :weight 'light)
-  (set-face-attribute 'font-lock-warning-face nil :weight 'light)
-
-  (set-face-attribute 'minibuffer-prompt  nil :slant 'italic :height 1.1 :foreground (mycolor 'blue))
-
-  (set-face-attribute 'line-number              nil :height 1.1 :slant 'italic :background "#2B2F38" :foreground "#5B6475")
-  (set-face-attribute 'line-number-current-line nil :height 1.1 :slant 'italic :background "#2B2F38")
-
-  (set-face-background 'default "#21252B")
-  (set-face-attribute 'fringe nil :foreground (face-attribute 'line-number :foreground)
-                      	          :background (face-attribute 'line-number :background))
-
-  (let ((font (myfont 'ui)))
-    (when font
-      (set-face-attribute 'mode-line          nil :family font)
-      (set-face-attribute 'mode-line-inactive nil :family font)
-      (set-face-attribute 'minibuffer-prompt  nil :family font)
-
-      (set-face-attribute 'line-number              nil :family font)
-      (set-face-attribute 'line-number-current-line nil :family font)))
-
+  (load-theme 'my-zerodark t)
   )
 
 ;; ----------------------------------------------------------------------
@@ -1385,56 +1342,66 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
   :config
   (tabbar-mode)
 
+  (defun my-adv-load-theme--tabbar-reset-appearance (&rest _)
   (set-face-attribute 'tabbar-default nil
                       :height 0.9
+                      :family (myfont 'ui)
                       :background (face-background 'mode-line)
                       :slant 'normal
+                      :weight 'light
                       :box nil
                       :overline (face-background 'mode-line)
                       )
 
   (set-face-attribute 'tabbar-selected nil
+                      ;; :inherit 'tabbar-default
                       :foreground (face-background 'mode-line)
                       :background (face-foreground 'line-number-current-line)
-                      ;; :inherit 'tabbar-default
                       :slant 'normal
+                      :weight 'light
                       :box nil
                       :overline (face-foreground 'line-number-current-line)
                       )
 
   (set-face-attribute 'tabbar-unselected nil
-                      ;; :background (face-attribute 'telephone-line-accent-active :background)
-                      ;; :background "#aaaaaa"
+                      ;; :inherit 'tabbar-default
                       :background (face-foreground 'tabbar-selected)
                       :foreground (face-background 'tabbar-selected)
-                      ;; :inherit 'tabbar-default
                       :slant 'normal
+                      :weight 'light
                       :box nil
                       :overline (face-foreground 'tabbar-selected)
                       )
 
   (set-face-attribute 'tabbar-selected-modified nil
+                      ;; :inherit 'tabbar-default
                       :background (face-background 'tabbar-selected)
                       :foreground (face-foreground 'tabbar-selected)
-                      ;; :inherit 'tabbar-default
                       :slant 'normal
+                      :weight 'light
                       :box nil
                       :overline "orange"
                       )
 
   (set-face-attribute 'tabbar-modified nil
+                      ;; :inherit 'tabbar-default
                       :background (face-attribute 'tabbar-unselected :background)
                       :foreground (face-attribute 'tabbar-unselected :foreground)
-                      ;; :inherit 'tabbar-default
                       :slant 'normal
+                      :weight 'light
                       :box nil
                       :overline "orange"
                       )
 
   (set-face-attribute 'tabbar-separator nil
+                      ;; :inherit 'tabbar-default
                       :background (face-attribute 'tabbar-selected :background))
 
   ;; (setq tabbar-separator '(0.2))
+  )
+
+  (my-adv-load-theme--tabbar-reset-appearance)
+  (advice-add 'load-theme :after #'my-adv-load-theme--tabbar-reset-appearance)
 
   (global-set-key (kbd "M-j") 'tabbar-backward-tab)
   (global-set-key (kbd "M-k") 'tabbar-forward-tab)
@@ -1498,10 +1465,6 @@ That is, a string used to represent it on the tab bar."
     (set-buffer-modified-p (buffer-modified-p))
     (tabbar-set-template tabbar-current-tabset nil)
     (tabbar-display-update))
-
-  (let ((font (myfont 'ui)))
-    (when font
-      (set-face-attribute 'tabbar-default nil :family font)))
 
   )
 

@@ -1,4 +1,4 @@
-;;; zerodark-theme.el --- A dark, medium contrast theme for Emacs -*- lexical-binding: t -*-
+;;; my-zerodark-theme.el --- My customized zerodark-theme for Emacs -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2015-2018  Nicolas Petton
 
@@ -50,10 +50,10 @@
            (setf ,last-run (time-to-seconds (current-time))))
          ,cache))))
 
-(deftheme zerodark
+(deftheme my-zerodark
   "A dark medium contrast theme")
 
-(defgroup zerodark
+(defgroup my-zerodark
   nil
   "A dark theme inspired from One Dark and Niflheim."
   :group 'faces)
@@ -146,6 +146,7 @@
 (defvar zerodark-buffer-coding '(:eval (unless (eq buffer-file-coding-system (default-value 'buffer-file-coding-system))
                                          mode-line-mule-info)))
 
+;; mod
 (defvar zerodark-modeline-vc '(vc-mode (""
                                         (:eval (all-the-icons-faicon "code-fork"
                                                                      ;; :height 0.9
@@ -153,7 +154,9 @@
                                                                      :face (when (zerodark--active-window-p)
                                                                              (zerodark-git-face))))
                                         (:eval (when (eq zerodark-theme-display-vc-status 'full)
-                                                 (propertize (truncate-string-to-width vc-mode 25 nil nil "...")
+                                                 ;; mod
+                                                 ;; (propertize (truncate-string-to-width vc-mode 25 nil nil "...")
+                                                 (propertize (truncate-string-to-width (replace-regexp-in-string "^.+:" " " vc-mode) 25 nil nil "...")
                                                              'face (when (zerodark--active-window-p)
                                                                      (zerodark-git-face))))))))
 
@@ -261,11 +264,14 @@ The result is cached for one second to avoid hiccups."
       (diff-removed-background (if (true-color-p) "#583333" "#580000"))
       (diff-removed-refined-background (if (true-color-p) "#b33c49" "#b33c49"))
       (diff-current-background (if (true-color-p) "#29457b" "#29457b"))
-      (diff-current-refined-background (if (true-color-p) "#4174ae" "#4174ae")))
+      (diff-current-refined-background (if (true-color-p) "#4174ae" "#4174ae"))
+      (my-default-bg "#21252B")
+      (my-fringe-bg "#2B2F38")
+      (my-fringe-fg "#5B6475"))
   (custom-theme-set-faces
-   'zerodark
-   `(default ((,class (:background ,background :foreground ,default))))
-   `(cursor ((,class (:background ,default))))
+   'my-zerodark
+   `(default ((,class (:background ,my-default-bg :foreground ,default))))
+   `(cursor ((,class (:background  ,blue :foreground "#000000"))))
 
    ;; Highlighting faces
    `(fringe ((,class (:background ,background-dark :foreground ,comment))))
@@ -282,19 +288,19 @@ The result is cached for one second to avoid hiccups."
    `(match ((,class (:background ,background-green))))
 
    ;; Font lock faces
-   `(font-lock-builtin-face ((,class (:foreground ,blue :weight normal))))
-   `(font-lock-comment-face ((,class (:foreground ,comment :slant italic))))
-   `(font-lock-constant-face ((,class (:foreground ,orange :weight normal))))
-   `(font-lock-function-name-face ((,class (:foreground ,purple))))
-   `(font-lock-keyword-face ((,class (:foreground ,blue :weight normal))))
-   `(font-lock-string-face ((,class (:foreground ,turquoise))))
-   `(font-lock-doc-face ((,class (:foreground ,green-light))))
-   `(font-lock-type-face ((,class (:foreground ,green))))
-   `(font-lock-variable-name-face ((,class (:foreground ,blue))))
+   `(font-lock-builtin-face ((,class (:foreground ,blue :weight light))))
+   `(font-lock-comment-face ((,class (:foreground ,comment :background ,my-default-bg :slant italic :weight light))))
+   `(font-lock-constant-face ((,class (:foreground ,orange :weight normal :weight light))))
+   `(font-lock-function-name-face ((,class (:foreground ,purple :weight light :underline nil))))
+   `(font-lock-keyword-face ((,class (:foreground ,blue :weight light))))
+   `(font-lock-string-face ((,class (:foreground ,turquoise :weight light))))
+   `(font-lock-doc-face ((,class (:foreground ,green-light :weight light))))
+   `(font-lock-type-face ((,class (:foreground ,green :weight light))))
+   `(font-lock-variable-name-face ((,class (:foreground ,blue weight light))))
    ;; `(font-lock-preprocessor-face ((,class (:foreground ,blue :background ,background-blue))))
    `(font-lock-preprocessor-face ((,class (:foreground ,vanilla :weight bold))))
    `(font-lock-negation-char-face ((,class (:foreground ,blue :weight bold))))
-   `(font-lock-warning-face ((,class (:foreground ,red :weight bold :background ,background-red))))
+   `(font-lock-warning-face ((,class (:foreground ,red :weight light :background ,background-red))))
 
    ;; Mode line faces
    `(mode-line ((,class (:background ,background-blue :height 0.9 :foreground ,blue
@@ -324,7 +330,7 @@ The result is cached for one second to avoid hiccups."
    `(org-mode-line-clock ((,class (:background unspecified (:inherit mode-line)))))
 
    ;; Escape and prompt faces
-   `(minibuffer-prompt ((,class (:foreground ,blue :weight normal))))
+   `(minibuffer-prompt ((,class (:foreground ,blue :weight normal :slant italic))))
    `(escape-glyph ((,class (:foreground ,blue :weight normal))))
 
    ;; linum
@@ -333,8 +339,8 @@ The result is cached for one second to avoid hiccups."
    `(linum-highlight-face ((,class (:foreground ,blue ,background ,background-blue))))
 
    ;; native line numbers (emacs 26)
-   `(line-number ((,class (:foreground ,comment :background ,background-darker))))
-   `(line-number-current-line ((,class (:foreground ,blue :background ,background-darker))))
+   `(line-number ((,class (:foreground ,my-fringe-fg :background ,my-fringe-bg :slant italic))))
+   `(line-number-current-line ((,class (:foreground ,blue :background ,my-fringe-bg slant italic))))
    ;; `(line-number ((,class (:foreground ,comment :background ,background-darker))))
    ;; `(line-number-current-line ((,class (:foreground ,blue :background ,background-darker))))
 
@@ -808,7 +814,7 @@ The result is cached for one second to avoid hiccups."
    )
 
   (custom-theme-set-variables
-   'zerodark
+   'my-zerodark
    `(ansi-color-names-vector [,background
                               ,red
                               ,green
@@ -856,7 +862,7 @@ The result is cached for one second to avoid hiccups."
         (purple "#c678dd")
         (mode-line (if "#1c2129" "#222222")))
     (custom-theme-set-faces
-     'zerodark
+     'my-zerodark
 
      ;; Mode line faces
      `(mode-line ((,class (:background ,mode-line
@@ -900,7 +906,7 @@ The result is cached for one second to avoid hiccups."
   (add-to-list 'custom-theme-load-path
                (file-name-as-directory (file-name-directory load-file-name))))
 
-(provide-theme 'zerodark)
+(provide-theme 'my-zerodark)
 
 ;; Local Variables:
 ;; no-byte-compile: t
