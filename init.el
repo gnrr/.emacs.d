@@ -1808,6 +1808,9 @@ That is, a string used to represent it on the tab bar."
               ;; (setq compile-command "cd ~/git-clone/qmk_firmware; make dichotemy:default")
               (setq compilation-auto-jump-to-first-error t)
               (setq compilation-window-height 10)
+
+              (setq hide-ifdef-shadow t)
+              (hide-ifdef-mode 1)
               ))
   :config
   ;; enable ANSI color in *compilation* buffer
@@ -2124,8 +2127,8 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
               (set-state (current-state) (setq my-org-global-fold-cycle-state current-state))
               (fold-restore 'my-org-global-fold-cycle-folding-restore)
               (fold-backup  'my-org-global-fold-cycle-folding-store)
-              (message-state (current-state) (message "Folding: %s" current-state)))
-              ;; (message-state (current-state) nil))
+              ;; (message-state (current-state) (message "Folding: %s" current-state)))
+              (message-state (current-state) nil))
       (cond ((= 'user)                                ;; user -> hide-all
              (fold-backup) (outline-hide-sublevels 1) (set-state 'hide-all) (message-state 'hide-all))
             ((= 'hide-all)                            ;; hide-all -> show-all
@@ -2135,6 +2138,13 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
             (t (error (format "Invalid current folding state: %S" my-org-global-fold-cycle-state))))))
 
   (evil-define-key 'normal org-mode-map (kbd "M-SPC") #'my-org-global-fold-cycle)
+
+  (defun my-org-global-fold-set (target-state)
+    (if (memq target-state '(user hide-all show-all))
+        (while (not (eq my-org-global-fold-cycle-state target-state))
+          (my-org-global-fold-cycle))
+      (error "Invalid target-state: %S" target-state)))
+
 
   ;; from org-fold.el
   (defun my-org-global-fold-cycle-folding-store ()
@@ -2499,6 +2509,7 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
 
 ;; ----------------------------------------------------------------------
 (use-package migemo
+  :disabled
   :config
   ;; fixme not work in _mac.el
   (setq migemo-command "/usr/local/bin/cmigemo")
@@ -2534,14 +2545,66 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
 
 ;; ----------------------------------------------------------------------
 (use-package org-tree-slide
-  :bind (:map org-tree-slide-mode-map
-         ("<right>"  . org-tree-slide-move-next-tree)
-         ("<left>" . org-tree-slide-move-previous-tree)
-         ("<next>"  . org-tree-slide-move-next-tree)
-         ("<prior>" . org-tree-slide-move-previous-tree)
-         ("C-g" . org-tree-slide-mode))
+  :bind (:map org-mode-map
+         ("<f5>" . org-tree-slide-on)
+         :map org-tree-slide-mode-map
+         ("<right>" . org-tree-slide-move-next-tree)
+         ("<left>"  . org-tree-slide-move-previous-tree)
+         ("<next>"  . org-tree-slide-move-next-tree)        ;; page down
+         ("<prior>" . org-tree-slide-move-previous-tree)    ;; page up
+         ("<f5>" . org-tree-slide-off))
+
   :config
 
+  (defun org-tree-slide-on  () (interactive) (org-tree-slide-mode 1))
+  (defun org-tree-slide-off () (interactive) (org-tree-slide-mode 0))
+
+  (lexical-let ((face-default nil)
+                (face-fringe nil)
+                (face-cursor nil)
+                (face-minibuf nil)
+                (face-link nil)
+                (face-level-1 nil))
+    (defun presen-enter ()
+      (beacon-mode 0)
+      (tabbar-mode 0)
+      (hide-mode-line-mode 1)
+      (face-remap-add-relative 'org-tree-slide-header-overlay-face
+                                     :foreground "#283618" :background "#fefae0" :height 0.5)
+      (setq face-default (face-remap-add-relative 'default :background "#fefae0"
+                              :foreground "grey13" :height 2.0 :family "Hiragino Maru Gothic Pro"))
+      (setq face-fringe  (face-remap-add-relative 'fringe  :background "#fefae0"))
+      (setq face-minibuf (face-remap-add-relative 'minibuffer-prompt :background "#fefae0"))
+      (setq face-cursor  (face-remap-add-relative 'cursor  :foreground "red"))
+      (setq face-link  (face-remap-add-relative 'org-link  :foreground "#606c38"))
+      (setq face-level-1 (face-remap-add-relative 'outline-1 :foreground "#99581E" :height 1.5 :weight 'bold))
+      (setq org-tree-slide-header nil)
+      (setq org-tree-slide-slide-in-effect nil)
+      (setq org-tree-slide-exit-at-next-last-slide t)
+      (setq-local show-trailing-whitespace nil)
+      (org-display-inline-images))
+
+    (defun presen-exit ()
+      (face-remap-remove-relative face-default)
+      (face-remap-remove-relative face-minibuf)
+      (face-remap-remove-relative face-fringe)
+      (face-remap-remove-relative face-cursor)
+      (face-remap-remove-relative face-link)
+      (face-remap-remove-relative face-level-1)
+      (beacon-mode 1)
+      (tabbar-mode 1)
+      (hide-mode-line-mode 0)
+      (my-org-global-fold-set 'hide-all)))
+
+    (defun sayonara ()
+      (lexical-let ((animate-n-steps 60)
+                    (vpos 10))
+        (animate-string "Thank you for watching!" vpos))
+      (sit-for 3))
+
+  (add-hook 'org-tree-slide-before-exit-hook #'sayonara)
+  (add-hook 'org-tree-slide-play-hook #'presen-enter)
+  (add-hook 'org-tree-slide-stop-hook #'presen-exit)
   )
 ;; ----------------------------------------------------------------------
 ;; customize setting

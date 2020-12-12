@@ -104,10 +104,9 @@
 ;;
 ;; 入力モードが日本語の時はカーソルの色を変える
 ;;
-(defvar my-mac-selected-keyboard-input-source-change-bak (face-background 'cursor))
 (defun my-mac-selected-keyboard-input-source-change ()
   (set-cursor-color (if (string-match "\\.US$" (mac-input-source))
-                        my-mac-selected-keyboard-input-source-change-bak
+                        (mycolor 'blue)
                       (mycolor 'red))))
 
 (add-hook 'mac-selected-keyboard-input-source-change-hook 'my-mac-selected-keyboard-input-source-change)
