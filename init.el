@@ -394,7 +394,7 @@
     (message "Error: Not defined function \"im-ctl\"")))
 
 (add-hook 'minibuffer-exit-hook #'im-off)
-(add-hook 'focus-out-hook #'im-off)
+;; (add-hook 'focus-out-hook #'im-off)
 (add-hook 'evil-insert-state-exit-hook #'im-off)
 
 ;; fixme need this?
@@ -2310,7 +2310,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
      "やる気あらへんさかいに" "やる気にゃーで" "やる気ねえすけ" "やる気ねぁがら" "やる気ねはんで" "やる気ねーんくとぅ"
      "ダルいので" "ダルさんくとぅ" "ダルぇはんで" "ダルぇがら" "ダリぃけん" "ダリで" "ダルいけぇ" "ダルいき"
      "しんどいさかいに" "ダやいがで" "ダルいで" "ダリぃすけ" "ダルぇがら" "ダルぇはんで" "ダルさんくとぅ"
-     "急用がありますので")
+     "すみません。急いでおりますので。")
     "thx to https://www.8toch.net/translate/")
   (defvar my-org-todo-publish-cemetery-hugo-dir "~/git-clone/cemetery")
   (defvar my-org-todo-publish-cemetery-front-matter-fmt
@@ -2418,7 +2418,7 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
   (evil-define-key 'normal org-mode-map (kbd "<C-left>")  #'nop)
   (evil-define-key 'normal org-mode-map (kbd "<down>") #'my-org-goto-title-next)
   (evil-define-key 'normal org-mode-map (kbd "<up>")   #'my-org-goto-title-prev)
-  (evil-define-key 'normal org-mode-map (kbd "M-0") #'my-org-todo-publish-cemetery-or-move-to-never-do)
+  (evil-define-key 'normal org-mode-map (kbd "t 0") #'my-org-todo-publish-cemetery-or-move-to-never-do)
   (evil-define-key 'normal org-mode-map (kbd "0")   #'my-org-beginning-of-content)
 
   (evil-define-key 'insert org-mode-map (kbd "C-a") #'my-org-beginning-of-content)
