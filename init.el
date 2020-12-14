@@ -531,6 +531,7 @@
   (define-key evil-motion-state-map (kbd "6") #'evil-first-non-blank)
   (define-key evil-motion-state-map (kbd "4") #'evil-end-of-line)
   (define-key evil-motion-state-map (kbd "]") #'evil-jump-item)
+  (define-key evil-motion-state-map (kbd "v") #'my-evil-visual-cycle)
   (define-key evil-motion-state-map (kbd "M-w") #'my-forward-word)
   (define-key evil-motion-state-map (kbd "g g") #'my-evil-beginning-of-buffer)
   (define-key evil-motion-state-map (kbd "g e") #'my-evil-end-of-buffer)
@@ -750,43 +751,36 @@
     (message "Copied whole buffer"))
 
   ;; ----------
-  (defvar my-evil-visual-cycle-rgn nil)
   (defvar my-evil-visual-cycle-state nil)
-  (defvar my-evil-visual-cycle-state-old nil)
 
-  (defun my-evil-visual-cycle ()
-    "Cycle evil-visual like: V-CHAR -> V-LINE -> V-BLOCK -> V-CHAR ..."
-    (interactive)
-    (cond ((eq my-evil-visual-cycle-state nil)
-             (when (eq my-evil-visual-cycle-state-old 'line)
-                 (setq my-evil-visual-cycle-rgn (if (< (mark) (point)) (cons (mark) (1- (point))) (cons (mark) (point)))))
-             (evil-visual-char)
-             (when my-evil-visual-cycle-rgn
-               (evil-visual-make-region (car my-evil-visual-cycle-rgn) (cdr my-evil-visual-cycle-rgn)))
-             (setq my-evil-visual-cycle-state-old my-evil-visual-cycle-state)
-             (setq my-evil-visual-cycle-state 'char)
-             (setq evil-visual-state-tag (propertize " VISUAL " 'face `((:background ,(mycolor 'green)   :foreground ,(face-background 'mode-line) :weight bold)))))
-          ((eq my-evil-visual-cycle-state 'char)
-             (setq my-evil-visual-cycle-rgn (if (< (mark) (point)) (cons (mark) (1- (point))) (cons (mark) (point))))
-             (evil-visual-line)
-             (goto-char (1- (cdr my-evil-visual-cycle-rgn)))
-             (setq my-evil-visual-cycle-state-old my-evil-visual-cycle-state)
-             (setq my-evil-visual-cycle-state 'line)
-             (setq evil-visual-state-tag (propertize " V-LINE " 'face `((:background ,(mycolor 'green)   :foreground ,(face-background 'mode-line) :weight bold)))))
-          (t
-             (evil-visual-make-region (car my-evil-visual-cycle-rgn) (cdr my-evil-visual-cycle-rgn))
-             (add-hook 'minibuffer-setup-hook #'my-evil-visual-cycle-block-launcher)
-             (let ((suggest-key-bindings nil))
-               (call-interactively 'execute-extended-command))
-             (setq my-evil-visual-cycle-state-old my-evil-visual-cycle-state)
-             (setq my-evil-visual-cycle-state 'nil)
-             (setq evil-visual-state-tag (propertize " V-BLOCK " 'face `((:background ,(mycolor 'green)   :foreground ,(face-background 'mode-line) :weight bold)))))))
+  (lexical-let (pos-init)
+    (defun my-evil-visual-cycle ()
+      "Cycle evil-visual like: V-CHAR -> V-LINE -> V-BLOCK -> V-CHAR ..."
+      (interactive)
+      (cl-labels ((= (state) (eq my-evil-visual-cycle-state state))
+                  (-> (state) (setq my-evil-visual-cycle-state state))
+                  (set-tag (s) (setq evil-visual-state-tag (propertize (concat " " s " ") 'face
+             `((:background ,(mycolor 'green) :foreground ,(face-background 'mode-line) :weight bold))))))
+        (cond ((= nil) (-> 'char)
+               (setq pos-init (point))
+               (evil-visual-char) (set-tag "VISUAL"))
+              ((= 'char) (-> 'line)
+               (evil-visual-contract-region)
+               (evil-visual-line) (set-tag "V-LINE"))
+              ((= 'line) (-> 'block)
+               (evil-visual-make-region pos-init evil-visual-point 'block)
+               (add-hook 'minibuffer-setup-hook #'my-evil-visual-cycle-emulate-evil-block)
+               (let ((suggest-key-bindings nil))
+                 (call-interactively 'execute-extended-command))
+               (evil-visual-block) (set-tag "V-BLOCK"))
+              ((= 'block) (-> 'char)
+               (evil-visual-contract-region)
+               (evil-visual-char) (set-tag "VISUAL"))
+              (t (error "Invalid state: %s" my-evil-visual-cycle-state))))))
 
-  (define-key evil-motion-state-map (kbd "v") #'my-evil-visual-cycle)
-  (add-hook 'evil-visual-state-exit-hook #'(lambda () (setq my-evil-visual-cycle-state nil
-                                                            my-evil-visual-cycle-rgn nil)))
-  (defun my-evil-visual-cycle-block-launcher ()
-    (remove-hook 'minibuffer-setup-hook #'my-evil-visual-cycle-block-launcher)
+  (add-hook 'evil-visual-state-exit-hook #'(lambda () (setq my-evil-visual-cycle-state nil)))
+  (defun my-evil-visual-cycle-emulate-evil-block ()
+    (remove-hook 'minibuffer-setup-hook #'my-evil-visual-cycle-emulate-evil-block)
     (insert "evil-visual-block")
     (setq unread-command-events (listify-key-sequence (kbd "RET"))))
 
@@ -2121,23 +2115,22 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
         (org-beginning-of-line))))
 
   ;; ----------
-  (defun my-org-global-fold-cycle ()
+(defun my-org-global-fold-cycle ()
     (interactive)
-    (cl-flet ((= (current-state) (eq my-org-global-fold-cycle-state current-state))
-              (set-state (current-state) (setq my-org-global-fold-cycle-state current-state))
-              (fold-restore 'my-org-global-fold-cycle-folding-restore)
-              (fold-backup  'my-org-global-fold-cycle-folding-store)
-              ;; (message-state (current-state) (message "Folding: %s" current-state)))
-              (message-state (current-state) nil))
-      (cond ((= 'user)                                ;; user -> hide-all
-             (fold-backup) (outline-hide-sublevels 1) (set-state 'hide-all) (message-state 'hide-all))
-            ((= 'hide-all)                            ;; hide-all -> show-all
-             (outline-show-all) (set-state 'show-all) (message-state 'show-all))
-            ((= 'show-all)                            ;; show-all -> user
-             (fold-restore) (set-state 'user) (message-state 'user))
+    (cl-labels ((= (state) (eq my-org-global-fold-cycle-state state))
+                (-> (state) (setq my-org-global-fold-cycle-state state))
+                (fold-restore () (my-org-global-fold-cycle-folding-restore))
+                (fold-backup  () (my-org-global-fold-cycle-folding-store))
+                ;; (message-state () (message "Folding: %s" my-org-global-fold-cycle-state)))
+                (message-state () nil))
+      (cond ((= 'user)     (-> 'hide-all)                           ;; user -> hide-all
+             (fold-backup) (outline-hide-sublevels 1) (message-state))
+            ((= 'hide-all) (-> 'show-all)                           ;; hide-all -> show-all
+             (outline-show-all) (message-state))
+            ((= 'show-all) (-> 'user)                               ;; show-all -> user
+             (fold-restore) (message-state))
             (t (error (format "Invalid current folding state: %S" my-org-global-fold-cycle-state))))))
 
-  (evil-define-key 'normal org-mode-map (kbd "M-SPC") #'my-org-global-fold-cycle)
 
   (defun my-org-global-fold-set (target-state)
     (if (memq target-state '(user hide-all show-all))
@@ -2401,6 +2394,7 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
   (evil-define-key 'normal org-mode-map (kbd "S-<tab>") #'my-org-evil-normal-do-promote)
   (evil-define-key 'normal org-mode-map (kbd "SPC")   #'my-org-cycle)
   (evil-define-key 'normal org-mode-map (kbd "S-SPC") #'my-org-cycle-todo-backward)
+  (evil-define-key 'normal org-mode-map (kbd "M-SPC") #'my-org-global-fold-cycle)
   (evil-define-key 'normal org-mode-map (kbd "C-j") #'org-metadown)
   (evil-define-key 'normal org-mode-map (kbd "C-k") #'org-metaup)
   (evil-define-key 'normal org-mode-map (kbd "O") #'my-org-dup-heading-up)
