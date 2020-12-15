@@ -233,6 +233,7 @@
  (global-unset-key (kbd "M-t"))                          ; transpose-word
  (global-unset-key (kbd "M-'"))                          ; abbrev-prefix-mark
  (global-unset-key (kbd "M-c"))                          ; capitalize-word     why also assigned to M-RET ??
+ (global-unset-key (kbd "M-i"))                          ; tab-to-tab-stop
  (global-unset-key [f11])                                ; toggle-frame-fullscreen
  (global-unset-key [f12])                                ; "M-c"
 
