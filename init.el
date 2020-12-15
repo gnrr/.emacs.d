@@ -2305,11 +2305,12 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
   (defun my-org-todo-publish-cemetery-get-reason ()
     "Return string as reason from user input.
 If the input is empty, the return value is randomly determined."
-    (let ((s (read-string "Reason: ")))
+    (let ((s (read-string "Reason: "))
+          (tr-re "[ \t\n\r　]+"))
       (cond ((string-empty-p s)
              (let ((n (length my-org-todo-publish-cemetery-reason-default-list)))
                (nth (random n) my-org-todo-publish-cemetery-reason-default-list)))
-            (t s))))
+            (t (string-trim s tr-re tr-re)))))
 
   (defun my-org-todo-publish-cemetery-git-push (path)
     "Execute git commands add, commit then push in order to deploy
