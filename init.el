@@ -536,8 +536,6 @@
   (define-key evil-motion-state-map (kbd "g g") #'my-evil-beginning-of-buffer)
   (define-key evil-motion-state-map (kbd "g e") #'my-evil-end-of-buffer)
   (define-key evil-motion-state-map (kbd "Y") #'my-evil-yank-whole-buffer)
-  ;; (define-key evil-motion-state-map "/" #'my-evil-search-forward)
-  ;; (define-key evil-motion-state-map "?" #'my-evil-search-backward)
   (define-key evil-motion-state-map "/" #'evil-search-forward)
   (define-key evil-motion-state-map "?" #'evil-search-backward)
   (define-key evil-motion-state-map (kbd ":") #'nop)        ; unmap :
@@ -786,24 +784,6 @@
     (remove-hook 'minibuffer-setup-hook #'my-evil-visual-cycle-emulate-evil-block)
     (insert "evil-visual-block")
     (setq unread-command-events (listify-key-sequence (kbd "RET"))))
-
-  ;; ----------
-  ;; disabled
-  (defun my-evil-search-forward (&optional re-p)
-    "Enable search by regexp when C-u, otherwise by fixed string."
-    (interactive "P")
-    (let ((evil-regexp-search re-p))
-      (call-interactively #'evil-search-forward)))
-
-  (defun my-evil-search-backward (&optional re-p)
-    "Enable search by regexp when C-u, otherwise by fixed string."
-    (interactive "P")
-    (let ((evil-regexp-search re-p))
-      (call-interactively #'evil-search-backward)))
-
-  (defun my-adv-evil-search (&rest _) (setq last-command 'evil-search-forward))
-  ;; (advice-add 'evil-search-next     :before #'my-adv-evil-search)
-  ;; (advice-add 'evil-search-previous :before #'my-adv-evil-search)
 
   ;; ----------
   (add-hook 'evil-visual-state-entry-hook #'(lambda () (show-paren-mode -1)))
