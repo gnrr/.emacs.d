@@ -1512,7 +1512,7 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package rainbow-mode
   :diminish rainbow-mode
-  :hook ((prog-mode . rainbow-mode))
+  ;; :hook ((prog-mode . rainbow-mode))
   :config
   (setq rainbow-html-colors nil)
   )
