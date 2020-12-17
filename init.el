@@ -551,7 +551,7 @@
   (define-key evil-normal-state-map (kbd "M-k") nil)        ; outline-move-sutree-*
   (define-key evil-normal-state-map (kbd "TAB") #'evil-indent-line)
   (define-key evil-normal-state-map (kbd "U") #'undo-tree-redo)
-  (define-key evil-normal-state-map (kbd "M-p") #'evil-paste-pop-next)
+  (define-key evil-normal-state-map (kbd "M-p") #'counsel-yank-pop)
   ;; (define-key evil-normal-state-map (kbd "SPC") #'evil-force-normal-state)
   (define-key evil-normal-state-map (kbd "g f") #'my-beginning-of-defun)
   (define-key evil-normal-state-map (kbd "A") #'nop)                 ; unmap A
@@ -785,6 +785,37 @@
     (remove-hook 'minibuffer-setup-hook #'my-evil-visual-cycle-emulate-evil-block)
     (insert "evil-visual-block")
     (setq unread-command-events (listify-key-sequence (kbd "RET"))))
+
+  ;; ----------
+  (defvar my-evil-paste-rgn '())
+
+  (defun my-adv-evil-paste-before--save-rgn (orig-fun &rest _arg)
+    (let ((beg (point)))
+      (apply orig-fun _arg)
+      (setq my-evil-paste-rgn (cons (1+ (point)) beg))))
+
+  (defun my-adv-evil-paste-after--save-rgn (orig-fun &rest _arg)
+    (let ((beg (point)))
+      (apply orig-fun _arg)
+      (setq my-evil-paste-rgn (cons beg (1+ (point))))))
+
+  (defun my-adv-counsel-yank-pop--oeverwrite (orig-fun &rest _arg)
+    "Delete the region before inserting poped string."
+    (cond ((and evil-mode (eq 'visual evil-state))
+           (let ((beg (copy-marker (region-beginning) t))
+                 (end (copy-marker (region-end) t)))
+             (apply orig-fun _arg)
+             (delete-region beg end)))
+          ((and evil-mode
+                (or (eq last-command 'evil-paste-before) (eq last-command 'evil-paste-after)))
+           (goto-char (line-end-position))
+           (apply orig-fun _arg)
+           (delete-region (car my-evil-paste-rgn) (cdr my-evil-paste-rgn)))
+          (t (apply orig-fun _arg))))
+
+  (advice-add 'evil-paste-before :around #'my-adv-evil-paste-before--save-rgn)
+  (advice-add 'evil-paste-after  :around #'my-adv-evil-paste-after--save-rgn)
+  (advice-add 'counsel-yank-pop  :around #'my-adv-counsel-yank-pop--oeverwrite)
 
   ;; ----------
   (add-hook 'evil-visual-state-entry-hook #'(lambda () (show-paren-mode -1)))
