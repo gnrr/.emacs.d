@@ -1231,6 +1231,16 @@ directory, the file name, and its state (modified, read-only or non-existent)."
    '(("d" my-counsel-ibuffer-kill-buffer "kill buffer")))
 
   ;--------------
+  (defun my-font-list ()
+    "List font using ivy"
+    (interactive)
+    (ivy-read "Font: "
+              (font-family-list)
+              :require-match t
+              :action (lambda (x) (insert x))
+              :caller 'my-font-list))
+
+  ;--------------
   :bind (("M-z"     . ivy-resume)
          ("M-r"     . counsel-recentf)
          ("M-o"     . my-counsel-rg)
