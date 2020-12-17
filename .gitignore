@@ -23,7 +23,7 @@ var/*
 .my-save-frame
 network-security.data
 *.last-load
-packages/archives/melpa/archive-contents
+packages/archives/*
 recentf
 kkcrc
 bookmarks
