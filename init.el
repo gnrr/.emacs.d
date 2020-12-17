@@ -1702,7 +1702,7 @@ That is, a string used to represent it on the tab bar."
   :config
   (setq beacon-blink-when-focused t)
   (setq beacon-color "SteelBlue3")
-  (setq beacon-blink-delay 0.1)
+  (setq beacon-blink-delay 0.2)
   (beacon-mode t)
   )
 
@@ -2506,6 +2506,7 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
 
 ;; ----------------------------------------------------------------------
 (use-package dimmer
+  :disabled
   :defer 1
   :config
   (setq dimmer-exclusion-predicates '(window-minibuffer-p)
