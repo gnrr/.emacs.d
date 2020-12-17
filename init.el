@@ -899,7 +899,8 @@
     "The current evil state.  Requires `evil-mode' to be enabled."
     (when (bound-and-true-p evil-local-mode)
       ;; (s-trim-right (evil-state-property evil-state :tag t))))
-      (evil-state-property evil-state :tag t)))
+      (when (doom-modeline--active)
+          (evil-state-property evil-state :tag t))))
 
   (doom-modeline-def-segment linum-colnum
     "Display current linum/colnum"
