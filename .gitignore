@@ -1,4 +1,3 @@
-.DS_Store
 GPATH
 GRTAGS
 GTAGS
@@ -23,7 +22,7 @@ var/*
 .my-save-frame
 network-security.data
 *.last-load
-packages/archives/*
+/packages/archives/
 recentf
 kkcrc
 bookmarks
