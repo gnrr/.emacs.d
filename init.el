@@ -117,7 +117,7 @@
   parens-require-spaces nil
   transient-mark-mode nil
   tab-width 4
-  tab-stop-list  '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60)
+  tab-stop-list nil
   comment-column 60
 
   ;; display-line-numbers-grow-only t
@@ -537,6 +537,7 @@
   (define-key evil-motion-state-map (kbd "g g") #'my-evil-beginning-of-buffer)
   (define-key evil-motion-state-map (kbd "g e") #'my-evil-end-of-buffer)
   (define-key evil-motion-state-map (kbd "Y") #'my-evil-yank-whole-buffer)
+  (define-key evil-motion-state-map (kbd "TAB") #'evil-indent-line)
   (define-key evil-motion-state-map "/" #'evil-search-forward)
   (define-key evil-motion-state-map "?" #'evil-search-backward)
   (define-key evil-motion-state-map (kbd ":") #'nop)        ; unmap :
@@ -549,7 +550,6 @@
   (define-key evil-normal-state-map (kbd "C-p") nil)        ; evil-paste-pop
   (define-key evil-normal-state-map (kbd "M-j") nil)        ; outline-move-sutree-*
   (define-key evil-normal-state-map (kbd "M-k") nil)        ; outline-move-sutree-*
-  (define-key evil-normal-state-map (kbd "TAB") #'evil-indent-line)
   (define-key evil-normal-state-map (kbd "U") #'undo-tree-redo)
   (define-key evil-normal-state-map (kbd "M-p") #'counsel-yank-pop)
   ;; (define-key evil-normal-state-map (kbd "SPC") #'evil-force-normal-state)
