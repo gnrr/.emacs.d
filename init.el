@@ -840,6 +840,7 @@
   :diminish evil-escape-mode
   :config
   (evil-escape-mode 1)
+  (setq-default evil-esc-delay 0)
   (setq-default evil-escape-delay 0.2)
   (setq-default evil-escape-key-sequence "jj")
   (setq-default evil-escape-excluded-states '(normal visual multiedit emacs motion))
@@ -1085,7 +1086,7 @@ directory, the file name, and its state (modified, read-only or non-existent)."
         ivy-extra-directories nil                                ;; '("../")
         ivy-re-builders-alist '((t . ivy--regex-ignore-order))   ;; configure regexp engine. allow input not in order
         avy-timeout-seconds 0.4
-        counsel-find-file-ignore-regexp "\\.elc\\'\\|\\.DS_Store\\|^#.+#$"
+        counsel-find-file-ignore-regexp "\\.ex4$\\|\\.elc\\'\\|\\.DS_Store\\|^#.+#$"
         ;; ivy-display-style t
   )
 
