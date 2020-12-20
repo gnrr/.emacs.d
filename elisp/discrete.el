@@ -728,19 +728,6 @@ double quotation characters \(\"\) from given string."
   "default directory where to save")
 (make-variable-buffer-local 'my-save-buffer-default-path)
 
-(defun create-directory (directory)
-  (if (y-or-n-p (format "Parent directory %s not exists, Create? " directory))
-      (let* ((dl "/")
-	     (dire "")
-	     (list (split-string directory dl)))
-	(while list
-	  (setq dire (concat dire (car list) dl))
-	  (unless (file-exists-p dire)
-	    (make-directory (directory-file-name dire)))
-	  (setq list (cdr list)))
-	t)
-    nil))
-
 (defvar my-save-buffer-interactive-arg-active-p nil)
 (defun my-save-buffer-interactive-arg (&optional initial)
   (let* ((my-save-buffer-interactive-arg-active-p t)
@@ -801,54 +788,6 @@ double quotation characters \(\"\) from given string."
 
 ;; key-bind
 (global-set-key "\C-x\C-s" 'my-save-buffer)
-
-
-;; ----------------------------------------------------------------------
-;; @@ `my-write-file'
-;; create parent directories when writing a new file
-(defvar my-write-file-interactive-arg-active-p nil)
-
-;; (defun my-write-file-write-proc (path)
-;;   (if (file-exists-p path)
-;;       ;同じファイル名が既に存在している場合
-;;       (progn
-;;         (message "already exists")
-;;         (sit-for 5)
-;;         (my-write-file-interactive-arg path))
-;;     ;同じファイル名が存在しない場合
-;;     (write-file path)))
-
-(defun my-write-file-interactive-arg (&optional initial)
-  (let* ((my-write-file-interactive-arg-active-p t)
-	 (insert-default-directory nil)
-	 (path initial))
-    (when (and (not initial) (buffer-file-name))
-      (setq path (buffer-file-name)))
-    (let* ((name (expand-file-name (read-file-name "File to save in: "
-						   nil nil nil path)))
-	   (directory (file-name-directory name)))
-      (if (file-exists-p directory)
-	  ;ディレクトリがすでに存在している場合
-	  (write-file name t)
-	;ディレクトリが存在しない場合
-	(if (create-directory directory)
-	    ;ディレクトリを作れた場合
-	    (my-write-file-interactive-arg name)
-	  ;ディレクトリを作れなかった場合
-	  (my-save-buffer-interactive-arg name))))))
-
-(defun my-write-file-minibuffer-setup-hook ()
-  (when my-write-file-interactive-arg-active-p
-    (end-of-line)))
-
-(add-hook 'minibuffer-setup-hook
-	  'my-write-file-minibuffer-setup-hook)
-
-(defun my-write-file ()
-  (interactive (my-write-file-interactive-arg)))
-
-(global-set-key "\C-x\C-w" 'my-write-file)
-
 
 ;; ----------------------------------------------------------------------
 ;; @@ `my-find-file'

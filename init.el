@@ -1233,6 +1233,41 @@ directory, the file name, and its state (modified, read-only or non-existent)."
    '(("d" my-counsel-ibuffer-kill-buffer "kill buffer")))
 
   ;--------------
+  (defun my-counsel-write-file ()
+  "Forward to `write-file'"
+  (interactive)
+  (ivy-read "Write file to: "
+            #'read-file-name-internal
+            ;; :keymap counsel-describe-map
+            ;; :initial-input (or (file-name-base (buffer-file-name)) "")
+            ;; :preselect nil
+            :preselect (or (buffer-file-name) "")
+            :history 'write-file-history
+            ;; :require-match t
+            :action #'my-counsel-write-file-action-function
+            :caller 'my-counsel-write-file))
+
+(defun my-counsel-write-file-action-function (fn)
+  (let ((dir (file-name-directory fn)))
+    (cond ((file-exists-p fn)
+           (if (y-or-n-p "Overwrite? ")
+               (save-buffer)
+             (message "Canceled")))
+           ((not (file-exists-p dir))
+            (create-directory-recursive dir)
+            (write-file fn))
+           (t (write-file fn)))))
+
+(defun create-directory-recursive (dir-str)
+  (let* ((slash "/")
+         (dirs (split-string dir-str slash t))
+         (s ""))
+    (dolist (d dirs)
+      (setq s (expand-file-name (concat s slash d)))
+      (unless (file-exists-p s)
+        (make-directory (directory-file-name s))))))
+
+  ;--------------
   (defun my-font-list ()
     "List font using ivy"
     (interactive)
@@ -1247,6 +1282,7 @@ directory, the file name, and its state (modified, read-only or non-existent)."
          ("M-r"     . counsel-recentf)
          ("M-o"     . my-counsel-rg)
          ("C-x C-b" . counsel-ibuffer)
+         ("C-x C-w" . my-counsel-write-file)
          ;; ("C-x C-f" . my-counsel-find-file)
          ;; ("C-s"     . swiper)
 
