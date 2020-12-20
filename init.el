@@ -237,6 +237,8 @@
  (global-unset-key [f11])                                ; toggle-frame-fullscreen
  (global-unset-key [f12])                                ; "M-c"
 
+ (global-set-key (kbd "C-x C-x") #'nop)                  ; exchange-point-and-mark
+
  ;; (global-set-key "(" 'my-insert-paren)                   ; ()
  (global-set-key "{" 'my-insert-brace)                   ; {}
  (global-set-key "[" 'my-insert-bracket)                 ; []
