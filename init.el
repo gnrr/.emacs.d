@@ -755,7 +755,7 @@
     (message "Copied whole buffer"))
 
   ;; ----------
-  (defvar my-evil-visual-cycle-state nil)
+  (defvar-local my-evil-visual-cycle-state nil)
 
   (lexical-let (pos-init)
     (defun my-evil-visual-cycle ()
