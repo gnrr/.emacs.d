@@ -1235,6 +1235,18 @@ directory, the file name, and its state (modified, read-only or non-existent)."
    '(("d" my-counsel-ibuffer-kill-buffer "kill buffer")))
 
   ;--------------
+  ;; mod from counsel.el
+  (defun counsel-find-file-delete (x)
+    "backup file X to backup directory."
+    (if (and (stringp my-backup-directory)
+             (file-exists-p my-backup-directory))
+        (let ((dest (my-backup-get-suffixed-file-name
+                     (path-join my-backup-directory (file-name-nondirectory x)))))
+          (rename-file x dest)
+          (message "Moved to: %s" dest))
+      (error "Invalid my-backup-directory: %s" my-backup-directory)))
+
+  ;--------------
   (defun my-counsel-write-file ()
   "Forward to `write-file'"
   (interactive)
