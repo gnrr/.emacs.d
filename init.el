@@ -782,7 +782,7 @@
                (evil-visual-char) (set-tag "VISUAL"))
               (t (error "Invalid state: %s" my-evil-visual-cycle-state))))))
 
-  (add-hook 'evil-visual-state-exit-hook #'(lambda () (setq my-evil-visual-cycle-state nil)))
+  (add-hook 'evil-visual-state-exit-hook #'(lambda () (setq-local my-evil-visual-cycle-state nil)))
   (defun my-evil-visual-cycle-emulate-evil-block ()
     (remove-hook 'minibuffer-setup-hook #'my-evil-visual-cycle-emulate-evil-block)
     (insert "evil-visual-block")
