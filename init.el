@@ -1232,7 +1232,7 @@ directory, the file name, and its state (modified, read-only or non-existent)."
 
   (ivy-set-actions
    'counsel-ibuffer
-   '(("d" my-counsel-ibuffer-kill-buffer "kill buffer")))
+   '(("k" my-counsel-ibuffer-kill-buffer "kill buffer")))
 
   ;--------------
   ;; mod from counsel.el
