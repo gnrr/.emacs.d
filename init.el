@@ -398,7 +398,7 @@
 
 (add-hook 'minibuffer-exit-hook #'im-off)
 ;; (add-hook 'focus-out-hook #'im-off)
-(add-hook 'evil-insert-state-exit-hook #'im-off)
+;; (add-hook 'evil-insert-state-exit-hook #'im-off)
 
 ;; fixme need this?
 ;; ----------------------------------------------------------------------
