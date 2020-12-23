@@ -1759,6 +1759,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package org-bullets
+  :after org
   :config
   (setq org-bullets-bullet-list '("❖" "☯" "✪" "✿" "✜" "⬟" "⬢" "⬣"))
   (set-face-attribute 'org-level-1 nil :height 1.2)
