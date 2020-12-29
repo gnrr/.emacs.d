@@ -101,6 +101,9 @@
     ;;  "osascript" nil t nil "-e"
     ;;  (format "tell application \"System Events\" to key code %d" code))))
 
+(defun im-enabled-p ()
+  (not (string-match "\\.US$" (mac-input-source))))
+
 ;;
 ;; 入力モードが日本語の時はカーソルの色を変える
 ;;
