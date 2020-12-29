@@ -1904,6 +1904,8 @@ That is, a string used to represent it on the tab bar."
     (set (make-local-variable 'truncate-partial-width-windows) nil))
   (add-hook 'compilation-mode-hook 'truncate-compilation-mode-hook)
 
+  (set-face-attribute 'font-lock-comment-face nil :slant 'normal)
+  (set-face-attribute 'font-lock-comment-delimiter-face nil :slant 'normal)
 
   ;; :after telephone-line
   ;; :config
