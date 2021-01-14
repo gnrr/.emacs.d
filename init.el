@@ -2690,6 +2690,17 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   (add-hook 'org-tree-slide-stop-hook #'presen-exit)
   )
 ;; ----------------------------------------------------------------------
+(use-package csharp-mode
+  :config
+  (add-hook 'csharp-mode-hook
+            '(lambda ()
+              (setq indent-tabs-mode nil)
+              (setq c-basic-offset 4)
+              (c-set-offset 'substatement-open 0)
+              ;; (flycheck-mode 1)
+              (omnisharp-mode)))
+  )
+;; ----------------------------------------------------------------------
 ;; customize setting
 (setq custom-file "~/.emacs.d/custom.el") ; write custom settings into external file instead of init.el
 (load custom-file nil t)
