@@ -1265,7 +1265,7 @@ directory, the file name, and its state (modified, read-only or non-existent)."
   (let ((dir (file-name-directory fn)))
     (cond ((file-exists-p fn)
            (if (y-or-n-p "Overwrite? ")
-               (save-buffer)
+               (write-file fn)
              (message "Canceled")))
            ((not (file-exists-p dir))
             (create-directory-recursive dir)
@@ -2699,6 +2699,12 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
               (c-set-offset 'substatement-open 0)
               ;; (flycheck-mode 1)
               (omnisharp-mode)))
+  )
+;;; ----------------------------------------------------------------------
+(use-package slime
+  :config
+  (setq inferior-lisp-program "clisp")
+  (slime-setup '(slime-repl slime-fancy slime-banner))
   )
 ;; ----------------------------------------------------------------------
 ;; customize setting
