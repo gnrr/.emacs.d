@@ -1091,6 +1091,11 @@ is already narrowed."
   (interactive)
   (my-insert-pair my-insert-squote-arg))
 
+;; another {}
+(defun my-insert-brace2 ()
+  (interactive)
+  (insert-pair nil ?\{ ?\}))
+
 ;; ----------------------------------------------------------------------
 ;;@@ `beginning-of-buffer-without-marking'
 (defun beginning-of-buffer-without-marking ()

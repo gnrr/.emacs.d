@@ -240,7 +240,7 @@
  (global-set-key (kbd "C-x C-x") #'nop)                  ; exchange-point-and-mark
 
  ;; (global-set-key "(" 'my-insert-paren)                   ; ()
- (global-set-key "{" 'my-insert-brace)                   ; {}
+ ;; (global-set-key "{" 'my-insert-brace)                   ; {}
  (global-set-key "[" 'my-insert-bracket)                 ; []
  ;; (global-set-key "<" 'my-insert-angle)                   ; <>
  (global-set-key "'" 'my-insert-squote)                  ; ''
@@ -254,6 +254,7 @@
  (global-set-key (kbd "C-o") 'other-window)
 
  (global-set-key (kbd "M-9") 'insert-parentheses)
+ (global-set-key (kbd "M-[") 'my-insert-brace2)
  (global-set-key (kbd "M-g") 'goto-line)
  (global-set-key (kbd "M-P") 'beginning-of-buffer)
  (global-set-key (kbd "M-N") 'end-of-buffer)
@@ -1861,8 +1862,8 @@ That is, a string used to represent it on the tab bar."
 (use-package cc-mode
   :mode (("\\.c$" . c-mode)
          ("\\.h$" . c-mode))
-  :init
-  (add-hook 'c-mode-hook
+  :config
+  (add-hook 'c-mode-common-hook
             (lambda ()
               (local-set-key "\C-m" 'reindent-then-newline-and-indent)
               (local-set-key "\C-i" 'indent-or-insert-tab)
@@ -1889,7 +1890,7 @@ That is, a string used to represent it on the tab bar."
               (setq hide-ifdef-shadow t)
               (hide-ifdef-mode 1)
               ))
-  :config
+
   ;; enable ANSI color in *compilation* buffer
   ;; (require 'ansi-color)
   (defun colorize-compilation-mode-hook ()
