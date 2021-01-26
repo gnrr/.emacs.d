@@ -254,7 +254,7 @@
  (global-set-key (kbd "C-o") 'other-window)
 
  (global-set-key (kbd "M-9") 'insert-parentheses)
- (global-set-key (kbd "M-[") 'my-insert-brace2)
+ ;; (global-set-key (kbd "M-[") 'my-insert-brace2)
  (global-set-key (kbd "M-g") 'goto-line)
  (global-set-key (kbd "M-P") 'beginning-of-buffer)
  (global-set-key (kbd "M-N") 'end-of-buffer)
@@ -1867,11 +1867,12 @@ That is, a string used to represent it on the tab bar."
             (lambda ()
               (local-set-key "\C-m" 'reindent-then-newline-and-indent)
               (local-set-key "\C-i" 'indent-or-insert-tab)
-              (local-set-key "(" 'my-insert-paren)
-              (local-set-key "{" 'my-insert-brace)
+              ;; (local-set-key "(" 'my-insert-paren)
+              ;; (local-set-key "{" 'my-insert-brace)
               ;; (setq case-fold-search nil)                 ; case sensitive
               (c-set-style "stroustrup")
-              (c-set-offset 'case-label 4)
+              (c-set-offset 'case-label '+)
+              (c-set-offset 'statement-cont 'c-lineup-math)
               (modify-syntax-entry ?_ "w")                ; アンダーバーをワード区切りとしない
               (setq comment-start "//")                   ; コメントを // にする
               (setq comment-end "")
@@ -1880,7 +1881,7 @@ That is, a string used to represent it on the tab bar."
               ;; (setq compile-command "make")               ; make時のデフォルトコマンド
               ;; (c-toggle-hungry-state 1)                   ; backspace時にカーソルの左の空白をすべて削除
               (cwarn-mode)
-              ;; (which-function-mode 1)
+              (which-function-mode 1)
               (display-line-numbers-mode)
               (setq compilation-scroll-output t)
               ;; (setq compile-command "cd ~/git-clone/qmk_firmware; make dichotemy:default")
