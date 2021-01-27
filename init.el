@@ -821,6 +821,27 @@
   (advice-add 'counsel-yank-pop  :around #'my-adv-counsel-yank-pop--oeverwrite)
 
   ;; ----------
+  ;; exclude new line when v$
+  ;; https://github.com/emacs-evil/evil/issues/897
+  (setq evil-v$-gets-eol nil)
+
+  ;; re-difined
+  (evil-define-motion evil-end-of-line (count)
+    "Move the cursor to the end of the current line.
+If COUNT is given, move COUNT - 1 lines downward first."
+    :type inclusive
+    (move-end-of-line count)
+    (when evil-track-eol
+      (setq temporary-goal-column most-positive-fixnum
+            this-command 'next-line))
+    ;; (unless (evil-visual-state-p)
+    (unless (and (evil-visual-state-p) evil-v$-gets-eol)    ;; mod
+      (evil-adjust-cursor)
+      (when (eolp)
+        ;; prevent "c$" and "d$" from deleting blank lines
+        (setq evil-this-type 'exclusive))))
+
+  ;; ----------
   (add-hook 'evil-visual-state-entry-hook #'(lambda () (show-paren-mode -1)))
   (add-hook 'evil-visual-state-exit-hook  #'(lambda () (show-paren-mode 1)))
 )
