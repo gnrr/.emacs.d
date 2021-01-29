@@ -2651,56 +2651,49 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
 
 ;; ----------------------------------------------------------------------
 (use-package org-tree-slide
+  ;; :defer t
   :bind (:map org-mode-map
-         ("<f5>" . org-tree-slide-on)
+         ([f5] . org-tree-slide-on)
          :map org-tree-slide-mode-map
-         ("j"       . org-tree-slide-move-next-tree)
-         ("k"       . org-tree-slide-move-previous-tree)
-         ("<right>" . org-tree-slide-move-next-tree)
-         ("<left>"  . org-tree-slide-move-previous-tree)
-         ("<down>"  . org-tree-slide-move-next-tree)
-         ("<up>"    . org-tree-slide-move-previous-tree)
-         ("<next>"  . org-tree-slide-move-next-tree)        ;; page down
-         ("<prior>" . org-tree-slide-move-previous-tree)    ;; page up
-         ("<f5>" . org-tree-slide-off)
-         ([tab] . presen-edit-enter))
+         ([next]  . org-tree-slide-move-next-tree)        ;; page down
+         ([prior] . org-tree-slide-move-previous-tree)    ;; page up
+         ([f5] . org-tree-slide-off))
 
   :config
+    (evil-make-overriding-map org-tree-slide-mode-map 'normal)
+    (defun presen-override-key-bindings ()
+      (evil-make-overriding-map org-tree-slide-mode-map 'normal)
+      (evil-add-hjkl-bindings org-tree-slide-mode-map 'normal
+        [right] 'org-tree-slide-move-next-tree          ;; fixme
+        [left]  'org-tree-slide-move-previous-tree))    ;; fixme
+
+  (add-hook 'org-tree-slide-play-hook #'presen-override-key-bindings)
 
   (setq org-tree-slide-indicator '(:next "" :previous "" :content ""))
-  (defun org-tree-slide-on  () (interactive) (org-tree-slide-mode 1) (setq buffer-read-only t))
-  (defun org-tree-slide-off () (interactive) (org-tree-slide-mode 0) (setq buffer-read-only nil))
+  (defun org-tree-slide-on  () (interactive) (org-tree-slide-mode 1))
+  (defun org-tree-slide-off () (interactive) (org-tree-slide-mode 0))
 
   (lexical-let ((face-default nil)
                 (face-fringe nil)
-                (face-cursor nil)
                 (face-minibuf nil)
                 (face-link nil)
                 (face-level-1 nil)
                 (frame-height 36)
-                (edit-state nil))
-    (defun presen-edit-enter () (interactive) (setq cursor-type 'box) (setq buffer-read-only nil)
-           (define-key org-tree-slide-mode-map (kbd "<tab>") #'presen-edit-exit))
-    (defun presen-edit-exit ()  (interactive) (setq cursor-type nil)  (setq buffer-read-only t)
-           (define-key org-tree-slide-mode-map (kbd "<tab>") #'presen-edit-enter))
-
+                (bg-color "#fefae0"))
     (defun presen-enter ()
       (set-frame-height nil frame-height)
       (beacon-mode 0)
       (tabbar-mode 0)
       (scroll-bar-mode 0)
       (set-fringe-mode 0)
-      (setq evil-escape-inhibit t)
-      (turn-off-evil-mode)
-      (setq cursor-type nil)
+      (setq-local evil-normal-state-cursor '(bar . 1))
       (hide-mode-line-mode 1)
       (face-remap-add-relative 'org-tree-slide-header-overlay-face
-                                     :foreground "#283618" :background "#fefae0" :height 0.5)
-      (setq face-default (face-remap-add-relative 'default :background "#fefae0"
+                                     :foreground "#283618" :background bg-color :height 0.5)
+      (setq face-default (face-remap-add-relative 'default :background bg-color
                               :foreground "grey13" :height 2.0 :family "Hiragino Maru Gothic Pro"))
-      (setq face-fringe  (face-remap-add-relative 'fringe  :background "#fefae0"))
-      (setq face-minibuf (face-remap-add-relative 'minibuffer-prompt :background "#fefae0"))
-      ;; (setq face-cursor  (face-remap-add-relative 'cursor  :background "#ff0000"))
+      (setq face-fringe  (face-remap-add-relative 'fringe  :background bg-color))
+      (setq face-minibuf (face-remap-add-relative 'minibuffer-prompt :background bg-color))
       (setq face-link  (face-remap-add-relative 'org-link  :foreground "#606c38"))
       (setq face-level-1 (face-remap-add-relative 'outline-1 :foreground "#99581E" :height 1.5 :weight 'bold))
       (setq org-tree-slide-header nil)
@@ -2713,7 +2706,6 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
       (face-remap-remove-relative face-default)
       (face-remap-remove-relative face-minibuf)
       (face-remap-remove-relative face-fringe)
-      (face-remap-remove-relative face-cursor)
       (face-remap-remove-relative face-link)
       (face-remap-remove-relative face-level-1)
       (set-frame-height nil 100)
@@ -2721,9 +2713,7 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
       (tabbar-mode 1)
       (scroll-bar-mode 1)
       (set-fringe-mode nil)
-      (setq evil-escape-inhibit nil)
-      (turn-on-evil-mode)
-      (setq cursor-type 'box)
+      (setq-local evil-normal-state-cursor 'box)
       (minibuffer-timer-stop)
       (hide-mode-line-mode 0)
       (my-org-global-fold-set 'hide-all)))
@@ -2747,7 +2737,8 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
                     (v 8)
                     (h 45))
         (animate-string "おしまい！" v h))
-      (sit-for 2))
+      (sit-for 2)
+      (undo))
 
   (add-hook 'org-tree-slide-before-exit-hook #'sayonara)
   (add-hook 'org-tree-slide-play-hook #'presen-enter)
