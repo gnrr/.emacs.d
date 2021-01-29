@@ -2724,8 +2724,22 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
       (setq evil-escape-inhibit nil)
       (turn-on-evil-mode)
       (setq cursor-type 'box)
+      (minibuffer-timer-stop)
       (hide-mode-line-mode 0)
       (my-org-global-fold-set 'hide-all)))
+
+  (lexical-let ((first-paging t))
+    (defun presen-timer-reset ()
+      (setq first-paging t))
+
+    (defun presen-timer-start ()
+      (when first-paging
+          (minibuffer-timer-start-force 5)
+          (setq first-paging nil)))
+
+    (defun presen-timer-stop ()
+      (minibuffer-timer-stop)
+      (setq first-paging t)))
 
     (defun sayonara ()
       (setq buffer-read-only nil)
@@ -2735,10 +2749,13 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
         (animate-string "おしまい！" v h))
       (sit-for 2))
 
-
   (add-hook 'org-tree-slide-before-exit-hook #'sayonara)
   (add-hook 'org-tree-slide-play-hook #'presen-enter)
   (add-hook 'org-tree-slide-stop-hook #'presen-exit)
+
+  (add-hook 'org-tree-slide-play-hook #'presen-timer-reset)
+  (add-hook 'org-tree-slide-before-move-next-hook #'presen-timer-start)
+  (add-hook 'org-tree-slide-stop-hook #'presen-timer-stop)
   )
 ;; ----------------------------------------------------------------------
 (use-package csharp-mode
