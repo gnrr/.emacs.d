@@ -2656,6 +2656,8 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
          :map org-tree-slide-mode-map
          ("<right>" . org-tree-slide-move-next-tree)
          ("<left>"  . org-tree-slide-move-previous-tree)
+         ("<down>"  . org-tree-slide-move-next-tree)
+         ("<up>"    . org-tree-slide-move-previous-tree)
          ("<next>"  . org-tree-slide-move-next-tree)        ;; page down
          ("<prior>" . org-tree-slide-move-previous-tree)    ;; page up
          ("<f5>" . org-tree-slide-off)
