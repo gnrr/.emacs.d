@@ -2753,6 +2753,9 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   (slime-setup '(slime-repl slime-fancy slime-banner))
   )
 ;; ----------------------------------------------------------------------
+(use-package minibuffer-timer)
+
+;; ----------------------------------------------------------------------
 ;; customize setting
 (setq custom-file "~/.emacs.d/custom.el") ; write custom settings into external file instead of init.el
 (load custom-file nil t)
