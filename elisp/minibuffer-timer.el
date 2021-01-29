@@ -46,6 +46,13 @@
     (minibuffer-timer--set-remainder-second minutes)
     (setq minibuffer-timer--timer (run-with-timer 0 1 #'minibuffer-timer--tick))))
 
+(defun minibuffer-timer-start-force (&optional minutes)
+  (interactive)
+  (when minibuffer-timer--timer
+    (cancel-timer minibuffer-timer--timer)
+    (setq minibuffer-timer--timer nil))
+  (minibuffer-timer-start minutes))
+
 (defun minibuffer-timer-stop ()
   (interactive)
   (if minibuffer-timer--timer
