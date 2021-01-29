@@ -52,7 +52,8 @@
       (progn
         (cancel-timer minibuffer-timer--timer)
         (setq minibuffer-timer--timer nil))
-    (error "No running timer")))
+    (when (interactive-p)
+      (error "No running timer"))))
 
 (provide 'minibuffer-timer)
 
