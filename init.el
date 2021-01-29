@@ -2407,7 +2407,7 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
               (setq links (cons (second lk) links))))))
       links))
 
-  (defvar my-org-todo-publish-cemetery-accept-titles '("Emacs" "keyboard" "ウェブ投票システムをつくる"))
+  (defvar my-org-todo-publish-cemetery-accept-titles '("目安箱" "Emacs" "次のKeyboard" "ウェブ投票システムをつくる"))
   (defvar my-org-todo-publish-cemetery-reason-default-list '(
     "やる気ないので"　"やる気ねえけん" "やる気なかけん" "やる気ねえかぃ" "やっ気なかで" "やる気ないけん" "やる気ないき"
      "やる気あらへんさかいに" "やる気にゃーで" "やる気ねえすけ" "やる気ねぁがら" "やる気ねはんで" "やる気ねーんくとぅ"
@@ -2423,10 +2423,10 @@ See `font-lock-add-keywords' and `font-lock-defaults'."
 #+TAGS[]: %s
 ")
 
-  (defun my-org-todo-publish-cemetery-get-reason ()
+  (defun my-org-todo-publish-cemetery-or-move-to-never-do-get-reason (prompt)
     "Return string as reason from user input.
 If the input is empty, the return value is randomly determined."
-    (let ((s (read-string "Reason: "))
+    (let ((s (read-string prompt))
           (tr-re "[ \t\n\r　]+"))
       (cond ((string-empty-p s)
              (let ((n (length my-org-todo-publish-cemetery-reason-default-list)))
@@ -2453,16 +2453,16 @@ but command push takes more time so that runs asynchronously."
     "Publish the current todo line to cemetery or move to 'never-do' list,
 according to `my-org-todo-publish-cemetery-accept-titles'."
     (interactive)
-    (cl-flet ((ask-reason 'my-org-todo-publish-cemetery-get-reason)
+    (cl-flet ((ask-reason 'my-org-todo-publish-cemetery-or-move-to-never-do-get-reason)
               (kill-current-line () (let ((pt (point))) (my-org-kill-whole-line pt) (goto-char pt))))
       (let ((title (my-org-todo-get-title)))
         (cond ((and (my-org-title-line-p "^*+ \\[ \\] ")
                     (member title my-org-todo-publish-cemetery-accept-titles))
-               (my-org-todo-publish-cemetery (ask-reason) title)
+               (my-org-todo-publish-cemetery (ask-reason "墓場 <- ") title)
                (kill-current-line)
                (message "Published to TODO墓場"))
               ((my-org-title-line-p "^*+ \\[ \\] ")
-               (my-org-move-to-never-do (ask-reason) title)
+               (my-org-move-to-never-do (ask-reason "やらないことリスト <- ") title)
                (kill-current-line)
                (message "Moved to %s" my-org-move-to-never-do-dest-title))
               ((my-org-title-line-p "^*+ \\[.\\] ") (message "This todo item has any status."))
@@ -2658,22 +2658,34 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
          ("<left>"  . org-tree-slide-move-previous-tree)
          ("<next>"  . org-tree-slide-move-next-tree)        ;; page down
          ("<prior>" . org-tree-slide-move-previous-tree)    ;; page up
-         ("<f5>" . org-tree-slide-off))
+         ("<f5>" . org-tree-slide-off)
+         ([tab] . presen-edit-enter))
 
   :config
 
-  (defun org-tree-slide-on  () (interactive) (org-tree-slide-mode 1))
-  (defun org-tree-slide-off () (interactive) (org-tree-slide-mode 0))
+  (defun org-tree-slide-on  () (interactive) (org-tree-slide-mode 1) (setq buffer-read-only t))
+  (defun org-tree-slide-off () (interactive) (org-tree-slide-mode 0) (setq buffer-read-only nil))
 
   (lexical-let ((face-default nil)
                 (face-fringe nil)
                 (face-cursor nil)
                 (face-minibuf nil)
                 (face-link nil)
-                (face-level-1 nil))
+                (face-level-1 nil)
+                (frame-height 36)
+                (edit-state nil))
+    (defun presen-edit-enter () (interactive) (setq cursor-type 'box) (setq buffer-read-only nil)
+           (define-key org-tree-slide-mode-map (kbd "<tab>") #'presen-edit-exit))
+    (defun presen-edit-exit ()  (interactive) (setq cursor-type nil)  (setq buffer-read-only t)
+           (define-key org-tree-slide-mode-map (kbd "<tab>") #'presen-edit-enter))
+
     (defun presen-enter ()
+      (set-frame-height nil frame-height)
       (beacon-mode 0)
       (tabbar-mode 0)
+      (set-fringe-mode 0)
+      (turn-off-evil-mode)
+      (setq cursor-type nil)
       (hide-mode-line-mode 1)
       (face-remap-add-relative 'org-tree-slide-header-overlay-face
                                      :foreground "#283618" :background "#fefae0" :height 0.5)
@@ -2681,7 +2693,7 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
                               :foreground "grey13" :height 2.0 :family "Hiragino Maru Gothic Pro"))
       (setq face-fringe  (face-remap-add-relative 'fringe  :background "#fefae0"))
       (setq face-minibuf (face-remap-add-relative 'minibuffer-prompt :background "#fefae0"))
-      (setq face-cursor  (face-remap-add-relative 'cursor  :foreground "red"))
+      ;; (setq face-cursor  (face-remap-add-relative 'cursor  :background "#ff0000"))
       (setq face-link  (face-remap-add-relative 'org-link  :foreground "#606c38"))
       (setq face-level-1 (face-remap-add-relative 'outline-1 :foreground "#99581E" :height 1.5 :weight 'bold))
       (setq org-tree-slide-header nil)
@@ -2697,16 +2709,23 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
       (face-remap-remove-relative face-cursor)
       (face-remap-remove-relative face-link)
       (face-remap-remove-relative face-level-1)
+      (set-frame-height nil 100)
       (beacon-mode 1)
       (tabbar-mode 1)
+      (set-fringe-mode nil)
+      (scroll-bar-mode 1)
+      (turn-on-evil-mode)
+      (setq cursor-type 'box)
       (hide-mode-line-mode 0)
       (my-org-global-fold-set 'hide-all)))
 
     (defun sayonara ()
+      (setq buffer-read-only nil)
       (lexical-let ((animate-n-steps 60)
-                    (vpos 10))
-        (animate-string "Thank you for watching!" vpos))
-      (sit-for 3))
+                    (v 8)
+                    (h 45))
+        (animate-string "おしまい！" v h))
+      (sit-for 2))
 
   (add-hook 'org-tree-slide-before-exit-hook #'sayonara)
   (add-hook 'org-tree-slide-play-hook #'presen-enter)
