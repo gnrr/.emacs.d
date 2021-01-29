@@ -2660,12 +2660,14 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
          ([f5] . org-tree-slide-off))
 
   :config
+  (defun presen-override-key-bindings ()
     (evil-make-overriding-map org-tree-slide-mode-map 'normal)
-    (defun presen-override-key-bindings ()
-      (evil-make-overriding-map org-tree-slide-mode-map 'normal)
-      (evil-add-hjkl-bindings org-tree-slide-mode-map 'normal
-        [right] 'org-tree-slide-move-next-tree          ;; fixme
-        [left]  'org-tree-slide-move-previous-tree))    ;; fixme
+    (evil-add-hjkl-bindings org-tree-slide-mode-map 'normal
+      [right] 'org-tree-slide-move-next-tree
+      [down]  'org-tree-slide-move-next-tree
+      [left]  'org-tree-slide-move-previous-tree
+      [up]    'org-tree-slide-move-previous-tree)
+    (evil-normal-state))    ;; dummy
 
   (add-hook 'org-tree-slide-play-hook #'presen-override-key-bindings)
 
