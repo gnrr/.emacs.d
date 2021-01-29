@@ -2665,6 +2665,7 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
 
   :config
 
+  (setq org-tree-slide-indicator '(:next "" :previous "" :content ""))
   (defun org-tree-slide-on  () (interactive) (org-tree-slide-mode 1) (setq buffer-read-only t))
   (defun org-tree-slide-off () (interactive) (org-tree-slide-mode 0) (setq buffer-read-only nil))
 
@@ -2728,6 +2729,7 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
                     (h 45))
         (animate-string "おしまい！" v h))
       (sit-for 2))
+
 
   (add-hook 'org-tree-slide-before-exit-hook #'sayonara)
   (add-hook 'org-tree-slide-play-hook #'presen-enter)
