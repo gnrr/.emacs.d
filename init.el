@@ -2009,7 +2009,7 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package org
   :config
-  (setq org-directory "~/Dropbox/org")
+  ;; (setq org-directory "~/Dropbox/org")       ;; defined in _windows.el or _mac.el
   (setq org-default-notes-file (expand-file-name (path-join org-directory "notes.org")))
 
   (setq org-hide-emphasis-markers t)

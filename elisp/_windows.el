@@ -87,6 +87,13 @@
 (wrap-function-to-control-ime 'map-y-or-n-p nil nil)
 (wrap-function-to-control-ime 'read-char nil nil)
 
+;; for im-on/off
+(defun im-ctl (on)
+  (let ((code (if on 104 102)))
+    ;; (start-process "im-ctl" nil "osascript" "-e"
+    ;;     (format "tell application \"System Events\" to key code %d" code))))
+    ))  ;; todo
+
 ;; isearch の設定
 ;; http://d.hatena.ne.jp/ksugita0510/20110103/p1
 ;; http://highmt.wordpress.com/2010/10/25/isearch%E3%81%A7%E6%97%A5%E6%9C%AC%E8%AA%9E%E5%85%A5%E5%8A%9B%E3%82%92%E3%82%84%E3%82%8A%E3%82%84%E3%81%99%E3%81%8F%E3%81%99%E3%82%8B%E3%83%91%E3%83%83%E3%83%81/
@@ -186,6 +193,12 @@
 ;; org-mode
 (setq org-directory "D:/Dropbox/org")
 
+
+;;
+;; check-emacs-setting
+;;
+(setq check-emacs-setting-diff-pgm "C:/Program\ Files/WinMerge/WinMergeU.exe")
+(setq check-emacs-setting-cmp-pgm "c:/GnuWin32/bin/cmp.exe")
 
 (message "<-- done    \"_windows.el\"")
 

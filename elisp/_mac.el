@@ -119,6 +119,9 @@
 ;;
 (global-set-key (kbd "C-M-f") 'toggle-frame-fullscreen)
 
+;; org-mode
+(setq org-directory "~/Dropbox/org")
+
 ;;
 ;; check-emacs-setting
 ;;
