@@ -2540,7 +2540,16 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
 ;; ----------------------------------------------------------------------
 (use-package org-fold
   :disabled
+  :defer t
   :load-path "~/.emacs.d/elisp"
+  :config
+  ;; re-defined
+  (defun org-fold-activate ()
+    ;; (org-fold-restore)
+    (unless (file-exists-p (buffer-file-name))
+      (org-fold-restore))
+    (add-hook 'kill-buffer-hook 'org-fold-kill-buffer nil t)
+    (add-hook 'kill-emacs-hook  'org-fold-kill-emacs))
   )
 
 ;; ----------------------------------------------------------------------
