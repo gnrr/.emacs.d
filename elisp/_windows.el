@@ -58,20 +58,16 @@
 (setq-default w32-ime-mode-line-state-indicator "")
 (setq w32-ime-mode-line-state-indicator-list '("" "" ""))
 
-;; IME OFF時の初期カーソルカラーの設定
-(defvar my-windows-cursor-color-bak (face-background 'cursor))
-(set-cursor-color my-windows-cursor-color-bak)
-
 ;; IME ON/OFF時のカーソルカラーの設定
 ;; （wrap-function-to-control-ime コマンド内等で、ime-force-on や ime-force-off が単独で
 ;; 　呼ばれた際もカーソルカラーの変更が機能するように hook ではなく advice に変更した）
+(defvar my-windows-cursor-color-bak nil)
 (advice-add 'ime-force-on :before (lambda (&rest args)
+                      (setq my-windows-cursor-color-bak (face-background 'cursor))
                       (set-cursor-color (mycolor 'red))))
 (advice-add 'ime-force-off :before (lambda (&rest args)
-                      (set-cursor-color my-windows-cursor-color-bak)))
-
-;; カーソルの点滅を OFF にする
-(blink-cursor-mode 0)
+                      (set-cursor-color
+                       (or my-windows-cursor-color-bak (mycolor 'blue)))))
 
 ;; バッファ切り替え時に IME の状態を引き継がない
 (setq w32-ime-buffer-switch-p t)
