@@ -2,7 +2,7 @@
 ;; created at : 
 ;; author     : 
 
-(defvar mql-mode-exts '("\\.mq4\\'" "\\.mq5\\'" "\\.mql\\'"))
+(defvar mql-mode-exts '("\\.mq4\\'" "\\.mq5\\'" "\\.mql\\'" "\\.mqh\\'"))
 
 (defvar compiler-path (cond ((eq system-type 'windows-nt) '("c:\\bin\\" "/mql4"))
                       ((eq system-type 'darwin)  '("wine " "/mql4"))
