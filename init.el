@@ -241,7 +241,7 @@
 
  ;; (global-set-key "(" 'my-insert-paren)                   ; ()
  ;; (global-set-key "{" 'my-insert-brace)                   ; {}
- (global-set-key "[" 'my-insert-bracket)                 ; []
+ ;; (global-set-key "[" 'my-insert-bracket)                 ; []
  ;; (global-set-key "<" 'my-insert-angle)                   ; <>
  (global-set-key "'" 'my-insert-squote)                  ; ''
  (global-set-key "\"" 'my-insert-dquote)                 ; ""
@@ -254,7 +254,7 @@
  (global-set-key (kbd "C-o") 'other-window)
 
  (global-set-key (kbd "M-9") 'insert-parentheses)
- ;; (global-set-key (kbd "M-[") 'my-insert-brace2)
+ (global-set-key (kbd "M-[") 'my-insert-brace2)
  (global-set-key (kbd "M-g") 'goto-line)
  (global-set-key (kbd "M-P") 'beginning-of-buffer)
  (global-set-key (kbd "M-N") 'end-of-buffer)
@@ -414,8 +414,8 @@
 ;;
 (require 'package)
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-(add-to-list 'package-archives '("marmalade" . "https://marmalade-repo.org/packages/") t)
+;; (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; (add-to-list 'package-archives '("marmalade" . "https://marmalade-repo.org/packages/") t)
 (setq package-user-dir "~/.emacs.d/packages")
 (package-initialize)
 (unless (require 'use-package nil t)
@@ -2491,6 +2491,8 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
       (my-org-todo-publish-cemetery-git-push path)))
 
   ;; ----------
+
+  ;; ----------
   (set-face-attribute 'org-link nil :foreground (face-foreground 'default) :underline t)
 
   ;; ----------
@@ -2579,6 +2581,7 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
 
 ;; ----------------------------------------------------------------------
 (use-package dot-editor
+  :disabled
   :after evil
   :config
   (add-hook 'dot-editor-mode-hook #'(lambda ()
@@ -2779,6 +2782,21 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   (setq inferior-lisp-program "clisp")
   (slime-setup '(slime-repl slime-fancy slime-banner))
   )
+;; ----------------------------------------------------------------------
+(use-package yasnippet
+  :disabled
+  :ensure t
+  :config
+  (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+
+  (yas-global-mode 1)
+  )
+
+(use-package yasnippet-snippets
+  :disabled
+  :ensure t
+  )
+
 ;; ----------------------------------------------------------------------
 (use-package minibuffer-timer)
 
