@@ -63,7 +63,8 @@
 ;; 　呼ばれた際もカーソルカラーの変更が機能するように hook ではなく advice に変更した）
 (defvar my-windows-cursor-color-bak nil)
 (advice-add 'ime-force-on :before (lambda (&rest args)
-                      (setq my-windows-cursor-color-bak (face-background 'cursor))
+                      (unless my-windows-cursor-color-bak
+                        (setq my-windows-cursor-color-bak (face-background 'cursor)))
                       (set-cursor-color (mycolor 'red))))
 (advice-add 'ime-force-off :before (lambda (&rest args)
                       (set-cursor-color
