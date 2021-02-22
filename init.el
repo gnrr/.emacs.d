@@ -205,7 +205,7 @@
  ;; タイトルバーにファイルのフルパス表示
  (defmacro replace-home-directory-string (file-name)
    `(if ,file-name
-        (let ((regexp (cond ((eq system-type 'windows-nt) "^C:\\Users\\[^\\]+\\")
+        (let ((regexp (cond ((eq system-type 'windows-nt) "^C:\\Users\\[^\\]\\+")
                             ((eq system-type 'gnu/linux)  "^/home/[^/]+/")
                             (t                            "^/Users/[^/]+/"))))
           (replace-regexp-in-string regexp "~/" ,file-name))
