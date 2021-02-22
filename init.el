@@ -2797,6 +2797,9 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   (setq company-idle-delay 0)
   ;; (setq company-minimum-prefix-length 2)
   (setq company-selection-wrap-around t)
+  (setq completion-ignore-case nil)
+  (setq company-dabbrev-downcase nil)
+  ;; (setq company-dabbrev-ignore-case nil)
 
   (defun company--insert-candidate2 (candidate)
     (when (> (length candidate) 0)
