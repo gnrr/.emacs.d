@@ -812,6 +812,17 @@
     (setq unread-command-events (listify-key-sequence (kbd "RET"))))
 
   ;; ----------
+  (lexical-let (so)
+    (defun my-evil-visual-state-entry-hook-symbol-overlay-off ()
+      (setq so (if symbol-overlay-mode +1 -1))
+      (symbol-overlay-mode -1))
+    (defun my-evil-visual-state-exit-hook-symbol-overlay-on ()
+      (symbol-overlay-mode so)))
+
+  (add-hook 'evil-visual-state-entry-hook #'my-evil-visual-state-entry-hook-symbol-overlay-off)
+  (add-hook 'evil-visual-state-exit-hook #'my-evil-visual-state-exit-hook-symbol-overlay-on)
+
+  ;; ----------
   (defvar my-evil-paste-rgn '())
 
   (defun my-adv-evil-paste-before--save-rgn (orig-fun &rest _arg)
