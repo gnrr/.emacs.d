@@ -264,7 +264,6 @@
  (global-set-key (kbd "C-x n f") 'narrow-to-defun)
 
  (define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
- (define-key reb-mode-map (kbd "C-x k") 'reb-quit)
 
 ;; ----------------------------------------------------------------------
  (defun my-func ()
@@ -2852,6 +2851,7 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
                                (string-match-p "[0-9]+" c)
                                (if (equal major-mode "org")
                                    (>= (length c) 15)))))
+        company-transformers)
 
   ; YASnippet のスニペットを company の候補に表示するための設定
   (defvar company-mode/enable-yas t
@@ -3002,6 +3002,12 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
 ;; ----------------------------------------------------------------------
 (use-package minibuffer-timer)
 
+;; ----------------------------------------------------------------------
+(use-package re-builder
+  :ensure t
+  :config
+  (define-key reb-mode-map (kbd "C-x k") 'reb-quit)
+  )
 ;; ----------------------------------------------------------------------
 ;; customize setting
 (setq custom-file "~/.emacs.d/custom.el") ; write custom settings into external file instead of init.el
