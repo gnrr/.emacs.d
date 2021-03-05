@@ -240,8 +240,8 @@
  (global-set-key (kbd "C-x C-x") #'nop)                  ; exchange-point-and-mark
 
  ;; (global-set-key "(" 'my-insert-paren)                   ; ()
- ;; (global-set-key "{" 'my-insert-brace)                   ; {}
- ;; (global-set-key "[" 'my-insert-bracket)                 ; []
+ (global-set-key "{" 'my-insert-brace)                   ; {}
+ (global-set-key "[" 'my-insert-bracket)                 ; []
  ;; (global-set-key "<" 'my-insert-angle)                   ; <>
  (global-set-key "'" 'my-insert-squote)                  ; ''
  (global-set-key "\"" 'my-insert-dquote)                 ; ""
@@ -264,6 +264,7 @@
  (global-set-key (kbd "C-x n f") 'narrow-to-defun)
 
  (define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
+ (define-key reb-mode-map (kbd "C-x k") 'reb-quit)
 
 ;; ----------------------------------------------------------------------
  (defun my-func ()
@@ -414,7 +415,7 @@
 ;;
 (require 'package)
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
-;; (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 ;; (add-to-list 'package-archives '("marmalade" . "https://marmalade-repo.org/packages/") t)
 (setq package-user-dir "~/.emacs.d/packages")
 (package-initialize)
@@ -498,6 +499,27 @@
   (advice-add 'evil-change :around 'my-adv-evil-change--without-kill-new)
 
   ;; ----------
+(defun my-beginning-of-line ()
+      (interactive)
+      (if (bolp)
+          (back-to-indentation)
+          (beginning-of-line)))
+
+  ;; ----------
+  (defun my-end-of-line ()
+    (interactive)
+    (cl-labels ((my-eolp () (if (or (evil-normal-state-p) (evil-motion-state-p))
+                                (= (1+ (point)) (line-end-position))
+                              (eolp))))
+      (if (my-eolp)
+          (progn
+            (beginning-of-line)
+            (when (comment-search-forward (line-end-position) t)
+              (re-search-backward comment-start-skip (line-beginning-position) t)
+              (skip-syntax-backward "< " (line-beginning-position))))
+        (end-of-line))))
+
+  ;; ----------
   ;; motion-state-map
   (define-key evil-motion-state-map (kbd "!") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "@") #'nop)                            ; unmap
@@ -528,6 +550,8 @@
   (define-key evil-motion-state-map (kbd "C-y") nil)        ; evil-scrollline-up
   (define-key evil-motion-state-map (kbd "M-h") nil)
 
+  (define-key evil-motion-state-map (kbd "0") #'my-beginning-of-line)
+  (define-key evil-motion-state-map (kbd "4") #'my-end-of-line)
   (define-key evil-motion-state-map (kbd "m") #'evil-scroll-page-down)
   (define-key evil-motion-state-map (kbd "M") #'evil-scroll-page-up)
   (define-key evil-motion-state-map (kbd "j") #'evil-next-visual-line)
@@ -929,10 +953,28 @@ If COUNT is given, move COUNT - 1 lines downward first."
 
   (doom-modeline-def-segment linum-colnum
     "Display current linum/colnum"
-    (propertize (format " %4s/%s,%-3s"
+    (propertize (format " %4s/%d,%-3s"
                         (format-mode-line "%l")
                         (line-number-at-pos (point-max))
                         (format-mode-line "%c"))))
+
+  ;; fixme, doesn't work
+  (doom-modeline-def-segment linum-colnum
+    "Display current linum/colnum"
+    (if (and (bound-and-true-p evil-local-mode) (eq 'visual evil-state))
+         (cond ((eq (evil-visual-type) 'block)
+                (format " [H%4d, W%3d]" (count-lines (region-beginning) (min (1+ (region-end)) (point-max)))
+                        (1+ (abs (- (save-excursion (goto-char (region-beginning)) (current-column))
+                                    (save-excursion (goto-char (region-end)) (current-column)))))))
+               ((eq (evil-visual-type) 'line)
+                (format " [LINE %-4d]  " (count-lines (region-beginning) (min (1+ (region-end)) (point-max)))))
+               (t
+                (format " [CHAR %-4d]  "
+                                          (1+ (abs (- (region-beginning) (region-end)))))))
+      (format " %4s/%d,%-3s"
+                          (format-mode-line "%l")
+                          (line-number-at-pos (point-max))
+                          (format-mode-line "%c"))))
 
   ;; mod
   (defun doom-modeline-update-buffer-file-state-icon (&rest _)
@@ -1373,7 +1415,7 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
 
 ;; ----------------------------------------------------------------------
 (use-package counsel-gtags
-  ;; :disabled
+  :disabled
   :after counsel evil
   :diminish '(counsel-gtags-mode . "Gtags")
   :hook ((c-mode . counsel-gtags-mode))
@@ -1853,7 +1895,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package flycheck
-  :disabled
+  ;; :disabled
   :hook ((c-mode . flycheck-c-mode-hook-func))
   :init
   (defun flycheck-c-mode-hook-func ()
@@ -2784,6 +2826,7 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   )
 ;; ----------------------------------------------------------------------
 (use-package company-quickhelp
+  :disabled
   :ensure t
   :config
   (setq company-quickhelp-color-background (face-background 'default))
@@ -2795,21 +2838,52 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   :config
   (global-company-mode)
   (setq company-idle-delay 0)
-  ;; (setq company-minimum-prefix-length 2)
+  (setq company-minimum-prefix-length 1)
   (setq company-selection-wrap-around t)
   (setq completion-ignore-case nil)
   (setq company-dabbrev-downcase nil)
   ;; (setq company-dabbrev-ignore-case nil)
+  ;; (add-to-list 'company-backends 'company-yasnippet)
 
+  ;; 候補から数字を外す
+  (push (apply-partially #'cl-remove-if
+                         (lambda (c)
+                           (or (string-match-p "[^\x00-\x7F]+" c)
+                               (string-match-p "[0-9]+" c)
+                               (if (equal major-mode "org")
+                                   (>= (length c) 15)))))
+
+  ; YASnippet のスニペットを company の候補に表示するための設定
+  (defvar company-mode/enable-yas t
+    "Enable yasnippet for all backends.")
+
+  (defun company-mode/backend-with-yas (backend)
+    (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
+        backend
+      (append (if (consp backend) backend (list backend))
+              '(:with company-yasnippet))))
+
+  (defun set-yas-as-company-backend ()
+    (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends)))
+
+  (add-hook 'company-mode-hook 'set-yas-as-company-backend)
+
+  (defvar company--insert-candidate2-old-cand nil)
   (defun company--insert-candidate2 (candidate)
     (when (> (length candidate) 0)
       (setq candidate (substring-no-properties candidate))
       (if (eq (company-call-backend 'ignore-case) 'keep-prefix)
           (insert (company-strip-prefix candidate))
-        (if (equal company-prefix candidate)
-            (company-select-next)
-          (delete-region (- (point) (length company-prefix)) (point))
-          (insert candidate))
+        (message "%s    %s" company-prefix candidate)
+        ;; (if (equal company-prefix candidate)
+        ;;     (company-select-next)
+        ;;   (delete-region (- (point) (length company-prefix)) (point))
+        ;;   (insert candidate))
+        (cond ((equal company-prefix candidate)
+               (delete-region (- (point) (length company-prefix)) (point))
+               (insert candidate))
+              (t
+               ()))
         )))
 
   (defun company-complete-common2 ()
@@ -2821,10 +2895,12 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
         (company--insert-candidate2 company-common))))
 
   (define-key company-active-map [tab] 'company-complete-common2)
-  (define-key company-active-map [backtab] 'company-select-previous) ; おまけ
+  ;; (define-key company-active-map [backtab] 'company-select-previous) ; おまけ
 
   (define-key company-active-map (kbd "M-n") nil)
   (define-key company-active-map (kbd "M-p") nil)
+  (define-key company-active-map [tab] 'company-complete-common)
+  (define-key company-active-map (kbd "C-e") 'company-complete)
   (define-key company-active-map (kbd "C-n") 'company-select-next)
   (define-key company-active-map (kbd "C-p") 'company-select-previous)
   (define-key company-active-map (kbd "C-j") 'company-select-next)
@@ -2833,7 +2909,7 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   )
 ;; ----------------------------------------------------------------------
 (use-package yasnippet
-  :disabled
+  ;; :disabled
   :ensure t
   :config
   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
@@ -2841,11 +2917,88 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   (yas-global-mode 1)
   )
 
-(use-package yasnippet-snippets
+;; ----------------------------------------------------------------------
+(use-package lsp-mode
   :disabled
   :ensure t
+  :commands lsp
+  :custom
+  ((lsp-enable-snippet t)
+   (lsp-enable-indentation nil)     ;; disable when using ccls
+   (lsp-prefer-flymake nil)
+   (lsp-prefer-capf nil)              ;; use with company
+   (lsp-headerline-breadcrumb-mode t)
+   (lsp-document-sync-method 2)
+   (lsp-inhibit-message t)
+   (lsp-message-project-root-warning nil)
+   (create-lockfiles nil))
+  :init
+  (unbind-key "C-l")
+  :bind
+  (("C-l C-l"  . lsp)
+   ("C-l h"    . lsp-describe-session)
+   ("C-l t"    . lsp-goto-type-definition)
+   ("C-l r"    . lsp-rename)
+   ("C-l <f5>" . lsp-restart-workspace)
+   ("C-l l"    . lsp-lens-mode))
+  :hook
+  (prog-major-mode . lsp-prog-major-mode-enable)
   )
+;; ----------------------------------------------------------------------
+;; (use-package lsp-ui
+;;   ;; :disabled
+;;   :commands lsp-ui-mode
+;;   :after lsp-mode
+;;   :custom
+;;   ;; lsp-ui-doc
+;;   (lsp-ui-doc-enable t)
+;;   (lsp-ui-doc-header t)
+;;   (lsp-ui-doc-include-signature t)
+;;   (lsp-ui-doc-position 'top)
+;;   (lsp-ui-doc-max-width  60)
+;;   (lsp-ui-doc-max-height 20)
+;;   (lsp-ui-doc-use-childframe t)
+;;   (lsp-ui-doc-use-webkit nil)
 
+;;   ;; lsp-ui-flycheck
+;;   (lsp-ui-flycheck-enable nil)
+
+;;   ;; lsp-ui-sideline
+;;   (lsp-ui-sideline-enable t)
+;;   (lsp-ui-sideline-ignore-duplicate t)
+;;   (lsp-ui-sideline-show-symbol t)
+;;   (lsp-ui-sideline-show-hover t)
+;;   (lsp-ui-sideline-show-diagnostics t)
+;;   (lsp-ui-sideline-show-code-actions t)
+
+;;   ;; lsp-ui-imenu
+;;   (lsp-ui-imenu-enable nil)
+;;   (lsp-ui-imenu-kind-position 'top)
+
+;;   ;; lsp-ui-peek
+;;   (lsp-ui-peek-enable t)
+;;   (lsp-ui-peek-always-show t)
+;;   (lsp-ui-peek-peek-height 30)
+;;   (lsp-ui-peek-list-width 30)
+;;   (lsp-ui-peek-fontify 'always)
+;;   :hook
+;;   (lsp-mode . lsp-ui-mode)
+;;   :bind
+;;   (("C-l s"   . lsp-ui-sideline-mode)
+;;    ("C-l C-d" . lsp-ui-peek-find-definitions)
+;;    ("C-l C-r" . lsp-ui-peek-find-references))
+;;   )
+;; ----------------------------------------------------------------------
+(use-package ccls
+  :ensure t
+  :disabled
+  :custom
+  ;; (ccls-executable "/usr/local/bin/ccls")        ;; defined in _mac.el, _windows.el
+  (ccls-sem-highlight-method 'font-lock)
+  (ccls-use-default-rainbow-sem-highlight)
+  ;; :hook ((c-mode c++-mode mql-mode) .
+  :hook ((c-mode c++-mode) .
+         (lambda () (require 'ccls) (lsp))))
 ;; ----------------------------------------------------------------------
 (use-package minibuffer-timer)
 

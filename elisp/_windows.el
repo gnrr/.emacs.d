@@ -190,11 +190,13 @@
 ;; org-mode
 (setq org-directory "D:/Dropbox/org")
 
+;; lsp / ccls
+(setq ccls-executable "c:/Program Files (x86)/ccls/bin/ccls.exe")
 
 ;;
 ;; check-emacs-setting
 ;;
-(setq check-emacs-setting-diff-pgm "C:/Program\ Files/WinMerge/WinMergeU.exe")
+(setq check-emacs-setting-diff-pgm "C:/Program Files/WinMerge/WinMergeU.exe")
 (setq check-emacs-setting-cmp-pgm "c:/GnuWin32/bin/cmp.exe")
 
 (message "<-- done    \"_windows.el\"")
