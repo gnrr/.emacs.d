@@ -561,6 +561,7 @@
   (define-key evil-motion-state-map (kbd "M-w") #'my-forward-word)
   ;; (define-key evil-motion-state-map (kbd "g g") #'my-evil-beginning-of-buffer)
   ;; (define-key evil-motion-state-map (kbd "g e") #'my-evil-end-of-buffer)
+  (define-key evil-motion-state-map (kbd "g h") 'evil-jump-backward)
   ;; (define-key evil-motion-state-map (kbd "Y") #'my-evil-yank-whole-buffer)
   (define-key evil-motion-state-map (kbd "TAB") #'evil-indent-line)
   (define-key evil-motion-state-map "/" #'evil-search-forward)
@@ -3023,6 +3024,16 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   ;; :hook ((c-mode c++-mode mql-mode) .
   :hook ((c-mode c++-mode) .
          (lambda () (require 'ccls) (lsp))))
+;; ----------------------------------------------------------------------
+(use-package dumb-jump
+  :ensure t
+  :config
+  ;; (setq dumb-jump-default-project "")
+  ;; (setq dumb-jump-quiet t)
+  (setq dumb-jump-force-searcher 'rg)
+  ;; (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+  (dumb-jump-mode)
+  )
 ;; ----------------------------------------------------------------------
 (use-package minibuffer-timer)
 
