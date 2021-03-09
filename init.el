@@ -243,7 +243,7 @@
  (global-set-key "{" 'my-insert-brace)                   ; {}
  (global-set-key "[" 'my-insert-bracket)                 ; []
  ;; (global-set-key "<" 'my-insert-angle)                   ; <>
- (global-set-key "'" 'my-insert-squote)                  ; ''
+ ;; (global-set-key "'" 'my-insert-squote)                  ; ''
  (global-set-key "\"" 'my-insert-dquote)                 ; ""
 
  (global-set-key (kbd "C-m") 'newline-and-indent)             ; Returnキーで改行＋オートインデント
@@ -519,6 +519,13 @@
         (end-of-line))))
 
   ;; ----------
+  (defun my-copy-whole-buffer ()
+    "Copy whole buffer to kill ring."
+    (interactive)
+    (kill-new (buffer-substring-no-properties (point-min) (point-max)))
+    (message "Copied whole buffer to kill-ring"))
+
+  ;; ----------
   ;; motion-state-map
   (define-key evil-motion-state-map (kbd "!") #'nop)                            ; unmap
   (define-key evil-motion-state-map (kbd "@") #'nop)                            ; unmap
@@ -583,6 +590,7 @@
   (define-key evil-normal-state-map (kbd "A") #'nop)                 ; unmap A
   (define-key evil-normal-state-map (kbd "a") #'evil-append-line)    ; works as A
   (define-key evil-normal-state-map (kbd "1 1") #'show-overlay-and-prop-and-face-at)
+  (define-key evil-normal-state-map (kbd "' a") #'my-copy-whole-buffer)
   (define-key evil-normal-state-map "x" 'delete-forward-char)       ; "x" command without kill-new
   (define-key evil-normal-state-map "X" 'delete-backward-char)      ; "X" command without kill-new
 
