@@ -3043,6 +3043,18 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   (dumb-jump-mode)
   )
 ;; ----------------------------------------------------------------------
+(use-package jumplist
+  :ensure t
+  :config
+  (define-key evil-motion-state-map (kbd "g p") 'jumplist-previous)
+  (define-key evil-motion-state-map (kbd "g o") 'jumplist-next)
+  (global-set-key (kbd "C->") 'jumplist-next)
+
+  (setq jumplist-hook-commands '(
+          evil-search-word-backward evil-search-word-forward
+          evil-search-next evil-search-previous))
+  )
+;; ----------------------------------------------------------------------
 (use-package minibuffer-timer)
 
 ;; ----------------------------------------------------------------------
