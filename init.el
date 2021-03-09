@@ -534,8 +534,8 @@
   (define-key evil-motion-state-map (kbd "8") #'evil-search-word-forward)       ; works as *
 
   (define-key evil-motion-state-map (kbd "i")   #'nop)                          ; unmap
-  (define-key evil-motion-state-map (kbd "V")   #'nop)                          ; unmap
-  (define-key evil-motion-state-map (kbd "C-v") #'nop)                          ; unmap
+  ;; (define-key evil-motion-state-map (kbd "V")   #'nop)                          ; unmap
+  ;; (define-key evil-motion-state-map (kbd "C-v") #'nop)                          ; unmap
   (define-key evil-motion-state-map (kbd "M-v") #'nop)                          ; unmap
   (define-key evil-motion-state-map (kbd "C-f") nil)
   (define-key evil-motion-state-map (kbd "C-b") nil)
@@ -557,7 +557,7 @@
   (define-key evil-motion-state-map (kbd "4") #'my-end-of-line)
   (define-key evil-motion-state-map (kbd "6") #'evil-first-non-blank)
   (define-key evil-motion-state-map (kbd "]") #'evil-jump-item)
-  (define-key evil-motion-state-map (kbd "v") #'my-evil-visual-cycle)
+  ;; (define-key evil-motion-state-map (kbd "v") #'my-evil-visual-cycle)
   (define-key evil-motion-state-map (kbd "M-w") #'my-forward-word)
   ;; (define-key evil-motion-state-map (kbd "g g") #'my-evil-beginning-of-buffer)
   ;; (define-key evil-motion-state-map (kbd "g e") #'my-evil-end-of-buffer)
@@ -658,11 +658,11 @@
                              "q" #'my-evil-visual-narrow-to-region-exit)
 
   ;; ----------
-  (defun evil-return-insert-mode-after-save ()
-    (when evil-insert-state-minor-mode
-      (funcall (evil-escape--escape-normal-state))))
+  ;; (defun evil-return-insert-mode-after-save ()
+  ;;   (when evil-insert-state-minor-mode
+  ;;     (funcall (evil-escape--escape-normal-state))))
 
-  (add-hook 'after-save-hook #'evil-return-insert-mode-after-save)
+  ;; (add-hook 'after-save-hook #'evil-return-insert-mode-after-save)
 
   ;; ----------
   (defun my-evil-paste (&optional arg)
@@ -893,6 +893,7 @@ If COUNT is given, move COUNT - 1 lines downward first."
 
 ;; ----------------------------------------------------------------------
 (use-package evil-escape
+  :disabled
   :after evil
   :diminish evil-escape-mode
   :config
@@ -967,23 +968,25 @@ If COUNT is given, move COUNT - 1 lines downward first."
                         (line-number-at-pos (point-max))
                         (format-mode-line "%c"))))
 
-  ;; fixme, doesn't work
-  (doom-modeline-def-segment linum-colnum
-    "Display current linum/colnum"
-    (if (and (bound-and-true-p evil-local-mode) (eq 'visual evil-state))
-         (cond ((eq (evil-visual-type) 'block)
-                (format " [H%4d, W%3d]" (count-lines (region-beginning) (min (1+ (region-end)) (point-max)))
-                        (1+ (abs (- (save-excursion (goto-char (region-beginning)) (current-column))
-                                    (save-excursion (goto-char (region-end)) (current-column)))))))
-               ((eq (evil-visual-type) 'line)
-                (format " [LINE %-4d]  " (count-lines (region-beginning) (min (1+ (region-end)) (point-max)))))
-               (t
-                (format " [CHAR %-4d]  "
-                                          (1+ (abs (- (region-beginning) (region-end)))))))
-      (format " %4s/%d,%-3s"
-                          (format-mode-line "%l")
-                          (line-number-at-pos (point-max))
-                          (format-mode-line "%c"))))
+  ;; ;; fixme, doesn't work
+  ;; (doom-modeline-def-segment linum-colnum
+  ;;   "Display current linum/colnum"
+  ;;   (if (and (bound-and-true-p evil-local-mode) (eq 'visual evil-state))
+  ;;       (prog1
+  ;;         (cond ((eq (evil-visual-type) 'block)
+  ;;                (format " [H%4d, W%3d]" (count-lines (region-beginning) (min (1+ (region-end)) (point-max)))
+  ;;                        (1+ (abs (- (save-excursion (goto-char (region-beginning)) (current-column))
+  ;;                                    (save-excursion (goto-char (region-end)) (current-column)))))))
+  ;;               ((eq (evil-visual-type) 'line)
+  ;;                (format " [LINE %-4d]  " (count-lines (region-beginning) (min (1+ (region-end)) (point-max)))))
+  ;;               (t
+  ;;                (format " [CHAR %-4d]  "
+  ;;                        (1+ (abs (- (region-beginning) (region-end)))))))
+  ;;         (force-mode-line-update t))
+  ;;     (format " %4s/%d,%-3s"
+  ;;                         (format-mode-line "%l")
+  ;;                         (line-number-at-pos (point-max))
+  ;;                         (format-mode-line "%c"))))
 
   ;; mod
   (defun doom-modeline-update-buffer-file-state-icon (&rest _)
@@ -1285,19 +1288,20 @@ directory, the file name, and its state (modified, read-only or non-existent)."
            (initial-input (or (thing-at-point 'filename) "")))
       (counsel-file-jump initial-input dir)))
 
-  ;; re-defun from counsel.el
+  ;; re-defun rom counsel.el
   ;; Usage: C-x C-f M-x m
   (defun counsel-find-file-move (x)
     "Move or rename file X."
     (let* ((name (if (and ivy--directory (string-match "/$" (ivy-state-current ivy-last)))
                      (substring (ivy-state-current ivy-last) 0 -1)
                    (ivy-state-current ivy-last)))
-           (new-name (read-no-blanks-input "Rename to:" name)))
+           (new-name (expand-file-name (read-no-blanks-input (format "mv \"%s\" -> " name) name))))
       (require 'dired-aux)
       (dired-rename-file name new-name 1)))
 
   ;--------------
   (defun my-counsel-ibuffer-kill-buffer (x)
+    "Kill buffer X."
     (let ((buf-name (cdr x)))
       (condition-case err
           (kill-buffer buf-name)
@@ -1308,9 +1312,19 @@ directory, the file name, and its state (modified, read-only or non-existent)."
    '(("k" my-counsel-ibuffer-kill-buffer "kill buffer")))
 
   ;--------------
+  (defun my-ivy-find-file-copy-file-name-to-kill-ring (x)
+    "Copy file name to kill ring."
+    (let ((name (file-name-nondirectory x)))
+      (kill-new name)))
+
+  (ivy-set-actions
+   'counsel-find-file
+   '(("w" my-ivy-find-file-copy-file-name-to-kill-ring "copy file name")))
+
+  ;--------------
   ;; mod from counsel.el
   (defun counsel-find-file-delete (x)
-    "backup file X to backup directory."
+    "Move file X to backup directory instead of deleting it."
     (if (and (stringp my-backup-directory)
              (file-exists-p my-backup-directory))
         (let ((dest (my-backup-get-suffixed-file-name
@@ -2847,12 +2861,13 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   :config
   (global-company-mode)
   (setq company-idle-delay 0)
-  (setq company-minimum-prefix-length 1)
+  (setq company-minimum-prefix-length 2)
   (setq company-selection-wrap-around t)
   (setq completion-ignore-case nil)
   (setq company-dabbrev-downcase nil)
   ;; (setq company-dabbrev-ignore-case nil)
   ;; (add-to-list 'company-backends 'company-yasnippet)
+  ;; (company-quickhelp-mode +1)
 
   ;; 候補から数字を外す
   (push (apply-partially #'cl-remove-if
@@ -2915,7 +2930,6 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   (define-key company-active-map (kbd "C-p") 'company-select-previous)
   (define-key company-active-map (kbd "C-j") 'company-select-next)
   (define-key company-active-map (kbd "C-k") 'company-select-previous)
-  (company-quickhelp-mode +1)
   )
 ;; ----------------------------------------------------------------------
 (use-package yasnippet
