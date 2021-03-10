@@ -729,7 +729,8 @@
   ;; ----------
   (defvar my-evil-visual-surround-paired '((?\" . ?\") (?\' . ?\') (?\( . ?\)) (?\{ . ?\}) (?\[ . ?\]) (?\< . ?>)))
   (defun my-evil-visual-surround-add (beg end)
-    (let* ((c (read-char "?"))
+    "Surround selected string with specified character."
+    (let* ((c (read-char "Surround with:"))
            (pair (my-evil-visual-surround-get-pair c))
            head tail)
       (if pair
@@ -741,12 +742,21 @@
         (goto-char beg)
         (insert (char-to-string head)))))
 
-  (defun my-evil-visual-surround-remove (beg end)
+  (defun my-evil-visual-surround-change (beg end)
+    "Change surrounded character. Delete surround if you input RET."
+    (let* ((c (read-char "Re-surround with:"))
+           (pair (my-evil-visual-surround-get-pair c))
+           head tail)
+      (if pair
+          (setq head (car pair) tail (cdr pair))
+        (setq head c tail c))
     (save-excursion
       (goto-char (1- end))
       (delete-char 1)
+      (unless (eq tail #xd) (insert (char-to-string tail)))
       (goto-char beg)
-      (delete-char 1)))
+      (delete-char 1)
+      (unless (eq head #xd) (insert (char-to-string head))))))
 
   (defun my-evil-visual-surround-get-tail (head)
     (cdr (assoc head my-evil-visual-surround-paired)))
@@ -761,7 +771,7 @@
            (head (aref s 0))
            (tail (aref s (1- (length s)))))
       (cond ((or (eq head tail) (eq tail (my-evil-visual-surround-get-tail head)))
-             (my-evil-visual-surround-remove beg end))
+             (my-evil-visual-surround-change beg end))
             (t (my-evil-visual-surround-add beg end)))))
 
   (define-key evil-visual-state-map "s" 'my-evil-visual-surround)
