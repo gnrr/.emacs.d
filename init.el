@@ -563,7 +563,6 @@
   (define-key evil-motion-state-map (kbd "0") #'my-beginning-of-line)
   (define-key evil-motion-state-map (kbd "4") #'my-end-of-line)
   (define-key evil-motion-state-map (kbd "6") #'evil-first-non-blank)
-  (define-key evil-motion-state-map (kbd "]") #'evil-jump-item)
   ;; (define-key evil-motion-state-map (kbd "v") #'my-evil-visual-cycle)
   (define-key evil-motion-state-map (kbd "M-w") #'my-forward-word)
   ;; (define-key evil-motion-state-map (kbd "g g") #'my-evil-beginning-of-buffer)
@@ -930,6 +929,16 @@ If COUNT is given, move COUNT - 1 lines downward first."
   :config
   (evil-lion-mode)
 )
+
+;; ----------------------------------------------------------------------
+(use-package evil-matchit
+  :ensure t
+  :after evil
+  :config
+  (setq evilmi-shortcut "]")
+  (global-evil-matchit-mode 1)
+
+  )
 
 ;; ----------------------------------------------------------------------
 (use-package common-header-mode-line
@@ -3061,8 +3070,15 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   (global-set-key (kbd "C->") 'jumplist-next)
 
   (setq jumplist-hook-commands '(
+          avy-goto-char-timer
+          evilmi-jump-items
+          isearch-forward isearch-backward
+          isearch-forward-regexp isearch-backward-regexp
           evil-search-word-backward evil-search-word-forward
-          evil-search-next evil-search-previous))
+          evil-search-next evil-search-previous
+          my-beginning-of-defun
+          my-beginning-of-line my-end-of-line
+          ))
   )
 ;; ----------------------------------------------------------------------
 (use-package minibuffer-timer)
