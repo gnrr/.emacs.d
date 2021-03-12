@@ -582,6 +582,7 @@
   (define-key evil-normal-state-map (kbd "C-p") nil)        ; evil-paste-pop
   (define-key evil-normal-state-map (kbd "M-j") nil)        ; outline-move-sutree-*
   (define-key evil-normal-state-map (kbd "M-k") nil)        ; outline-move-sutree-*
+  (define-key evil-normal-state-map (kbd "u") #'undo-tree-undo)
   (define-key evil-normal-state-map (kbd "U") #'undo-tree-redo)
   (define-key evil-normal-state-map (kbd "M-p") #'counsel-yank-pop)
   ;; (define-key evil-normal-state-map (kbd "SPC") #'evil-force-normal-state)
