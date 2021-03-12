@@ -422,7 +422,18 @@
   (defmacro use-package (&rest args)))
 
 ;; ----------------------------------------------------------------------
-(use-package cl)
+(use-package cl-lib
+  :init
+  (setq byte-compile-warnings '(not cl-functions obsolete))     ;; temporary
+
+  :config
+  (eval-when-compile (require 'cl)) ;; for `lexical-let' macro
+  (defun compose-cl (f g)
+    (lexical-let ((f f)
+                  (g g))
+      (lambda (x)
+        (funcall f (funcall g x)))))
+)
 
 ;; ----------------------------------------------------------------------
 (use-package diminish

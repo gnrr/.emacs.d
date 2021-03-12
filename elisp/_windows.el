@@ -21,7 +21,7 @@
 
 (let ((font (myfont 'default3)))
   (when font
-    (set-default-font font)))
+    (set-frame-font font)))
 
 (set-face-attribute 'default nil :height 122)
 (set-face-attribute 'mode-line nil :height 105)
