@@ -53,7 +53,9 @@
                   (default4 . "Hack")
                   (ui       . "x14y24pxHeadUpDaisy")
                   (ui2      . "Krungthep")
-                  (ui3      . "Squarea")))
+                  (ui3      . "Squarea")
+                  (posframe . "UbuntuMono Nerd Font Mono")
+                  ))
          (name (cdr (assoc type fonts))))
     (if window-system
         (if (x-list-fonts name)
@@ -2828,6 +2830,18 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
 
 ;; ----------------------------------------------------------------------
 (use-package posframe)
+
+(use-package flymake-posframe
+  :load-path "elisp/flymake-posframe"
+  :hook (flymake-mode . flymake-posframe-mode)
+  :config
+  ;; (setq flymake-posframe-warning-prefix (all-the-icons-material "warning"))
+  (set-face-attribute 'flymake-posframe-foreground-face posframe--frame :family "UbuntuMono Nerd Font Mono" :foreground "Black")
+  (set-face-attribute 'flymake-posframe-background-face posframe--frame :family "UbuntuMono Nerd Font Mono" :background "Gray")
+  (setq flymake-posframe-warning-prefix "\uf071")
+  (setq flymake-posframe-error-prefix "\uf071")
+
+  )
 
 ;; ----------------------------------------------------------------------
 (use-package super-save
