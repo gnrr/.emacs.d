@@ -966,6 +966,296 @@ If COUNT is given, move COUNT - 1 lines downward first."
   :load-path "~/.emacs.d/themes"
   :config
   (load-theme 'my-zerodark t)
+
+  ;; (global-tab-line-mode 1) ; for emacs27
+  )
+
+;; ----------------------------------------------------------------------
+(use-package tabbar
+  :disabled
+  :hook ((after-save   . tabbar-on-saving-buffer)
+         (first-change . tabbar-on-modifying-buffer))
+  :config
+  (tabbar-mode)
+
+  (defun my-adv-load-theme--tabbar-reset-appearance (&rest _)
+  (set-face-attribute 'tabbar-default nil
+                      :height 0.9
+                      :family (myfont 'ui)
+                      :background (face-background 'mode-line)
+                      :slant 'normal
+                      :weight 'light
+                      :box nil
+                      :overline (face-background 'mode-line)
+                      )
+
+  (set-face-attribute 'tabbar-selected nil
+                      ;; :inherit 'tabbar-default
+                      :foreground (face-background 'mode-line)
+                      :background (face-foreground 'line-number-current-line)
+                      :slant 'normal
+                      :weight 'light
+                      :box nil
+                      :overline (face-foreground 'line-number-current-line)
+                      )
+
+  (set-face-attribute 'tabbar-unselected nil
+                      ;; :inherit 'tabbar-default
+                      :background (face-foreground 'tabbar-selected)
+                      :foreground (face-background 'tabbar-selected)
+                      :slant 'normal
+                      :weight 'light
+                      :box nil
+                      :overline (face-foreground 'tabbar-selected)
+                      )
+
+  (set-face-attribute 'tabbar-selected-modified nil
+                      ;; :inherit 'tabbar-default
+                      :background (face-background 'tabbar-selected)
+                      :foreground (face-foreground 'tabbar-selected)
+                      :slant 'normal
+                      :weight 'light
+                      :box nil
+                      :overline "orange"
+                      )
+
+  (set-face-attribute 'tabbar-modified nil
+                      ;; :inherit 'tabbar-default
+                      :background (face-attribute 'tabbar-unselected :background)
+                      :foreground (face-attribute 'tabbar-unselected :foreground)
+                      :slant 'normal
+                      :weight 'light
+                      :box nil
+                      :overline "orange"
+                      )
+
+  (set-face-attribute 'tabbar-separator nil
+                      ;; :inherit 'tabbar-default
+                      :background (face-attribute 'tabbar-selected :background))
+
+  ;; (setq tabbar-separator '(0.2))
+  )
+
+  (my-adv-load-theme--tabbar-reset-appearance)
+  (advice-add 'load-theme :after #'my-adv-load-theme--tabbar-reset-appearance)
+
+  (global-set-key (kbd "M-j") 'tabbar-backward-tab)
+  (global-set-key (kbd "M-k") 'tabbar-forward-tab)
+
+  (tabbar-mwheel-mode nil)                  ;; マウスホイール無効
+  (setq tabbar-buffer-groups-function nil)  ;; グループ無効             ;; モードラインがちらつく原因
+  (setq tabbar-buffer-groups-function '(lambda () (list "")))
+  (setq tabbar-use-images nil)              ;; 画像を使わない
+
+  ;;----- 左側のボタンを消す
+  (dolist (btn '(tabbar-buffer-home-button
+                 tabbar-scroll-left-button
+                 tabbar-scroll-right-button))
+    (set btn (cons (cons "" nil)
+                   (cons "" nil))))
+
+  (defun my-tabbar-buffer-list ()
+    (delq nil
+          (mapcar #'(lambda (b)
+                      (cond
+                       ;; Always include the current buffer.
+                       ((eq (current-buffer) b) b)
+                       ((string= (buffer-name b) (file-name-nondirectory org-default-notes-file)) nil)  ; hide "notes.org"
+                       ((string-match "^CAPTURE-[0-9]*-*.+\.org$" (buffer-name b)) nil)   ; hide org-capture
+                       ((buffer-file-name b) b)
+                       ((char-equal ?\  (aref (buffer-name b) 0)) nil)
+                       ((equal "*scratch*" (buffer-name b)) b)              ; *scratch*バッファは表示する
+                       ((char-equal ?* (aref (buffer-name b) 0)) nil)       ; それ以外の * で始まるバッファは表示しない
+                       ((string-match "^magit" (buffer-name b)) nil)        ; magit が開くバッファは表示しない
+                       ((buffer-live-p b) b)))
+                  (buffer-list))))
+
+  (setq tabbar-buffer-list-function 'my-tabbar-buffer-list)
+
+  ;; mod
+  (defun tabbar-buffer-tab-label (tab)
+    "Return a label for TAB.
+That is, a string used to represent it on the tab bar."
+    (let ((label  (if tabbar--buffer-show-groups
+                      (format " [%s] " (tabbar-tab-tabset tab))
+                    (format " %s " (tabbar-tab-value tab)))))
+      ;; Unless the tab bar auto scrolls to keep the selected tab
+      ;; visible, shorten the tab label to keep as many tabs as possible
+      ;; in the visible area of the tab bar.
+      (if tabbar-auto-scroll-flag
+          label
+        (tabbar-shorten
+         label (max 1 (/ (window-width)
+                         (length (tabbar-view
+                                  (tabbar-current-tabset)))))))))
+
+  (defun tabbar-on-saving-buffer ()
+    (tabbar-set-template tabbar-current-tabset nil)
+    (tabbar-display-update))
+
+  (defun tabbar-on-modifying-buffer ()
+    (set-buffer-modified-p (buffer-modified-p))
+    (tabbar-set-template tabbar-current-tabset nil)
+    (tabbar-display-update))
+
+  (defun tabbar-after-modifying-buffer (begin end length)
+    (set-buffer-modified-p (buffer-modified-p))
+    (tabbar-set-template tabbar-current-tabset nil)
+    (tabbar-display-update))
+
+  )
+
+;; ----------------------------------------------------------------------
+(use-package centaur-tabs
+  ;; :disabled
+  :demand
+  :config
+  (setq centaur-tabs-set-close-button nil
+        centaur-tabs-set-icons nil
+        centaur-tabs-set-modified-marker nil
+        centaur-tabs-left-edge-margin nil
+        centaur-tabs-right-edge-margin nil)
+
+  (set-face-attribute 'centaur-tabs-default nil
+                      :height 0.8
+                      :family (myfont 'ui)
+                      :foreground (face-background 'mode-line)
+                      :background (face-background 'mode-line)
+                      :slant 'normal
+                      :weight 'normal
+                      :box nil
+                      :overline (face-background 'mode-line)
+                      )
+  (set-face-attribute 'centaur-tabs-selected nil
+                      :foreground (face-background 'mode-line)
+                      :background (face-foreground 'line-number-current-line)
+                      :slant 'normal
+                      :weight 'normal
+                      :box nil
+                      :overline (face-foreground 'line-number-current-line)
+                      )
+  (set-face-attribute 'centaur-tabs-unselected nil
+                      :background (face-foreground 'centaur-tabs-selected)
+                      :foreground (face-background 'centaur-tabs-selected)
+                      :slant 'normal
+                      :weight 'normal
+                      :box nil
+                      :overline (face-foreground 'centaur-tabs-selected)
+                      )
+  (set-face-attribute 'centaur-tabs-selected-modified nil
+                      ;; :inherit 'tabbar-default
+                      :background (face-background 'centaur-tabs-selected)
+                      :foreground (face-foreground 'centaur-tabs-selected)
+                      :slant 'normal
+                      :weight 'normal
+                      :box nil
+                      :overline '(:color "orange" :style 'wave)
+                      ;; :overline "orange"
+                      )
+  (set-face-attribute 'centaur-tabs-unselected-modified nil
+                      ;; :inherit 'tabbar-default
+                      :background (face-background 'centaur-tabs-unselected)
+                      :foreground (face-foreground 'centaur-tabs-unselected)
+                      :slant 'normal
+                      :weight 'normal
+                      :box nil
+                      :overline '(:color "orange" :style 'wave)
+                      ;; :overline "orange"
+                      )
+  (set-face-attribute 'centaur-tabs-modified-marker-selected nil
+                      :background (face-foreground 'centaur-tabs-selected)
+                      :foreground (face-background 'centaur-tabs-selected)
+                      :slant 'normal
+                      :weight 'normal
+                      :box nil
+                      :overline '(:color "orange" :style 'wave)
+                      )
+
+  (setq centaur-tabs-buffer-groups-function '(lambda () (list "-")))
+  ;; (setq centaur-tabs-buffer-groups-function nil)
+
+  (defun centaur-tabs-hide-tab (x)
+    "Do no to show buffer X in tabs."
+    (let ((name (format "%s" x)))
+      (or
+       (string-prefix-p "*Shell Command Output*" name)
+       (string-prefix-p "*Flymake log*" name)
+       (string-prefix-p "*Ibuffer*" name)
+       (string-prefix-p "*Backtrace*" name)
+       (string-prefix-p "*Messages*" name)
+       (string-prefix-p "*Help*" name)
+       )))
+
+  ;; from tabbar
+  (defun centaur-shorten (str width)
+    "Return a shortened string from STR that fits in the given display WIDTH.
+WIDTH is specified in terms of character display width in the current
+buffer; see also `char-width'.  If STR display width is greater than
+WIDTH, STR is truncated and an ellipsis string \"...\" is inserted at
+end or in the middle of the returned string, depending on available
+room."
+    (let* ((n  (length str))
+           (sw (string-width str))
+           (el "...")
+           (ew (string-width el))
+           (w  0)
+           (i  0))
+      (cond
+       ;; STR fit in WIDTH, return it.
+       ((<= sw width)
+        str)
+       ;; There isn't enough room for the ellipsis, STR is just
+       ;; truncated to fit in WIDTH.
+       ((<= width ew)
+        (while (< w width)
+          (setq w (+ w (char-width (aref str i)))
+                i (1+ i)))
+        (substring str 0 i))
+       ;; There isn't enough room to insert the ellipsis in the middle
+       ;; of the truncated string, so put the ellipsis at end.
+       ((zerop (setq sw (/ (- width ew) 2)))
+        (setq width (- width ew))
+        (while (< w width)
+          (setq w (+ w (char-width (aref str i)))
+                i (1+ i)))
+        (concat (substring str 0 i) el))
+       ;; Put the ellipsis in the middle of the truncated string.
+       (t
+        (while (< w sw)
+          (setq w (+ w (char-width (aref str i)))
+                i (1+ i)))
+        (setq w (+ w ew))
+        (while (< w width)
+          (setq n (1- n)
+                w (+ w (char-width (aref str n)))))
+        (concat (substring str 0 i) el (substring str n)))
+       )))
+
+  ;; mod
+  (defun centaur-tabs-buffer-tab-label (tab)
+    "Return a label for TAB.
+That is, a string used to represent it on the tab bar."
+    (let ((label  (if centaur-tabs--buffer-show-groups
+                      (format " [%s] " (centaur-tabs-tab-tabset tab))
+                    (format " %s " (centaur-tabs-tab-value tab)))))
+      ;; Unless the tab bar auto scrolls to keep the selected tab
+      ;; visible, shorten the tab label to keep as many tabs as possible
+      ;; in the visible area of the tab bar.
+      (if centaur-tabs-auto-scroll-flag
+          label
+        (centaur-shorten
+         label (max 1 (/ (window-width)
+                         (length (centaur-tabs-view
+                                  (centaur-tabs-current-tabset)))))))))
+
+  ;; (defun tabbar-on-saving-buffer () centaur-tabs-line-tab)
+
+  (centaur-tabs-headline-match)
+  (centaur-tabs-mode t)
+
+  :bind
+  ("M-j" . centaur-tabs-backward)
+  ("M-k" . centaur-tabs-forward)
   )
 
 ;; ----------------------------------------------------------------------
@@ -1533,140 +1823,6 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
   (setq recentf-exclude '(
      "/recentf" ".recentf" ".my-save-frame" "batch-script.el" "notes.org"))
   ;; (setq recentf-auto-save-timer (run-with-idle-timer 30 t 'recentf-save-list))
-  )
-
-;; ----------------------------------------------------------------------
-(use-package tabbar
-  ;; :disabled
-  :hook ((after-save   . tabbar-on-saving-buffer)
-         (first-change . tabbar-on-modifying-buffer))
-  :config
-  (tabbar-mode)
-
-  (defun my-adv-load-theme--tabbar-reset-appearance (&rest _)
-  (set-face-attribute 'tabbar-default nil
-                      :height 0.9
-                      :family (myfont 'ui)
-                      :background (face-background 'mode-line)
-                      :slant 'normal
-                      :weight 'light
-                      :box nil
-                      :overline (face-background 'mode-line)
-                      )
-
-  (set-face-attribute 'tabbar-selected nil
-                      ;; :inherit 'tabbar-default
-                      :foreground (face-background 'mode-line)
-                      :background (face-foreground 'line-number-current-line)
-                      :slant 'normal
-                      :weight 'light
-                      :box nil
-                      :overline (face-foreground 'line-number-current-line)
-                      )
-
-  (set-face-attribute 'tabbar-unselected nil
-                      ;; :inherit 'tabbar-default
-                      :background (face-foreground 'tabbar-selected)
-                      :foreground (face-background 'tabbar-selected)
-                      :slant 'normal
-                      :weight 'light
-                      :box nil
-                      :overline (face-foreground 'tabbar-selected)
-                      )
-
-  (set-face-attribute 'tabbar-selected-modified nil
-                      ;; :inherit 'tabbar-default
-                      :background (face-background 'tabbar-selected)
-                      :foreground (face-foreground 'tabbar-selected)
-                      :slant 'normal
-                      :weight 'light
-                      :box nil
-                      :overline "orange"
-                      )
-
-  (set-face-attribute 'tabbar-modified nil
-                      ;; :inherit 'tabbar-default
-                      :background (face-attribute 'tabbar-unselected :background)
-                      :foreground (face-attribute 'tabbar-unselected :foreground)
-                      :slant 'normal
-                      :weight 'light
-                      :box nil
-                      :overline "orange"
-                      )
-
-  (set-face-attribute 'tabbar-separator nil
-                      ;; :inherit 'tabbar-default
-                      :background (face-attribute 'tabbar-selected :background))
-
-  ;; (setq tabbar-separator '(0.2))
-  )
-
-  (my-adv-load-theme--tabbar-reset-appearance)
-  (advice-add 'load-theme :after #'my-adv-load-theme--tabbar-reset-appearance)
-
-  (global-set-key (kbd "M-j") 'tabbar-backward-tab)
-  (global-set-key (kbd "M-k") 'tabbar-forward-tab)
-
-  (tabbar-mwheel-mode nil)                  ;; マウスホイール無効
-  (setq tabbar-buffer-groups-function nil)  ;; グループ無効
-  (setq tabbar-use-images nil)              ;; 画像を使わない
-
-  ;;----- 左側のボタンを消す
-  (dolist (btn '(tabbar-buffer-home-button
-                 tabbar-scroll-left-button
-                 tabbar-scroll-right-button))
-    (set btn (cons (cons "" nil)
-                   (cons "" nil))))
-
-  (defun my-tabbar-buffer-list ()
-    (delq nil
-          (mapcar #'(lambda (b)
-                      (cond
-                       ;; Always include the current buffer.
-                       ((eq (current-buffer) b) b)
-                       ((string= (buffer-name b) (file-name-nondirectory org-default-notes-file)) nil)  ; hide "notes.org"
-                       ((string-match "^CAPTURE-[0-9]*-*.+\.org$" (buffer-name b)) nil)   ; hide org-capture
-                       ((buffer-file-name b) b)
-                       ((char-equal ?\  (aref (buffer-name b) 0)) nil)
-                       ((equal "*scratch*" (buffer-name b)) b)              ; *scratch*バッファは表示する
-                       ((char-equal ?* (aref (buffer-name b) 0)) nil)       ; それ以外の * で始まるバッファは表示しない
-                       ((string-match "^magit" (buffer-name b)) nil)        ; magit が開くバッファは表示しない
-                       ((buffer-live-p b) b)))
-                  (buffer-list))))
-
-  (setq tabbar-buffer-list-function 'my-tabbar-buffer-list)
-
-  ;; mod
-  (defun tabbar-buffer-tab-label (tab)
-    "Return a label for TAB.
-That is, a string used to represent it on the tab bar."
-    (let ((label  (if tabbar--buffer-show-groups
-                      (format " [%s] " (tabbar-tab-tabset tab))
-                    (format " %s " (tabbar-tab-value tab)))))
-      ;; Unless the tab bar auto scrolls to keep the selected tab
-      ;; visible, shorten the tab label to keep as many tabs as possible
-      ;; in the visible area of the tab bar.
-      (if tabbar-auto-scroll-flag
-          label
-        (tabbar-shorten
-         label (max 1 (/ (window-width)
-                         (length (tabbar-view
-                                  (tabbar-current-tabset)))))))))
-
-  (defun tabbar-on-saving-buffer ()
-    (tabbar-set-template tabbar-current-tabset nil)
-    (tabbar-display-update))
-
-  (defun tabbar-on-modifying-buffer ()
-    (set-buffer-modified-p (buffer-modified-p))
-    (tabbar-set-template tabbar-current-tabset nil)
-    (tabbar-display-update))
-
-  (defun tabbar-after-modifying-buffer (begin end length)
-    (set-buffer-modified-p (buffer-modified-p))
-    (tabbar-set-template tabbar-current-tabset nil)
-    (tabbar-display-update))
-
   )
 
 ;; ----------------------------------------------------------------------
@@ -2807,7 +2963,7 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
     (defun presen-enter ()
       (set-frame-height nil frame-height)
       (beacon-mode 0)
-      (tabbar-mode 0)
+      (centaur-tabs-mode -1)
       (scroll-bar-mode 0)
       (set-fringe-mode 0)
       (set-window-margins (selected-window) 4)
@@ -2835,7 +2991,7 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
       (face-remap-remove-relative face-level-1)
       (set-frame-height nil 100)
       (beacon-mode 1)
-      (tabbar-mode 1)
+      (centaur-tabs-mode +1)
       (scroll-bar-mode 1)
       (set-fringe-mode nil)
       (set-window-margins (selected-window) (car margin) (cdr margin))
