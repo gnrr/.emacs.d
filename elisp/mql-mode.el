@@ -2,14 +2,25 @@
 ;; created at : 
 ;; author     : 
 
-(defvar mql-mode-exts '("\\.mq4\\'" "\\.mq5\\'" "\\.mql\\'" "\\.mqh\\'"))
+;; USAGE
+;; Example settings
+;; (use-package mql-mode
+;;   :config
+;;   (setq mq4-compiler "C:/Users/XXXX/AppData/Roaming/MetaQuotes/WebInstall/mt4clw/metaeditor.exe")
+;;   (add-hook 'mql-mode-hook (lambda () (flymake-mode t))))
+;;
 
-(defvar compiler-path (cond ((eq system-type 'windows-nt) '("c:\\bin\\" "/mql4"))
-                      ((eq system-type 'darwin)  '("wine " "/mql4"))
-                      (t nil)))
+;; TODO
+;; - support mql5
+;; - support emacs27
+;; - add something needs to mql-mode-keywords
+;; - add something needs to mql-source-canidates
+;; - packaging
+;;
 
-;; (defvar mql4-compiler "c:\\bin\\metalang4.exe")
-;; (defvar mql5-compiler "c:\\bin\\metalang5.exe")
+(require 'flymake)
+
+(defvar mql-mode-exts '("\\.mq4\\'" "\\.mq5\\'" "\\.mqh\\'"))
 
 (defvar mql-mode-keywords
   '(("\\<\\(?:Ask\\|B\\(?:ars\\|id\\)\\|Close\\|Digits\\|High\\|Low\\|Open\\|Point\\|\\(?:Ti\\|Volu\\)me\\)\\>" . font-lock-builtin-face)
@@ -21,38 +32,96 @@
 (defvar ac-source-mql
   '((candidates . mql-source-canidates)))
 
+;; flymake and compile
+(defcustom mq5-compiler "C:/SOMEWHERE/metaeditor.exe"
+  "Path string of \"metaeditor.exe\" for MQL5")
+
+(defcustom mq4-compiler "C:/SOMEWHERE/metaeditor.exe"
+  "Path string of \"metaeditor.exe\" for MQL4")
+
+(defvar mq4-bat ""
+  "Path string of \"flymake-mq4.bat\"")
+
+(defvar mql-mode-directory
+  (if load-file-name
+      (file-name-directory load-file-name) ;; File is being loaded.
+    default-directory))                    ;; File is being evaluated using, for example, `eval-buffer'.
+
+;;;###autoload
+(defun flymake-mq4-init ()
+  (message "%s\n%s" load-file-name default-directory)
+  (when (string-empty-p mq4-bat)
+    (setq mq4-bat (concat mql-mode-directory "/flymake-mq4.bat")))
+  (unless (file-executable-p mq4-bat)
+    (error "Not found %s" mq4-bat))
+  (unless (file-exists-p mq4-compiler)
+    (error "Not found %s" mq4-compiler))
+  (let* ((temp-file   (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-inplace))
+         (local-dir   (file-name-directory buffer-file-name))
+         (local-file  (file-relative-name
+                       temp-file
+                       local-dir))
+         (log-file    (concat (file-name-base local-file) ".log")))
+    ;; (message "%S" (list mq4-bat (list local-dir mq4-compiler local-file log-file)))
+    (list mq4-bat (list local-dir mq4-compiler local-file log-file))))
+
+;;;###autoload
 ;; fixme
-(defun compile-mql ()
-  "compile mql4/5 file"
+(defun flymake-mq5-init ()
+  ;; todo
+  )
+
+;;;###autoload
+;; fixme
+(defun compile-mq4 ()
+  "Compile mql4 file"
   (interactive)
-  (if (buffer-file-name)
-      (message "This buffer does not have file name.")
-    (let* ((ext (file-name-extension (buffer-file-name)))
-           (exe (strconcat (first mql-compiler) (cond ((string= ext "mq4") "metalang4.exe")
-                                                      ((string= ext "mq5") "metalang5.exe")
-                                                      (t nil))))
-           (args (second mql-compiler)))
-      (if (not (file-exists-p exe))
-          (message (format "Compiler not found: %s" exe))
-        (compile (format "%s %s \"%s\"" exe args (buffer-file-name)))))))
+  (unless (buffer-file-name)
+    (error "This buffer does not have a file name."))
+
+  (unless (file-executable-p mq4-compiler)
+    (error "MQL4 compiler not found: %s" mq4-compiler))
+  (compile (format "%s /compile:\"%s\"" mq4-compiler (buffer-file-name))))
+
+;;;###autoload
+;; fixme
+(defun compile-mq5 ()
+  "Compile mql5 file"
+  (interactive)
+  (unless (buffer-file-name)
+    (error "This buffer does not have a file name."))
+  (unless (file-executable-p mq5-compiler)
+    (error "MQL5 compiler not found: %s" mq5-compiler))
+  (compile (format "%s /compile:\"%s\"" mq5-compiler (buffer-file-name))))
 
 ;;;###autoload
 (define-derived-mode mql-mode c++-mode "MQL"
-  "Major mode for editing MetaTrader4 MQL file."
+  "Major mode for editing MetaTrader4/5 MQL file."
   (font-lock-add-keywords 'mql-mode mql-mode-keywords)
-  ;; (set (make-local-variable 'ac-sources) (append ac-sources '(ac-source-mql)))
   (set (make-local-variable 'compilation-scroll-output) t)
 
   (dolist (ext mql-mode-exts)
-    ;; (modify-coding-system-alist 'file ext 'utf-16-le-dos))
     (modify-coding-system-alist 'file ext 'utf-8-dos))
 
-  (setq indent-tabs-mode nil)
-  (setq tab-stop-list nil)
-  (define-key mql-mode-map "\C-c\C-b" 'compile-mql5)
-  (define-key mql-mode-map "\C-c\C-c" 'compile-mql4)
+  ;; (setq indent-tabs-mode nil)
+  ;; (setq tab-stop-list nil)
 
-  )
+  (cond ((string= (file-name-extension (buffer-file-name)) "mq4")
+         (define-key mql-mode-map "\C-c\C-c" 'compile-mq4)
+         (push '("\\.mq4$" flymake-mq4-init) flymake-allowed-file-name-masks)
+         (push '("^\\(.+\.mq4\\|.+\.mqh\\)(\\([0-9]+\\),\\([0-9]+\\)) : \\(.+\\)$"
+                 1 2 3 4) flymake-proc-err-line-patterns))
+
+        ((string= (file-name-extension (buffer-file-name)) "mq5")
+         (define-key mql-mode-map "\C-c\C-c" 'compile-mq5)
+         (push '("\\.mq5$" flymake-mq5-init) flymake-allowed-file-name-masks)
+         (push '("^\\(.+\.mq5\\|.+\.mqh\\)(\\([0-9]+\\),\\([0-9]+\\)) : \\(.+\\)$"
+                 1 2 3 4) flymake-proc-err-line-patterns)))
+
+  (define-key mql-mode-map "\C-c\C-p" 'flymake-goto-prev-error)
+  (define-key mql-mode-map "\C-c\C-n" 'flymake-goto-next-error)
+  (push '("\\.mqh$" flymake-mq4-init) flymake-allowed-file-name-masks))
 
 (defvar mql-mode-hook nil)
 (add-hook 'mql-mode-hook (lambda () (setq c-basic-offset 3
