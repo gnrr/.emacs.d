@@ -2207,6 +2207,10 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
 
 ;; ----------------------------------------------------------------------
 (use-package mql-mode
+  :mode (("\\.mq4$" . mql-mode)
+         ("\\.mqh$" . mql-mode))
+  :bind (([S-down] . flymake-goto-next-error)
+         ([S-up]   . flymake-goto-prev-error))
   :config
   (setq mq4-compiler "C:/Users/g/AppData/Roaming/MetaQuotes/WebInstall/mt4clw/metaeditor.exe")
   (add-hook 'mql-mode-hook (lambda ()
@@ -2216,8 +2220,6 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
                              (symbol-overlay-mode t)
                              (setq-local show-trailing-whitespace nil)
                              ))
-  :bind (([S-down] . flymake-goto-next-error)
-         ([S-up]   . flymake-goto-previous-error))
   )
 
 ;; ----------------------------------------------------------------------

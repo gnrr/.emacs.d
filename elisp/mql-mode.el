@@ -5,6 +5,8 @@
 ;; USAGE
 ;; Example settings
 ;; (use-package mql-mode
+;;   :mode (("\\.mq4$" . mql-mode)
+;;          ("\\.mqh$" . mql-mode))
 ;;   :config
 ;;   (setq mq4-compiler "C:/Users/XXXX/AppData/Roaming/MetaQuotes/WebInstall/mt4clw/metaeditor.exe")
 ;;   (add-hook 'mql-mode-hook (lambda () (flymake-mode t))))
@@ -49,7 +51,6 @@
 
 ;;;###autoload
 (defun flymake-mq4-init ()
-  (message "%s\n%s" load-file-name default-directory)
   (when (string-empty-p mq4-bat)
     (setq mq4-bat (concat mql-mode-directory "/flymake-mq4.bat")))
   (unless (file-executable-p mq4-bat)
@@ -129,6 +130,6 @@
 
 ;;;###autoload
 (dolist (ext mql-mode-exts)
-  (add-to-list 'auto-mode-alist (cons ext 'mql-mode)))
+  (add-to-list 'auto-mode-alist (cons ext 'mql-mode) t))
 
 (provide 'mql-mode)
