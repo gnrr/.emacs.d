@@ -2052,12 +2052,16 @@ That is, a string used to represent it on the tab bar."
 ;; ----------------------------------------------------------------------
 (use-package mql-mode
   :config
+  (setq mq4-compiler "C:/Users/g/AppData/Roaming/MetaQuotes/WebInstall/mt4clw/metaeditor.exe")
   (add-hook 'mql-mode-hook (lambda ()
                              (flycheck-mode -1)
+                             (flymake-mode t)
                              (counsel-gtags-mode -1)
                              (symbol-overlay-mode t)
                              (setq-local show-trailing-whitespace nil)
-                             (setq tab-width 3)))
+                             ))
+  :bind (([S-down] . flymake-goto-next-error)
+         ([S-up]   . flymake-goto-previous-error))
   )
 
 ;; ----------------------------------------------------------------------
