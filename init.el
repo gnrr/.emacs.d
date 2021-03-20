@@ -2835,12 +2835,9 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
   :load-path "elisp/flymake-posframe"
   :hook (flymake-mode . flymake-posframe-mode)
   :config
-  ;; (setq flymake-posframe-warning-prefix (all-the-icons-material "warning"))
-  (set-face-attribute 'flymake-posframe-foreground-face posframe--frame :family "UbuntuMono Nerd Font Mono" :foreground "Black")
-  (set-face-attribute 'flymake-posframe-background-face posframe--frame :family "UbuntuMono Nerd Font Mono" :background "Gray")
-  (setq flymake-posframe-warning-prefix "\uf071")
-  (setq flymake-posframe-error-prefix "\uf071")
-
+  (setq flymake-posframe-error-prefix (propertize "󿞟" 'face `(foreground-color . ,(mycolor 'red))))
+  (setq flymake-posframe-warning-prefix (propertize "" 'face '(foreground-color . "orange")))
+  (setq flymake-posframe-note-prefix (propertize "" 'face `(foreground-color . ,(mycolor 'blue))))
   )
 
 ;; ----------------------------------------------------------------------

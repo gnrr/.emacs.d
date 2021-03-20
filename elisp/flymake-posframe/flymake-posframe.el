@@ -96,13 +96,16 @@ Only the `foreground' is used in this face."
 	   :right-fringe 1
 	   :foreground-color (face-foreground 'flymake-posframe-foreground-face nil t)
 	   :background-color (face-background 'flymake-posframe-background-face nil t)
-           :string (concat (propertize
+	   :font (face-font 'default)  ;; fix for the problem that NOT inherit font from default frame under Windows
+           :string (concat
 			    (pcase (flymake--diag-type diag)
                                  (:error flymake-posframe-error-prefix)
                                  (:warning flymake-posframe-warning-prefix)
                                  (:note flymake-posframe-note-prefix))
-                               'face 'warning)
+
+               ;; (setq dbg-diag diag)
 			   (flymake--diag-text diag)))
+               ;; (second (split-string (flymake--diag-text dbg-diag) ": "))))
 
 	  (let ((current-posframe-frame
 		 (buffer-local-value 'posframe--frame (get-buffer flymake-posframe-buffer))))
