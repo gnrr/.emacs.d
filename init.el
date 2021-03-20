@@ -2116,7 +2116,7 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
 
 ;; ----------------------------------------------------------------------
 (use-package flycheck
-  ;; :disabled
+  :disabled
   :hook ((c-mode . flycheck-c-mode-hook-func))
   :init
   (defun flycheck-c-mode-hook-func ()
@@ -2144,8 +2144,14 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
 
 ;; ----------------------------------------------------------------------
 (use-package cc-mode
+  :after flymake
   :mode (("\\.c$" . c-mode)
-         ("\\.h$" . c-mode))
+         ("\\.h$" . c-mode)
+         ("\\.cpp$"     . c++-mode)
+         ("\\.c\\+\\+$" . c++-mode)
+         ("\\.hpp$"     . c++-mode))
+  :bind (([S-down] . flymake-goto-next-error)
+         ([S-up]   . flymake-goto-prev-error))
   :config
   (add-hook 'c-mode-common-hook
             (lambda ()
@@ -2192,6 +2198,30 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
 
   (set-face-attribute 'font-lock-comment-face nil :slant 'normal)
   (set-face-attribute 'font-lock-comment-delimiter-face nil :slant 'normal)
+
+  (defun flymake-cc-init ()
+    (let* ((temp-file   (flymake-init-create-temp-buffer-copy
+                         'flymake-create-temp-inplace))
+           (local-file  (file-relative-name
+                         temp-file
+                         (file-name-directory buffer-file-name)))
+           (ext (file-name-extension local-file))
+           (compiler (executable-find (cond ((or (string= ext "c")
+                                                 (string= ext "h"))
+                                             "gcc")
+                                            (t
+                                             "g++")))))
+      (unless (file-executable-p compiler)
+        (error "Not found: %s" compiler))
+      (list compiler (list "-Wall" "-Wextra" "-fsyntax-only" local-file))))
+
+  (push '("\\.c$" flymake-cc-init) flymake-allowed-file-name-masks)
+  (push '("\\.cpp$" flymake-cc-init) flymake-allowed-file-name-masks)
+  (push '("\\.c++$" flymake-cc-init) flymake-allowed-file-name-masks)
+
+  (add-hook 'c++-mode-hook '(lambda () (flymake-mode t)))
+  (add-hook 'c-mode-hook   '(lambda () (flymake-mode t)))
+
 
   ;; :after telephone-line
   ;; :config

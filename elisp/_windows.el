@@ -20,6 +20,7 @@
 ;;;
 
 (let ((font (myfont 'default3)))
+;; (let ((font (myfont 'posframe)))
   (when font
     (set-frame-font font)))
 
@@ -192,6 +193,11 @@
 
 ;; lsp / ccls
 (setq ccls-executable "c:/Program Files (x86)/ccls/bin/ccls.exe")
+
+;; cc-mode
+(push "D:/pgm/mingw-w64/mingw32/bin" exec-path)
+
+(setenv "PATH" (concat "d:\\pgm\\mingw-w64\\mingw32\\bin;" (getenv "PATH")))
 
 ;;
 ;; check-emacs-setting
