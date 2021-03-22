@@ -2865,9 +2865,12 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
   :load-path "elisp/flymake-posframe"
   :hook (flymake-mode . flymake-posframe-mode)
   :config
+  (set-face-attribute 'flymake-error nil :underline `(:color ,(mycolor 'red) :style wave))
+  (set-face-attribute 'flymake-warning nil :underline '(:color "orange" :style wave))
+
   (setq flymake-posframe-error-prefix (propertize "󿞟" 'face `(foreground-color . ,(mycolor 'red))))
   (setq flymake-posframe-warning-prefix (propertize "" 'face '(foreground-color . "orange")))
-  (setq flymake-posframe-note-prefix (propertize "" 'face `(foreground-color . ,(mycolor 'blue))))
+  (setq flymake-posframe-note-prefix (propertize "" 'face `(foreground-color . "yellow green")))
   )
 
 ;; ----------------------------------------------------------------------
