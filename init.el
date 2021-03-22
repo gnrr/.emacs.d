@@ -1176,17 +1176,21 @@ That is, a string used to represent it on the tab bar."
   (setq centaur-tabs-buffer-groups-function '(lambda () (list "-")))
   ;; (setq centaur-tabs-buffer-groups-function nil)
 
-  (defun centaur-tabs-hide-tab (x)
-    "Do no to show buffer X in tabs."
-    (let ((name (format "%s" x)))
-      (or
-       (string-prefix-p "*Shell Command Output*" name)
-       (string-prefix-p "*Flymake log*" name)
-       (string-prefix-p "*Ibuffer*" name)
-       (string-prefix-p "*Backtrace*" name)
-       (string-prefix-p "*Messages*" name)
-       (string-prefix-p "*Help*" name)
-       )))
+  (defun my-centaur-tabs-hide-func (b)
+    (not (cond
+          ;; Always include the current buffer.
+          ((eq (current-buffer) b) b)
+          ((string= (buffer-name b) (file-name-nondirectory org-default-notes-file)) nil)  ; hide "notes.org"
+          ((string-match "^CAPTURE-[0-9]*-*.+\.org$" (buffer-name b)) nil)   ; hide org-capture
+          ((buffer-file-name b) b)
+          ((char-equal ?\  (aref (buffer-name b) 0)) nil)
+          ((equal "*scratch*" (buffer-name b)) b)              ; *scratch*バッファは表示する
+          ((char-equal ?* (aref (buffer-name b) 0)) nil)       ; それ以外の * で始まるバッファは表示しない
+          ((string-match "^magit" (buffer-name b)) nil)        ; magit が開くバッファは表示しない
+          ((buffer-live-p b) b)
+          (t b))))
+
+  (setq centaur-tabs-hide-tab-function 'my-centaur-tabs-hide-func)
 
   ;; from tabbar
   (defun centaur-shorten (str width)
