@@ -199,6 +199,10 @@
 
 (setenv "PATH" (concat "d:\\pgm\\mingw-w64\\mingw32\\bin;" (getenv "PATH")))
 
+;; slime
+(setq ros-exe "C:/Users/g/scoop/apps/roswell/20.06.14.107/ros.exe")
+(setq my-slime-helper "C:/Users/g/.roswell/helper.el")
+
 ;;
 ;; check-emacs-setting
 ;;

@@ -3100,7 +3100,16 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
 ;;; ----------------------------------------------------------------------
 (use-package slime
   :config
-  (setq inferior-lisp-program "clisp")
+  (defvar ros-exe "path/to/ros.exe")
+  (defvar my-slime-helper "path/to/helper.el")
+  (setq my-slime-helper (expand-file-name my-slime-helper))
+
+  (unless (file-executable-p ros-exe)
+      (error "Not found roswell: %s" ros-exe))
+  (unless (file-exists-p my-slime-helper)
+      (error "Not found slime helper: %s" helper))
+  (load my-slime-helper)
+  (setq inferior-lisp-program (format "%s -Q run" ros-exe))
   (slime-setup '(slime-repl slime-fancy slime-banner))
   )
 ;; ----------------------------------------------------------------------
