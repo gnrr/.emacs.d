@@ -1683,7 +1683,7 @@ using a new file name regardless of the candidates"
                 :action #'my-counsel-write-file-action-function
                 :caller 'my-counsel-write-file)))
 
-  (defun my-counsel-write-file-action-function (fn)
+(defun my-counsel-write-file-action-function (fn)
     (let ((dir (file-name-directory fn)))
       (cond ((file-exists-p fn)
              (if (y-or-n-p "Overwrite? ")
@@ -1694,14 +1694,21 @@ using a new file name regardless of the candidates"
              (write-file fn))
             (t (write-file fn)))))
 
-(defun create-directory-recursive (dir-str)
+(defun create-directory-recursive (path)
   (let* ((slash "/")
-         (dirs (split-string dir-str slash t))
+         (full-path (expand-file-name path))
+         (dirs (split-string full-path slash t))
          (s ""))
+    (when (string= (substring (first dirs) -1 nil) ":")
+      (setq dirs (push (concat (first dirs) slash (second dirs)) (cl-subseq dirs 2 ))))
     (dolist (d dirs)
-      (setq s (expand-file-name (concat s slash d)))
+      (if (and (> (length d) 1) (string= (substring d 1 2) ":"))
+          (setq s (concat s d))
+        (setq s (concat s slash d)))
       (unless (file-exists-p s)
-        (make-directory (directory-file-name s))))))
+        (make-directory (directory-file-name s))
+        (unless (file-directory-p s)
+          (error "Can not create directory: %s" s))))))
 
   ;--------------
   (defun my-font-list ()
