@@ -2271,18 +2271,11 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
   (load (expand-file-name "~/.roswell/helper.el"))
 
   :config
+  (defalias 'slime-reset 'slime-restart-inferior-lisp)
+  (setq inferior-lisp-program "ros -Q run")
   (setq slime-net-coding-system 'utf-8-unix)
   (add-hook 'slime-load-hook (lambda () (require 'slime-fancy)))
   (slime-setup '(slime-fancy slime-banner))
-
-  ;; LISPモードで新しくファイルを開いたらウィンドウが上下に分割して下にREPL
-  (add-hook 'lisp-mode-hook
-            (lambda ()
-              (global-set-key "\C-cH" 'hyperspec-lookup)
-              (cond ((not (featurep 'slime))
-                     (require 'slime)
-                     (normal-mode)))
-              (my-slime)))
 
   ;; 分割したウィンドウでslime起動
   (defun my-slime (&optional command coding-system)
@@ -2313,6 +2306,15 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
              ("C-c C-c" . slime-compile-and-load-file)
              ("C-c C-r" . slime-repl-send-region)
              ("C-c C-f" . slime-compile-defun))
+
+  ;; LISPモードで新しくファイルを開いたらウィンドウが上下に分割して下にREPL
+  (add-hook 'lisp-mode-hook
+            (lambda ()
+              (global-set-key "\C-cH" 'hyperspec-lookup)
+              (cond ((not (featurep 'slime))
+                     (require 'slime)
+                     (normal-mode)))
+              (my-slime)))
   )
 
 ;; ----------------------------------------------------------------------
@@ -3097,6 +3099,7 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
               ;; (flycheck-mode 1)
               (omnisharp-mode)))
   )
+
 ;;; ----------------------------------------------------------------------
 (use-package slime
   :config
@@ -3111,6 +3114,16 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   (load my-slime-helper)
   (setq inferior-lisp-program (format "%s -Q run" ros-exe))
   (slime-setup '(slime-repl slime-fancy slime-banner))
+
+  (defun slime-smart-quit ()
+  (interactive)
+  (when (slime-connected-p)
+    (if (equal (slime-machine-instance) "my.workstation")
+      (slime-quit-lisp)
+      (slime-disconnect)))
+  (slime-kill-all-buffers))
+
+  (add-hook 'kill-emacs-hook 'slime-smart-quit)
   )
 ;; ----------------------------------------------------------------------
 (use-package company-quickhelp

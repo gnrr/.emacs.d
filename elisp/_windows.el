@@ -197,11 +197,18 @@
 ;; cc-mode
 (push "D:/pgm/mingw-w64/mingw32/bin" exec-path)
 
-(setenv "PATH" (concat "d:\\pgm\\mingw-w64\\mingw32\\bin;" (getenv "PATH")))
+;; (setenv "PATH" (concat "d:\\pgm\\mingw-w64\\mingw32\\bin;" (getenv "PATH")))
 
 ;; slime
-(setq ros-exe "C:/Users/g/scoop/apps/roswell/20.06.14.107/ros.exe")
+(setq ros-exe "D:/pgm/roswell/ros.exe")
 (setq my-slime-helper "C:/Users/g/.roswell/helper.el")
+
+;; slime with cl-sdl2
+;; (let ((paths '("C:\\msys64\\usr\\bin")))
+;;   (dolist (p paths)
+;;     (push p exec-path)
+;;     (setenv "PATH" (concat p ";" (getenv "PATH")))))
+
 
 ;;
 ;; check-emacs-setting
