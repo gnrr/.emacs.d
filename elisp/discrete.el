@@ -1286,6 +1286,16 @@ is already narrowed."
 (global-set-key (kbd "C-x C-e") #'my-eval-last-sexp)
 
 ;; ----------------------------------------------------------------------
+(defun my-windows-path-region  (beg end)
+  (interactive "r")
+  (replace-string "\\" "\\\\" nil beg end))
+
+(defun my-windows-path-region2  (beg end)
+  (interactive "r")
+  (replace-string "\\" "/" nil beg end))
+
+
+;; ----------------------------------------------------------------------
 ;;		    SOMEBODY WROTE. THANKS A LOT.
 ;; ----------------------------------------------------------------------
 
