@@ -2272,7 +2272,7 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
   (load (expand-file-name "~/.roswell/helper.el"))
 
   :config
-  (setq slime-startup-animation t)
+  (setq slime-startup-animation nil)
   (defalias 'slime-reset 'slime-restart-inferior-lisp)
   (setq inferior-lisp-program "ros -Q run")
   (setq slime-net-coding-system 'utf-8-unix)
