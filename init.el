@@ -4,6 +4,7 @@
 ;;;
 (add-to-list 'load-path (locate-user-emacs-file "elisp"))
 (setq custom-theme-directory (locate-user-emacs-file "themes"))
+(set-default-coding-systems 'utf-8-unix)
 
 ;; to hide message "ad-handle-definition: ‘vc-revert’ got redefined"
 (setq ad-redefinition-action 'accept)
@@ -2266,11 +2267,12 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
 
 ;; ----------------------------------------------------------------------
 (use-package slime
-  :disabled
+  ;; :disabled
   :init
   (load (expand-file-name "~/.roswell/helper.el"))
 
   :config
+  (setq slime-startup-animation t)
   (defalias 'slime-reset 'slime-restart-inferior-lisp)
   (setq inferior-lisp-program "ros -Q run")
   (setq slime-net-coding-system 'utf-8-unix)
@@ -2300,21 +2302,25 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
              (switch-to-buffer-other-window buf-name))
             (t (message "Not exist *slime-repl sbcl* buffer!")))))
 
+  (evil-define-key 'normal sldb-mode-map (kbd "M-j") 'centaur-tabs-backward)
+  (evil-define-key 'normal sldb-mode-map (kbd "M-k") 'centaur-tabs-forward)
+
+  ;; LISPモードで新しくファイルを開いたらウィンドウが上下に分割して下にREPL
+  (add-hook 'lisp-mode-hook
+            (lambda ()
+              (global-set-key "\C-cC-h" 'hyperspec-lookup)
+              (cond ((not (featurep 'slime))
+                     (require 'slime)
+                     (normal-mode)))
+              (my-slime)
+              (other-window)))
+
   :bind (:map lisp-mode-map
              ("M-r" . nil)
              ("C-x C-e" . slime-eval-last-expression-in-repl)
              ("C-c C-c" . slime-compile-and-load-file)
              ("C-c C-r" . slime-repl-send-region)
              ("C-c C-f" . slime-compile-defun))
-
-  ;; LISPモードで新しくファイルを開いたらウィンドウが上下に分割して下にREPL
-  (add-hook 'lisp-mode-hook
-            (lambda ()
-              (global-set-key "\C-cH" 'hyperspec-lookup)
-              (cond ((not (featurep 'slime))
-                     (require 'slime)
-                     (normal-mode)))
-              (my-slime)))
   )
 
 ;; ----------------------------------------------------------------------
