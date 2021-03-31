@@ -740,7 +740,7 @@ double quotation characters \(\"\) from given string."
 	      (if (file-exists-p directory)
 		  (progn (save-buffer)
 			 'done)
-		(if (create-directory directory)
+		(if (make-directory directory)
 		    (progn (save-buffer)
 			   'done)
 		  (error "Abort"))))
@@ -753,7 +753,7 @@ double quotation characters \(\"\) from given string."
 	      (if (file-exists-p directory)
 		  (progn (write-file name)
 			 'done)
-		(if (create-directory directory)
+		(if (make-directory directory)
 		    (progn (write-file name)
 			   'done)
 		  (list 'cant-create-parent-dir rd))))))
@@ -767,8 +767,8 @@ double quotation characters \(\"\) from given string."
 (defun my-save-buffer ()
   (interactive
    (let ((nyet t)
-	 (wait 1)
-	 r)
+         (wait 1)
+         r)
      (while nyet
        (setq r (my-save-buffer-interactive-arg my-save-buffer-default-path))
        (if (listp r)
