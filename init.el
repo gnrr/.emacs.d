@@ -201,7 +201,7 @@
  (set-face-attribute 'mode-line-inactive nil :box nil :height 1.0 :background (mycolor 'charcoal) :foreground "#5f5f6f")
 
  ;; モードラインの割合表示を総行数表示に
- (defvar my-mode-line-position-format "%%3c %%4l/%d")
+ (defvar my-mode-line-position-format "%%3c:%%l/%d")
  (setq mode-line-position '(:eval (format my-mode-line-position-format
                                           (count-lines (point-max) (point-min)))))
 
@@ -455,10 +455,27 @@
   (diminish-minor-mode "eldoc" 'eldoc-mode)
   (diminish-minor-mode "abbrev" 'abbrev-mode)
   (diminish-minor-mode "cwarn" 'cwarn-mode)
+  (diminish-minor-mode "company" 'company-mode)
+  (diminish-minor-mode "super-save" 'super-save-mode)
+  (diminish-minor-mode "git-gutter" 'git-gutter-mode)
+  (diminish-minor-mode "ivy" 'ivy-mode)
+  (diminish-minor-mode "yasnippet" 'yas-minor-mode)
+  (diminish-minor-mode "symbol-overlay" 'symbol-overlay-mode)
+  (diminish-minor-mode "hideif" 'hide-ifdef-mode)
+
 
   ;; major mode
   (diminish-major-mode 'emacs-lisp-mode-hook "Elisp")
   (diminish-major-mode 'lisp-interaction-mode-hook "LispInt")
+
+  (defun flymake--transform-mode-line-format (ret)
+    "Change the output of `flymake--mode-line-format'."
+    (setf (seq-elt (car ret) 1) " ")
+    (setf (seq-elt (second ret) 1) "")
+    (setf (seq-elt (sixth ret) 1) "")
+    ret)
+  (advice-add #'flymake--mode-line-format
+              :filter-return #'flymake--transform-mode-line-format)
 )
 
 ;; ----------------------------------------------------------------------
@@ -493,6 +510,20 @@
     (kbd "n")       'evil-search-next
     (kbd "N")       'evil-search-previous)
 
+  ;; modeline
+  (add-hook 'emacs-startup-hook (lambda ()
+     (delq 'w32-ime-mode-line-state-indicator mode-line-format)
+     (setq evil-mode-line-format '(before . mode-line-front-space))
+
+     (let ((bg (face-background 'mode-line)))
+       (setq evil-normal-state-tag   (propertize " N " 'face `((:background ,(mycolor 'blue)    :foreground ,bg :weight bold)))
+             evil-emacs-state-tag    (propertize " E " 'face `((:background ,(mycolor 'orange)  :foreground ,bg :weight bold)))
+             evil-insert-state-tag   (propertize " I " 'face `((:background ,(mycolor 'red)     :foreground ,bg :weight bold)))
+             evil-motion-state-tag   (propertize " M " 'face `((:background ,(mycolor 'purple)  :foreground ,bg :weight bold)))
+             evil-visual-state-tag   (propertize " V " 'face `((:background ,(mycolor 'green)   :foreground ,bg :weight bold)))
+             evil-operator-state-tag (propertize " O " 'face `((:background ,(mycolor 'pink)    :foreground ,bg :weight bold)))))))
+
+  ;; ----------
   ;; currently not use
   (defmacro define-key-evil-visual (vsel key cmd)
     ;; FIXME giving (kbd "c") to arg key occurs not work
@@ -975,7 +1006,7 @@ If COUNT is given, move COUNT - 1 lines downward first."
 
 ;; ----------------------------------------------------------------------
 (use-package tabbar
-  :disabled
+  ;; :disabled
   :hook ((after-save   . tabbar-on-saving-buffer)
          (first-change . tabbar-on-modifying-buffer))
   :config
@@ -1110,7 +1141,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package centaur-tabs
-  ;; :disabled
+  :disabled
   :demand
   :config
   (setq centaur-tabs-set-close-button nil
@@ -1267,7 +1298,7 @@ That is, a string used to represent it on the tab bar."
 
 ;; ----------------------------------------------------------------------
 (use-package doom-modeline
-  ;; :disabled
+  :disabled
   :ensure t
   :after evil
   :hook (after-init . doom-modeline-mode)
@@ -2164,6 +2195,7 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
   :bind (([S-down] . flymake-goto-next-error)
          ([S-up]   . flymake-goto-prev-error))
   :config
+  (advice-add 'c-update-modeline :around #'ignore)      ;; C++//l => C++
   (add-hook 'c-mode-common-hook
             (lambda ()
               (local-set-key "\C-m" 'reindent-then-newline-and-indent)
@@ -2261,6 +2293,7 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
                              (flymake-mode t)
                              (counsel-gtags-mode -1)
                              (symbol-overlay-mode t)
+                             (which-function-mode 1)
                              (setq-local show-trailing-whitespace nil)
                              ))
   )
