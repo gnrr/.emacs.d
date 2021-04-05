@@ -2267,7 +2267,7 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
 
 ;; ----------------------------------------------------------------------
 (use-package slime
-  ;; :disabled
+  :disabled
   :init
   (load (expand-file-name "~/.roswell/helper.el"))
 
@@ -2285,8 +2285,7 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
     (interactive)
     (if (< (count-windows) 2)
         (split-window-vertically))
-    (slime command coding-system)
-    (other-window 1))
+    (slime command coding-system))
 
   ;; 選択範囲をslime-replへ送って評価
   (defun slime-repl-send-region (start end)
@@ -2301,9 +2300,6 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
              (slime-repl-send-input "\n")
              (switch-to-buffer-other-window buf-name))
             (t (message "Not exist *slime-repl sbcl* buffer!")))))
-
-  (evil-define-key 'normal sldb-mode-map (kbd "M-j") 'centaur-tabs-backward)
-  (evil-define-key 'normal sldb-mode-map (kbd "M-k") 'centaur-tabs-forward)
 
   ;; LISPモードで新しくファイルを開いたらウィンドウが上下に分割して下にREPL
   (add-hook 'lisp-mode-hook
@@ -3109,6 +3105,9 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
 ;;; ----------------------------------------------------------------------
 (use-package slime
   :config
+  (setq slime-startup-animation nil)
+  (defalias 'slime-reset 'slime-restart-inferior-lisp)
+
   (defvar ros-exe "path/to/ros.exe")
   (defvar my-slime-helper "path/to/helper.el")
   (setq my-slime-helper (expand-file-name my-slime-helper))
@@ -3119,17 +3118,61 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
       (error "Not found slime helper: %s" helper))
   (load my-slime-helper)
   (setq inferior-lisp-program (format "%s -Q run" ros-exe))
+  (add-hook 'slime-load-hook (lambda () (require 'slime-fancy)))
   (slime-setup '(slime-repl slime-fancy slime-banner))
 
   (defun slime-smart-quit ()
-  (interactive)
-  (when (slime-connected-p)
-    (if (equal (slime-machine-instance) "my.workstation")
-      (slime-quit-lisp)
-      (slime-disconnect)))
-  (slime-kill-all-buffers))
+    (interactive)
+    (without-yes-or-no
+      (when (slime-connected-p)
+        (if (equal (slime-machine-instance) "my.workstation")
+            (slime-quit-lisp)
+          (slime-disconnect)))
+      (slime-kill-all-buffers)))
 
   (add-hook 'kill-emacs-hook 'slime-smart-quit)
+
+    ;; 分割したウィンドウでslime起動
+  (defun my-slime (&optional command coding-system)
+    "Run slime and split window."
+    (interactive)
+    (if (< (count-windows) 2)
+        (split-window-vertically))
+    (slime command coding-system))
+
+  ;; 選択範囲をslime-replへ送って評価
+  (defun slime-repl-send-region (start end)
+    "Send region to slime-repl."
+    (interactive "r")
+    (let ((buf-name (buffer-name (current-buffer)))
+          (sbcl-buf (get-buffer "*slime-repl sbcl*")))
+      (cond (sbcl-buf
+             (copy-region-as-kill start end)
+             (switch-to-buffer-other-window sbcl-buf)
+             (yank)
+             (slime-repl-send-input "\n")
+             (switch-to-buffer-other-window buf-name))
+            (t (message "Not exist *slime-repl sbcl* buffer!")))))
+
+  ;; LISPモードで新しくファイルを開いたらウィンドウが上下に分割して下にREPL
+  (add-hook 'lisp-mode-hook
+            (lambda ()
+              (global-set-key "\C-cC-h" 'hyperspec-lookup)
+              (cond ((not (featurep 'slime))
+                     (require 'slime)
+                     (normal-mode)))
+              (my-slime)
+              (other-window)))
+
+  (evil-define-key 'normal sldb-mode-map (kbd "M-j") 'centaur-tabs-backward)
+  (evil-define-key 'normal sldb-mode-map (kbd "M-k") 'centaur-tabs-forward)
+
+  :bind (:map lisp-mode-map
+             ("M-r" . nil)
+             ("C-x C-e" . slime-eval-last-expression-in-repl)
+             ("C-c C-c" . slime-compile-and-load-file)
+             ("C-c C-r" . slime-repl-send-region)
+             ("C-c C-f" . slime-compile-defun))
   )
 ;; ----------------------------------------------------------------------
 (use-package company-quickhelp
