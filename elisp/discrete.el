@@ -1300,6 +1300,16 @@ is already narrowed."
 ;; ----------------------------------------------------------------------
 
 ;; ----------------------------------------------------------------------
+;; https://stackoverflow.com/questions/6591043/how-to-answer-yes-or-no-automatically-in-emacs
+(defmacro without-yes-or-no (&rest body)
+  "Override `yes-or-no-p' & `y-or-n-p',
+not to prompt for input and return t."
+  ;; (declare (indent 1))
+  `(cl-letf (((symbol-function 'yes-or-no-p) (lambda (&rest _) t))
+             ((symbol-function 'y-or-n-p) (lambda (&rest _) t)))
+    ,@body))
+
+;; ----------------------------------------------------------------------
 ;; https://tototoshi.hatenablog.com/entry/20110520/1305906664
 (defun path-join (&rest paths)
   (cl-reduce #'(lambda (x y) (concat (file-name-as-directory x) y)) paths))
