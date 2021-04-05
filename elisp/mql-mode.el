@@ -52,11 +52,11 @@
 ;;;###autoload
 (defun flymake-mq4-init ()
   (when (string-empty-p mq4-bat)
-    (setq mq4-bat (concat mql-mode-directory "/flymake-mq4.bat")))
+    (setq mq4-bat (concat mql-mode-directory "/mq4.bat")))
   (unless (file-executable-p mq4-bat)
     (error "Not found %s" mq4-bat))
   (unless (file-exists-p mq4-compiler)
-    (error "Not found %s" mq4-compiler))
+    (error "MQL4 compiler not found: %s" mq4-compiler))
   (let* ((temp-file   (flymake-init-create-temp-buffer-copy
                        'flymake-create-temp-inplace))
          (local-dir   (file-name-directory buffer-file-name))
@@ -65,7 +65,7 @@
                        local-dir))
          (log-file    (concat (file-name-base local-file) ".log")))
     ;; (message "%S" (list mq4-bat (list local-dir mq4-compiler local-file log-file)))
-    (list mq4-bat (list local-dir mq4-compiler local-file log-file))))
+    (list mq4-bat (list "flymake" local-dir mq4-compiler local-file log-file))))
 
 ;;;###autoload
 ;; fixme
@@ -78,12 +78,17 @@
 (defun compile-mq4 ()
   "Compile mql4 file"
   (interactive)
-  (unless (buffer-file-name)
+  (when (string-empty-p mq4-bat)
+    (setq mq4-bat (concat mql-mode-directory "/mq4.bat")))
+  (unless (file-executable-p mq4-bat)
+    (error "Not found %s" mq4-bat))
+  (unless buffer-file-name
     (error "This buffer does not have a file name."))
-
   (unless (file-executable-p mq4-compiler)
     (error "MQL4 compiler not found: %s" mq4-compiler))
-  (compile (format "%s /compile:\"%s\"" mq4-compiler (buffer-file-name))))
+  (let ((dir (file-name-directory buffer-file-name)))
+    (compile (format "%s compile %s %s %s" mq4-bat dir mq4-compiler (buffer-file-name)))))
+  ;; (compile (format "%s /compile:\"%s\"" mq4-compiler (buffer-file-name))))
 
 ;;;###autoload
 ;; fixme
