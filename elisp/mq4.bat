@@ -15,9 +15,29 @@ rem echo %LOG% >> dbg.log
 cd %DIR%
 
 if %TYPE%==flymake (
-    %EXE% /compile:%SRC% /log /s & type %LOG%
+    call :exec_flymake
 ) else if %TYPE%==compile (
-    %EXE% /compile:%SRC% && exit /b 0 || exit /b 1
+    call :exec_compile
 ) else (
-    exit /b 1
+    call :exec_other
 )
+
+exit /b %errorlevel%
+
+
+:exec_flymake
+    %EXE% /compile:%SRC% /log /s & type %LOG%
+    exit /b 0
+
+:exec_compile
+    %EXE% /compile:%SRC%
+    set EX4=%SRC:.mq4=.ex4%
+
+    if exist %EX4% (
+        exit /b 0
+    ) else (
+        exit /b 255
+    )
+
+:exec_other
+    exit /b 1
