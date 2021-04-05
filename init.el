@@ -2196,6 +2196,7 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
          ([S-up]   . flymake-goto-prev-error))
   :config
   (advice-add 'c-update-modeline :around #'ignore)      ;; C++//l => C++
+
   (add-hook 'c-mode-common-hook
             (lambda ()
               (local-set-key "\C-m" 'reindent-then-newline-and-indent)
@@ -2224,6 +2225,12 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
               (setq hide-ifdef-shadow t)
               (hide-ifdef-mode 1)
               ))
+
+  ;; never show *compilation* buffer
+  (defadvice compilation-start (around inhidbit-display (command &optional mode name-function highlight-regexp))
+    (flet ((display-buffer))
+      (fset 'display-buffer 'ignore) ad-do-it))
+  (ad-activate 'compilation-start)
 
   ;; enable ANSI color in *compilation* buffer
   ;; (require 'ansi-color)
