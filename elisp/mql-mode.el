@@ -1,9 +1,11 @@
 ;; filename   : mql-mode.el
-;; created at : 
-;; author     : 
-
-;; USAGE
-;; Example settings
+;; created at : 06 Apr 2021 16:56:11 JST
+;; author     : hidsh
+;;
+;; This file is fully based on mql-mode.el created by jianingy. Thanks!
+;; https://github.com/jianingy/emacs-ysl/blob/master/site-lisp/extra/mql-mode.el
+;;
+;; Example settings:
 ;; (use-package mql-mode
 ;;   :mode (("\\.mq4$" . mql-mode)
 ;;          ("\\.mqh$" . mql-mode))
@@ -11,8 +13,8 @@
 ;;   (setq mq4-compiler "C:/Users/XXXX/AppData/Roaming/MetaQuotes/WebInstall/mt4clw/metaeditor.exe")
 ;;   (add-hook 'mql-mode-hook (lambda () (flymake-mode t))))
 ;;
-
-;; TODO
+;;
+;; TODO:
 ;; - support mql5
 ;; - support emacs27
 ;; - add something needs to mql-mode-keywords
@@ -87,8 +89,8 @@
   (unless (file-executable-p mq4-compiler)
     (error "MQL4 compiler not found: %s" mq4-compiler))
   (let ((dir (file-name-directory buffer-file-name)))
-    (compile (format "%s compile %s %s %s" mq4-bat dir mq4-compiler (buffer-file-name)))))
-  ;; (compile (format "%s /compile:\"%s\"" mq4-compiler (buffer-file-name))))
+    (compile (format "%s compile %s %s %s" mq4-bat dir mq4-compiler (buffer-file-name))))
+  (run-hooks 'mql-mode-compile-hook))
 
 ;;;###autoload
 ;; fixme
@@ -132,6 +134,7 @@
 (defvar mql-mode-hook nil)
 (add-hook 'mql-mode-hook (lambda () (setq c-basic-offset 3
                                           tab-width 3)))
+(defvar mql-mode-compile-hook nil)
 
 ;;;###autoload
 (dolist (ext mql-mode-exts)
