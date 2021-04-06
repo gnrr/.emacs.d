@@ -66,17 +66,16 @@
                        temp-file
                        local-dir))
          (log-file    (concat (file-name-base local-file) ".log")))
-    ;; (message "%S" (list mq4-bat (list local-dir mq4-compiler local-file log-file)))
     (list mq4-bat (list "flymake" local-dir mq4-compiler local-file log-file))))
 
 ;;;###autoload
 ;; fixme
 (defun flymake-mq5-init ()
+  (interactive)
   ;; todo
   )
 
 ;;;###autoload
-;; fixme
 (defun compile-mq4 ()
   "Compile mql4 file"
   (interactive)
@@ -97,11 +96,8 @@
 (defun compile-mq5 ()
   "Compile mql5 file"
   (interactive)
-  (unless (buffer-file-name)
-    (error "This buffer does not have a file name."))
-  (unless (file-executable-p mq5-compiler)
-    (error "MQL5 compiler not found: %s" mq5-compiler))
-  (compile (format "%s /compile:\"%s\"" mq5-compiler (buffer-file-name))))
+  ;; TODO
+  )
 
 ;;;###autoload
 (define-derived-mode mql-mode c++-mode "MQL"
@@ -111,9 +107,6 @@
 
   (dolist (ext mql-mode-exts)
     (modify-coding-system-alist 'file ext 'utf-8-dos))
-
-  ;; (setq indent-tabs-mode nil)
-  ;; (setq tab-stop-list nil)
 
   (cond ((string= (file-name-extension (buffer-file-name)) "mq4")
          (define-key mql-mode-map "\C-c\C-c" 'compile-mq4)
