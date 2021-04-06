@@ -59,7 +59,7 @@
     (error "Not found %s" mq4-bat))
   (unless (file-exists-p mq4-compiler)
     (error "MQL4 compiler not found: %s" mq4-compiler))
-  (let* ((temp-file   (flymake-init-create-temp-buffer-copy
+  (let* ((temp-file   (flymake-proc-init-create-temp-buffer-copy
                        'flymake-create-temp-inplace))
          (local-dir   (file-name-directory buffer-file-name))
          (local-file  (file-relative-name
@@ -84,7 +84,7 @@
   (unless (file-executable-p mq4-bat)
     (error "Not found %s" mq4-bat))
   (unless buffer-file-name
-    (error "This buffer does not have a file name."))
+    (error "This buffer does not have a file name"))
   (unless (file-executable-p mq4-compiler)
     (error "MQL4 compiler not found: %s" mq4-compiler))
   (let ((dir (file-name-directory buffer-file-name)))
@@ -94,7 +94,7 @@
 ;;;###autoload
 ;; fixme
 (defun compile-mq5 ()
-  "Compile mql5 file"
+  "Compile mql5 file."
   (interactive)
   ;; TODO
   )
@@ -110,19 +110,19 @@
 
   (cond ((string= (file-name-extension (buffer-file-name)) "mq4")
          (define-key mql-mode-map "\C-c\C-c" 'compile-mq4)
-         (push '("\\.mq4$" flymake-mq4-init) flymake-allowed-file-name-masks)
+         (push '("\\.mq4$" flymake-mq4-init) flymake-proc-allowed-file-name-masks)
          (push '("^\\(.+\.mq4\\|.+\.mqh\\)(\\([0-9]+\\),\\([0-9]+\\)) : \\(.+\\)$"
                  1 2 3 4) flymake-proc-err-line-patterns))
 
         ((string= (file-name-extension (buffer-file-name)) "mq5")
          (define-key mql-mode-map "\C-c\C-c" 'compile-mq5)
-         (push '("\\.mq5$" flymake-mq5-init) flymake-allowed-file-name-masks)
+         (push '("\\.mq5$" flymake-mq5-init) flymake-proc-allowed-file-name-masks)
          (push '("^\\(.+\.mq5\\|.+\.mqh\\)(\\([0-9]+\\),\\([0-9]+\\)) : \\(.+\\)$"
                  1 2 3 4) flymake-proc-err-line-patterns)))
 
   (define-key mql-mode-map "\C-c\C-p" 'flymake-goto-prev-error)
   (define-key mql-mode-map "\C-c\C-n" 'flymake-goto-next-error)
-  (push '("\\.mqh$" flymake-mq4-init) flymake-allowed-file-name-masks))
+  (push '("\\.mqh$" flymake-mq4-init) flymake-proc-allowed-file-name-masks))
 
 (defvar mql-mode-hook nil)
 (add-hook 'mql-mode-hook (lambda () (setq c-basic-offset 3
