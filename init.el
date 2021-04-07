@@ -280,7 +280,7 @@
        which-func-modes '(emacs-lisp-mode lisp-interaction-mode c-mode python-mode ruby-mode)
        which-func-format '(:propertize which-func-current face which-func))
 
- (which-function-mode 1)        ;; global
+ (which-function-mode 0)        ;; global
 
  ;; ----------------------------------------------------------------------
  (setq truncate-partial-width-windows nil)
@@ -362,18 +362,155 @@
 \\|ad-activate\\|ad-enable-advice\\|ad-disable-advice\\|propertize\\|run-hooks\\)[ \t\n]" . font-lock-keyword-face))))
 
  (add-hook 'emacs-lisp-mode-hook #'my-font-lock-add-keywords-elisp)
+ (add-hook 'emacs-lisp-mode-hook #'flymake-mode)
  (add-hook 'lisp-interaction-mode-hook #'my-font-lock-add-keywords-elisp)
+ (add-hook 'lisp-interaction-mode-hook #'flymake-mode)
 
  (lisp-interaction-mode)                            ;; workaround for scratch-log
+
+ ;; ここからモードライン設定
+ ;; https://tsuu32.hatenablog.com/entry/2019/08/04/160316
+ (set 'eol-mnemonic-dos (propertize "\u24d3" 'face `(:family ,(myfont 'default3))))  ;; d
+ (set 'eol-mnemonic-unix (propertize "\u24e4" 'face `(:family ,(myfont 'default3)))) ;; u
+ (set 'eol-mnemonic-mac (propertize "\u24dc" 'face `(:family ,(myfont 'default3))))  ;; m
+ (set 'eol-mnemonic-undecided (propertize "?" 'face `(:family ,(myfont 'default3)))) ;; ?
+ (defun my-coding-system-name-mnemonic ()
+   (let* ((base (coding-system-base buffer-file-coding-system))
+          (name (symbol-name base)))
+     (cond ((string-prefix-p "utf-8" name) "U8")
+           ((string-prefix-p "utf-16" name) "U16")
+           ((string-prefix-p "utf-7" name) "U7")
+           ((string-prefix-p "japanese-shift-jis" name) "SJIS")
+           ((string-match "cp\\([0-9]+\\)" name) (match-string 1 name))
+           ((string-match "japanese-iso-8bit" name) "EUC")
+           (t "???")
+           )))
+
+ (defun my-mode-line-vc-string ()
+   (if vc-mode
+       (concat (propertize "\ue725" 'face `(:family ,(myfont 'default3))) (second (split-string vc-mode ":")))   ;; nf-dev-git_branch
+     ""))
+
+ (defun my-mode-line-num ()
+   (format "%3s:%-s/%d"
+           (format-mode-line "%c")
+           (format-mode-line "%l")
+           (line-number-at-pos (point-max))))
+
+(defun moon-flymake-mode-line ()
+  "https://emacs-china.org/t/flymake-mode-line/7878"
+  (let* ((known (hash-table-keys flymake--backend-state))
+         (running (flymake-running-backends))
+         (disabled (flymake-disabled-backends))
+         (reported (flymake-reporting-backends))
+         (diags-by-type (make-hash-table))
+         (all-disabled (and disabled (null running)))
+         (some-waiting (cl-set-difference running reported)))
+    (maphash (lambda (_b state)
+               (mapc (lambda (diag)
+                       (push diag
+                             (gethash (flymake--diag-type diag)
+                                      diags-by-type)))
+                     (flymake--backend-state-diags state)))
+             flymake--backend-state)
+    (apply #'concat
+           (mapcar (lambda (args)
+                     (apply (lambda (num str face)
+                              (propertize
+                               (format str num) 'face face))
+                               ;; (format str num) 'face `(:family `(myfont 'default3))))
+                            args))
+                   ;; `((,(length (gethash :error diags-by-type)) "\uf79f%d " error)    ;; nf-mdi-ghost
+                     ;; (,(length (gethash :warning diags-by-type)) "\uf071%d " warning)    ;; nf-fa-warning
+                     ;; (,(length (gethash :note diags-by-type)) "\uf05a%d" success))))))   ;; nf-fa-info_circle
+                   `((,(length (gethash :error diags-by-type)) "%d " error)
+                     (,(length (gethash :warning diags-by-type)) "%d " warning)
+                     (,(length (gethash :note diags-by-type)) "%d" success))))))
+
+ ;; -----------
+;;  (defun simple-mode-line-render (left right)
+;;    "Return a string of `window-width' length.
+;; Containing LEFT, and RIGHT aligned respectively."
+;;    (let ((available-width
+;;           (- (window-total-width)
+;;              (+ (string-width (format-mode-line left))
+;;                 (string-width (format-mode-line right))))))
+;;      (append left
+;;              (list (format (format "%%%ds" available-width) ""))
+;;              right)))
+
+;;  (setq-default
+;;   mode-line-format
+;;   '((:eval
+;;      (simple-mode-line-render
+;;       ;; Left.
+;;       (quote ("%e "
+;;               mode-line-buffer-identification
+;;               " %l : %c"
+;;               evil-mode-line-tag
+;;               "[%*]"))
+;;       ;; Right.
+;;       (quote ("%p "
+;;               mode-line-frame-identification
+;;               mode-line-modes
+;;               mode-line-misc-info))))))
+
+ ;;---------
+ (defun my-mode-line--form ()
+   (let* ((left-part (concat
+                      evil-mode-line-tag
+                      " "
+                      (if (buffer-modified-p)
+                          (propertize (format-mode-line "%b") 'face `(:foreground ,(mycolor 'red)))
+                        (format-mode-line "%b"))
+                      " "
+                      (propertize (if buffer-read-only "\uf023" " ") 'face `(:family ,(myfont 'default3) :foreground ,(mycolor 'red))) ;; nf-fa-lock
+                      " "))
+          (right-part (concat
+                       (my-coding-system-name-mnemonic)
+                       (mode-line-eol-desc)
+                       " "
+                       (my-mode-line-num)
+                       " "
+                       (my-mode-line-vc-string)
+                       ;; (format-mode-line "%l:%c")
+                       " "
+                       (if flymake-mode (moon-flymake-mode-line) "")
+                       " "
+                       (propertize mode-name 'face '(:weight bold))
+                       " "
+                       ;; mode-line-misc-info
+                       ;; " "
+                       ;; (vc-mode vc-mode)
+                       ;; mode-line-modes))
+                       ))
+          (margin-env 8)    ;; windows
+          (margin
+           (propertize " "
+                       'display `(space :align-to (- (+ scroll-bar scroll-bar) ,(string-width right-part) ,margin-env)))))
+     (concat left-part margin right-part)))
+ (setq-default mode-line-format '(:eval (my-mode-line--form)))
+ ;; (kill-local-variable 'mode-line-format)
+
+ ;; ;; modeline の右端が切れる問題 East Asian Ambiguous Width
+ ;; ;; https://note.com/5mingame2/n/nc8010be0c32e
+ ;; (set-language-environment "English") ;; call this explicity
+ ;; (prefer-coding-system 'utf-8)
+ ;; (set-default-coding-systems 'utf-8)
+ ;; (set-terminal-coding-system 'utf-8)
+ ;; (set-keyboard-coding-system 'utf-8)
+ ;; (set-buffer-file-coding-system 'utf-8-unix)
+ ;; (setq locale-coding-system 'utf-8)
+ ;; (setq file-name-coding-system 'utf-8)
+ ;; (setq default-process-coding-system '(utf-8-unix . utf-8-unix))
+ ;; (require 'my-utf-8-eaw-fullwidth)
 
  (message "<-- startup-hook")
 
  ;; show emacs version and startup time in mini-buffer
  (message "%s / %.3f sec"
-          ;; (replace-regexp-in-string "(.+)\\|of\\|[\n]" "" (emacs-version))
           (substring (version) 0 14)
           (float-time (time-subtract after-init-time before-init-time)))
-
 )) ;; emacs-startup-hook function ends here
 
 ;; ======================================================================
@@ -511,8 +648,8 @@
     (kbd "N")       'evil-search-previous)
 
   ;; modeline
+  (delq 'w32-ime-mode-line-state-indicator mode-line-format)
   (add-hook 'emacs-startup-hook (lambda ()
-     (delq 'w32-ime-mode-line-state-indicator mode-line-format)
      (setq evil-mode-line-format '(before . mode-line-front-space))
 
      (let ((bg (face-background 'mode-line)))
@@ -2387,7 +2524,7 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
     "Add user highlighting to KEYWORDS to MODE.
 See `font-lock-add-keywords' and `font-lock-defaults'."
     (unless mode
-      (error "mode should be non-nil "))
+      (error "Mode should be non-nil"))
     (font-lock-remove-keywords mode (get mode 'font-lock-user-keywords))
     (font-lock-add-keywords mode keywords)
     (put mode 'font-lock-user-keywords keywords))
@@ -2796,9 +2933,9 @@ but command push takes more time so that runs asynchronously."
       (condition-case err
           (progn
             (unless (= (call-process "git" nil nil nil "add" path) 0)
-              (error "error at 'git add'"))
+              (error "Error at 'git add'"))
             (unless (= (call-process "git" nil nil nil "commit" "-m" "add post") 0)
-              (error "error at 'git commit'"))
+              (error "Error at 'git commit'"))
             (start-process "" nil "git" "push"))
         (error (error-message-string err)))))
 
@@ -3176,9 +3313,10 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   (defun my-slime (&optional command coding-system)
     "Run slime and split window."
     (interactive)
-    (if (< (count-windows) 2)
-        (split-window-vertically))
-    (slime command coding-system))
+    (when (< (count-windows) 2)
+      (split-window-vertically))
+    (slime command coding-system)
+    (other-window))
 
   ;; 選択範囲をslime-replへ送って評価
   (defun slime-repl-send-region (start end)
@@ -3201,8 +3339,7 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
               (cond ((not (featurep 'slime))
                      (require 'slime)
                      (normal-mode)))
-              (my-slime)
-              (other-window)))
+              (my-slime)))
 
   (evil-define-key 'normal sldb-mode-map (kbd "M-j") 'centaur-tabs-backward)
   (evil-define-key 'normal sldb-mode-map (kbd "M-k") 'centaur-tabs-forward)
@@ -3433,6 +3570,4 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
 (setq custom-file "~/.emacs.d/custom.el") ; write custom settings into external file instead of init.el
 (load custom-file nil t)
 
-;;
-;; init.el ends here
-;;
+;;; init.el ends here
