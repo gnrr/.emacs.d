@@ -3050,8 +3050,12 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
   )
 
 ;; ----------------------------------------------------------------------
-(use-package posframe)
+(use-package posframe
+  :config
+  (setq posframe-mouse-banish nil)
+  )
 
+;; ----------------------------------------------------------------------
 (use-package flymake-posframe
   :load-path "elisp/flymake-posframe"
   :hook (flymake-mode . flymake-posframe-mode)
@@ -3062,6 +3066,12 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
   (setq flymake-posframe-error-prefix (propertize "󿞟" 'face `(foreground-color . ,(mycolor 'red))))
   (setq flymake-posframe-warning-prefix (propertize "" 'face '(foreground-color . "orange")))
   (setq flymake-posframe-note-prefix (propertize "" 'face `(foreground-color . "yellow green")))
+
+  (defun my-flymake-posframe-display-adv-delay (orig-fun)
+    (when (sit-for 0)
+      (funcall orig-fun)))
+
+  (advice-add 'flymake-posframe-display :around #'my-flymake-posframe-display-adv-delay)
   )
 
 ;; ----------------------------------------------------------------------
