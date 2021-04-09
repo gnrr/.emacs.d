@@ -51,6 +51,13 @@
       (file-name-directory load-file-name) ;; File is being loaded.
     default-directory))                    ;; File is being evaluated using, for example, `eval-buffer'.
 
+(defun mql-mode-get-mq4-path ()
+  (let ((path buffer-file-name)
+        (last-dir "MQL4"))
+    (if path
+        (substring path 0 (+ (string-match last-dir path) (length last-dir)))
+      "")))
+
 ;;;###autoload
 (defun flymake-mq4-init ()
   (when (string-empty-p mq4-bat)
@@ -66,7 +73,7 @@
                        temp-file
                        local-dir))
          (log-file    (concat (file-name-base local-file) ".log")))
-    (list mq4-bat (list "flymake" local-dir mq4-compiler local-file log-file))))
+    (list mq4-bat (list "flymake" local-dir mq4-compiler local-file (mql-mode-get-mq4-path) log-file))))
 
 ;;;###autoload
 ;; fixme
@@ -88,7 +95,7 @@
   (unless (file-executable-p mq4-compiler)
     (error "MQL4 compiler not found: %s" mq4-compiler))
   (let ((dir (file-name-directory buffer-file-name)))
-    (compile (format "%s compile %s %s %s" mq4-bat dir mq4-compiler (buffer-file-name))))
+    (compile (format "%s compile %s %s %s %s" mq4-bat dir mq4-compiler (buffer-file-name) (mql-mode-get-mq4-path))))
   (run-hooks 'mql-mode-compile-hook))
 
 ;;;###autoload

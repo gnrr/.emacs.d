@@ -4,13 +4,8 @@ set TYPE=%1
 set DIR=%2
 set EXE=%3
 set SRC=%4
-set LOG=%5
-
-rem echo %TYPE% > dbg.log
-rem echo %DIR% >> dbg.log
-rem echo %EXE% >> dbg.log
-rem echo %SRC% >> dbg.log
-rem echo %LOG% >> dbg.log
+set INC=%5
+set LOG=%6
 
 cd %DIR%
 
@@ -26,11 +21,12 @@ exit /b %errorlevel%
 
 
 :exec_flymake
-    %EXE% /compile:%SRC% /log /s & type %LOG%
+    %EXE% /compile:%SRC% /include:%INC% /log /s & type %LOG%
     exit /b 0
 
 :exec_compile
-    %EXE% /compile:%SRC%
+    %EXE% /compile:%SRC% /include:%INC%
+
     set EX4=%SRC:.mq4=.ex4%
 
     if exist %EX4% (
