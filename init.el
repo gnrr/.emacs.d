@@ -783,6 +783,8 @@
 
   ;; visual-state-map
   (define-key evil-visual-state-map (kbd "e") #'my-evil-visual-eval-region)
+  (define-key evil-visual-state-map (kbd "w") #'my-evil-visual-write-region)
+  (define-key evil-visual-state-map (kbd "a") #'my-evil-visual-align-region)
   (define-key evil-visual-state-map (kbd "c") #'my-evil-visual-comment-region)
   (define-key evil-visual-state-map (kbd "i") #'my-evil-visual-indent-region)
 
@@ -806,9 +808,23 @@
     (interactive "r")
     (if (eq evil-visual-selection 'line)
         (progn
-          (message "eval-region: %s" (eval-region beg end))
+          (message "eval-region: %s"
+                   (cond ((eq major-mode 'emacs-lisp-mode)
+                          (eval-region beg end))
+                         ((eq major-mode 'lisp-mode)
+                          (slime-eval-region beg end))))
           (evil-exit-visual-state))
       (evil-forward-word-end)))
+
+  (defun my-evil-visual-write-region (beg end)
+    (interactive "r")
+    (let ((fn (read-file-name "write-region:")))
+      (write-region beg end fn)))
+
+  (defun my-evil-visual-align-region (beg end)
+    (interactive "r")
+    (when (eq evil-visual-selection 'line)
+      (align beg end)))
 
   (defun my-evil-visual-comment-region (beg end)
     (interactive "r")
