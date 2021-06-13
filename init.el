@@ -41,7 +41,7 @@
                   (purple      . "#c678dd")
                   (orange      . "#e3b23c")
                   ;; (charcoal . "#3d363e"))))
-                  ;; (charcoal . "#362f37"))))
+                  ;; (charcoal . "#362f37")))
                   (charcoal    . "#2b262c"))))
     (cdr (assoc name colors))))
 
@@ -1133,7 +1133,15 @@ If COUNT is given, move COUNT - 1 lines downward first."
   )
 
 ;; ----------------------------------------------------------------------
+(use-package solarized-matreal-dark-theme
+  :disabled
+  :load-path "~/.emacs.d/themes"
+  :config
+  (load-theme 'solarized-matreal-dark t)
+  )
+;; ----------------------------------------------------------------------
 (use-package my-zerodark-theme
+  ;; :disabled
   :load-path "~/.emacs.d/themes"
   :config
   (load-theme 'my-zerodark t)
@@ -1765,7 +1773,7 @@ directory, the file name, and its state (modified, read-only or non-existent)."
 
   (defun my-counsel-rg-1 (dir)
     (let  ((counsel-ag-base-command (concat my-counsel-rg-exe
-                                            " -i --no-heading --line-number --color never %s ."))
+                                            " -i --smart-case --no-heading --line-number --color never %s ."))
            (initial-input (if (symbol-at-point) (symbol-name (symbol-at-point)) ""))
            (initial-directory dir)
            (extra-rg-args nil)
@@ -2011,8 +2019,8 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
   :diminish smartparens-mode
   :config
   (smartparens-global-mode)
-  (show-smartparens-global-mode t)
-  (setq sp-autoinsert-pair nil)
+  ;; (show-smartparens-global-mode t)
+  ;; (setq sp-autoinsert-pair nil)
   (set-face-background 'sp-show-pair-match-face "#4C6DA6")
 
   (ad-disable-advice 'delete-backward-char 'before 'sp-delete-pair-advice) ; disable C-h
@@ -2420,8 +2428,27 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
 
 ;; ----------------------------------------------------------------------
 (use-package arduino-mode
+  :hook (arduino-mode . flymake-mode)
   :mode (("\\.pde$" . arduino-mode)
          ("\\.ino$" . arduino-mode))
+  :config
+  (defun flymake-arduino-init ()
+    (unless arduino-exe-path
+      (error "Not defined arduino-exe-path"))
+    (unless (file-exists-p arduino-exe-path)
+      (error "Not found %s" arduino-exe-path))
+    (unless (file-executable-p arduino-exe-path)
+      (error "Not found %s" arduino-exe-path))
+    (let* ((temp-file   (flymake-proc-init-create-temp-buffer-copy
+                         'flymake-create-temp-inplace))
+           (local-dir   (file-name-directory buffer-file-name))
+           (local-file  (file-relative-name
+                         temp-file
+                         local-dir)))
+      (list arduino-exe-path (list "compile" (concat "--fqbn=" arduino-fqbn) local-file))))
+
+  (push '("\\.ino$" flymake-arduino-init) flymake-proc-allowed-file-name-masks)
+  (push '("^\\(.+\.ino\\):\\([0-9]+\\):\\([0-9]+\\): \\(.+\\)$" 1 2 3 4) flymake-err-line-patterns)
   )
 
 ;; ----------------------------------------------------------------------
@@ -3072,6 +3099,11 @@ according to `my-org-todo-publish-cemetery-accept-titles'."
       (funcall orig-fun)))
 
   (advice-add 'flymake-posframe-display :around #'my-flymake-posframe-display-adv-delay)
+
+  (push 'window-setup-hook flymake-posframe-hide-posframe-hooks)
+  (push 'find-file-hook flymake-posframe-hide-posframe-hooks)
+  (push 'buffer-list-update-hook flymake-posframe-hide-posframe-hooks)
+  (push 'window-configuration-change-hook flymake-posframe-hide-posframe-hooks)
   )
 
 ;; ----------------------------------------------------------------------
@@ -3461,9 +3493,10 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
   :ensure t
   :commands lsp
   :custom
-  ((lsp-enable-snippet t)
+  ((lsp-print-io t)                     ;; => *lsp-log*
+   (lsp-enable-snippet t)
    (lsp-enable-indentation nil)     ;; disable when using ccls
-   (lsp-prefer-flymake nil)
+   (lsp-prefer-flymake 'flymake)
    (lsp-prefer-capf nil)              ;; use with company
    (lsp-headerline-breadcrumb-mode t)
    (lsp-document-sync-method 2)
@@ -3565,6 +3598,18 @@ Thx to https://qiita.com/duloxetine/items/0adf103804b29090738a"
           my-beginning-of-defun
           my-beginning-of-line my-end-of-line
           ))
+  )
+;; ----------------------------------------------------------------------
+(use-package arduino-cli-mode
+  :ensure t
+  ;; :hook arduino-mode
+  ;; :mode "\\.ino\\'"
+  :config
+  (push "D:/pgm/" exec-path)
+  
+  :custom
+  (arduino-cli-warnings 'all)
+  (arduino-cli-verify t)
   )
 ;; ----------------------------------------------------------------------
 (use-package minibuffer-timer)

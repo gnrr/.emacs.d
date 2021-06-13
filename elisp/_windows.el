@@ -11,8 +11,8 @@
 				    (top    . 0)
 				    (left   . 2358)     ;; for 4K display
 				    ;; (left   . 71)
-				    (height . 85)
-				    (width  . 119)))
+				    (height . 68)
+				    (width  . 95)))
 (setq default-frame-alist initial-frame-alist)
 
 ;;;
@@ -24,9 +24,9 @@
   (when font
     (set-frame-font font)))
 
-(set-face-attribute 'default nil :height 122)
-(set-face-attribute 'mode-line nil :height 105)
-(set-face-attribute 'minibuffer-prompt nil :height 105)
+(set-face-attribute 'default nil :height 150)
+(set-face-attribute 'mode-line nil :height 150)
+(set-face-attribute 'minibuffer-prompt nil :height 150)
 
 ;;;
 ;;; external program
@@ -192,7 +192,8 @@
 (setq org-directory "D:/Dropbox/org")
 
 ;; lsp / ccls
-(setq ccls-executable "c:/Program Files (x86)/ccls/bin/ccls.exe")
+(setq ccls-executable "C:/Users/g/git-clone/ccls/Release/ccls.exe")
+
 
 ;; cc-mode
 (push "D:/pgm/mingw-w64/mingw32/bin" exec-path)
@@ -209,6 +210,9 @@
 ;;     (push p exec-path)
 ;;     (setenv "PATH" (concat p ";" (getenv "PATH")))))
 
+;; arduino-mode
+(setq arduino-exe-path "C:/Program Files (x86)/Arduino/arduino.exe")
+(setq arduino-fqbn "arduino:avr:leonardo")
 
 ;;
 ;; check-emacs-setting
