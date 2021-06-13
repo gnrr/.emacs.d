@@ -2456,12 +2456,12 @@ Otherwise fallback to calling `all-the-icons-icon-for-file'."
     (unless (file-executable-p arduino-exe-path)
       (error "Not found %s" arduino-exe-path))
     (let* ((temp-file   (flymake-proc-init-create-temp-buffer-copy
-                         'flymake-create-temp-inplace))
-           (local-dir   (file-name-directory buffer-file-name))
-           (local-file  (file-relative-name
-                         temp-file
-                         local-dir)))
-      (list arduino-exe-path (list "compile" (concat "--fqbn=" arduino-fqbn) local-file))))
+                         ;; 'flymake-create-temp-inplace))
+                         'flymake-proc-create-temp-with-folder-structure))
+           (local-dir   (file-name-directory buffer-file-name)))
+      (list arduino-exe-path (list "compile"
+                                   (concat "--fqbn=" arduino-fqbn)
+                                   (substring local-dir 0 -1)))))
 
   (push '("\\.ino$" flymake-arduino-init) flymake-proc-allowed-file-name-masks)
   (push '("^\\(.+\.ino\\):\\([0-9]+\\):\\([0-9]+\\): \\(.+\\)$" 1 2 3 4) flymake-err-line-patterns)

@@ -211,7 +211,7 @@
 ;;     (setenv "PATH" (concat p ";" (getenv "PATH")))))
 
 ;; arduino-mode
-(setq arduino-exe-path "C:/Program Files (x86)/Arduino/arduino.exe")
+(setq arduino-exe-path "C:/Program Files (x86)/Arduino/arduino-cli.exe")
 (setq arduino-fqbn "arduino:avr:leonardo")
 
 ;;
