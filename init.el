@@ -505,6 +505,8 @@
  ;; (setq default-process-coding-system '(utf-8-unix . utf-8-unix))
  ;; (require 'my-utf-8-eaw-fullwidth)
 
+ (setq enable-local-variables nil)  ;; disable "emacs the local variables list in..." when find-file
+
  (message "<-- startup-hook")
 
  ;; show emacs version and startup time in mini-buffer
